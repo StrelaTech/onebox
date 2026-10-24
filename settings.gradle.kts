@@ -19,8 +19,13 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        // Локальный Maven-репозиторий с xray.aar (gomobile bind).
+        // Артефакт собирается scripts/build-xray-aar.sh и здесь подхватывается
+        // как обычная зависимость — библиотечный модуль engine не может
+        // напрямую зависеть от локального .aar.
+        maven { url = uri("${rootDir}/local-maven") }
     }
 }
 
 rootProject.name = "OneBox"
-include(":app")
+include(":app", ":core", ":data", ":engine", ":ui")

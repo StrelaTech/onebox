@@ -61,6 +61,17 @@ func SetTunFd(fd int) {
 	os.Setenv("xray.tun.fd", strconv.Itoa(fd))
 }
 
+// SetAssetLocation задаёт каталог с geoip.dat/geosite.dat.
+//
+// Без этого ядро ищет их в каталоге исполняемого файла, которым на Android
+// оказывается /system/bin — отсюда ошибка «open /system/bin/geoip.dat:
+// no such file or directory» при конфигах с geoip:/geosite:-правилами.
+// Вызывать ДО StartInstance; dir — каталог, куда приложение распаковало
+// файлы из APK.
+func SetAssetLocation(dir string) {
+	os.Setenv("xray.location.asset", dir)
+}
+
 // StartInstance запускает ядро xray с переданным JSON-конфигом.
 // Возвращает ошибку, если ядро уже запущено или конфиг некорректен.
 func StartInstance(config string) error {

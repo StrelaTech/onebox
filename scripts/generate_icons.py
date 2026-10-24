@@ -15,7 +15,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SRC_OUTLINE = ROOT / "app/src/main/res/icons/outline"
 SRC_FILLED = ROOT / "app/src/main/res/icons/filled"
-DST = ROOT / "app/src/main/java/com/strela/onebox/ui/design/icons/OneBoxIcons.kt"
+DST = ROOT / "ui/src/main/java/com/strela/onebox/ui/design/icons/OneBoxIcons.kt"
 
 SKIP_TAGS = {"defs", "clipPath", "mask", "linearGradient", "radialGradient", "style"}
 # Маски задают прозрачные вырезы, которые ImageVector не умеет повторять.

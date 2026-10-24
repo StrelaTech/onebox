@@ -1,9 +1,18 @@
 #!/usr/bin/env bash
-# Сборка xray-core в AAR для Android (gomobile bind) и копирование в app/libs.
+# Сборка xray-core в AAR для Android (gomobile bind).
+# Артефакт публикуется в локальный Maven-репозиторий local-maven/, откуда его
+# подхватывает библиотечный модуль engine (локальные .aar в AAR-модулях
+# AGP не поддерживает).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 XRAY_DIR="$ROOT/xray"
+REPO_DIR="$ROOT/local-maven"
+GROUP="xray"
+ARTIFACT="xray"
+VERSION="1.0.0"
+DEST_DIR="$REPO_DIR/$GROUP/$ARTIFACT/$VERSION"
+
 export ANDROID_HOME="${ANDROID_HOME:-$HOME/Android/Sdk}"
 # javac может отсутствовать в системе (JRE) — добавляем Temurin JDK если установлен
 JDK_DIR="$(ls -d "$HOME"/.local/opt/jdk-21* 2>/dev/null | head -1)"
@@ -19,6 +28,17 @@ fi
 echo "Using NDK: $ANDROID_NDK_HOME"
 
 cd "$XRAY_DIR"
+
+# gomobile ставим, если его нет: версию берём из go.mod (golang.org/x/mobile)
+if ! command -v gomobile >/dev/null 2>&1; then
+    MOBILE_VERSION="$(go list -m -f '{{.Version}}' golang.org/x/mobile)"
+    echo "Устанавливаю gomobile $MOBILE_VERSION"
+    go install "golang.org/x/mobile/cmd/gomobile@$MOBILE_VERSION"
+    export PATH="$(go env GOBIN):$PATH"
+fi
+command -v gomobile >/dev/null 2>&1 || export PATH="$(go env GOPATH)/bin:$PATH"
+gomobile init
+
 mkdir -p "$XRAY_DIR/build"
 gomobile bind \
     -target=android \
@@ -28,5 +48,20 @@ gomobile bind \
     -o "$XRAY_DIR/build/xray.aar" \
     .
 
-cp "$XRAY_DIR/build/xray.aar" "$ROOT/app/libs/xray.aar"
-echo "Готово: app/libs/xray.aar"
+# Публикация в локальный Maven-репозиторий
+mkdir -p "$DEST_DIR"
+cp "$XRAY_DIR/build/xray.aar" "$DEST_DIR/$ARTIFACT-$VERSION.aar"
+cat > "$DEST_DIR/$ARTIFACT-$VERSION.pom" <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>$GROUP</groupId>
+    <artifactId>$ARTIFACT</artifactId>
+    <version>$VERSION</version>
+    <packaging>aar</packaging>
+    <name>$ARTIFACT</name>
+    <description>xray-core built with gomobile bind (Android)</description>
+</project>
+EOF
+
+echo "Готово: $DEST_DIR/$ARTIFACT-$VERSION.aar"

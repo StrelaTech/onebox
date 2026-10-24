@@ -19,8 +19,8 @@ __pycache__/
 *.py[cod]
 
 # Build outputs
-/xray/build/
-.kotlin/
+**/build/
+**/.kotlin/
 
 # Release artifacts
 /dist/
@@ -29,3 +29,9 @@ __pycache__/
 *.jks
 *.keystore
 keystore.properties
+
+# Build outputs (binary artifacts built in CI)
+**/libs/*.aar
+**/xray/build/
+# Локальный Maven-репозиторий: aar собирается scripts/build-xray-aar.sh
+/local-maven/

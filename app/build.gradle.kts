@@ -57,10 +57,19 @@ android {
     buildFeatures {
         compose = true
     }
+    androidResources {
+        // geoip.dat/geosite.dat не сжимаем: openFd работает только для
+        // несжатых ассетов, а GeoAssets сверяет размер при распаковке
+        noCompress += "dat"
+    }
 }
 
 dependencies {
-    implementation(files("libs/xray.aar"))
+    implementation(project(":core"))
+    implementation(project(":data"))
+    implementation(project(":engine"))
+    implementation(project(":ui"))
+
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.foundation)

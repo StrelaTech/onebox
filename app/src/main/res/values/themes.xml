@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- Тёмный фон окна: совпадает с Palette.Background, чтобы не мигало при старте -->
-    <style name="Theme.OneBox" parent="android:Theme.Material.NoActionBar">
+    <!-- Фон окна совпадает с тёмной темой Miuix, чтобы не мигало при старте -->
+    <style name="Theme.OneBox" parent="android:Theme.DeviceDefault.NoActionBar">
         <item name="android:windowBackground">@color/onebox_background</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>

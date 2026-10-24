@@ -1,0 +1,8 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+<!-- Источник иконки приложения OneBox. Генерация растровых mipmap — см. scripts/generate_launcher_icons.py -->
+<rect width="512" height="512" fill="#141218"/>
+<path d="M65 373.5V140.5L248.5 227.5V466.5L65 373.5Z" fill="white"/>
+<path d="M72.5 129L254 43L438 126.5L254 217L72.5 129Z" fill="white"/>
+<path d="M352.5 403V186.5L319 202C301.613 241.983 287.842 259.332 263.5 271.5V305.5C291.334 292.079 304.214 282.373 319 258.5V420L352.5 403Z" fill="#2CBC55"/>
+<path d="M432.5 146.5L446.5 138V371L262.5 468V448.5L432 361L432.5 146.5Z" fill="white"/>
+</svg>
