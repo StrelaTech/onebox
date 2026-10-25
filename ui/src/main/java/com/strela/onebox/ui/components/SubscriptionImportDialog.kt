@@ -27,20 +27,17 @@ import com.strela.onebox.subscription.SubscriptionImportReason
 import com.strela.onebox.subscription.SubscriptionImportResult
 import com.strela.onebox.subscription.SubscriptionUrl
 import com.strela.onebox.ui.design.icons.OneBoxIcons
+import com.strela.onebox.ui.design.Button
+import com.strela.onebox.ui.design.Icon
+import com.strela.onebox.ui.design.IconButton
+import com.strela.onebox.ui.design.InfiniteProgressIndicator
+import com.strela.onebox.ui.design.Text
+import com.strela.onebox.ui.design.TextField
+import com.strela.onebox.ui.design.OneBoxDialog
+import com.strela.onebox.ui.OneBoxTheme
 import com.strela.onebox.ui.strings
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
-import top.yukonga.miuix.kmp.basic.Button
-import top.yukonga.miuix.kmp.basic.Icon
-import top.yukonga.miuix.kmp.basic.IconButton
-import top.yukonga.miuix.kmp.basic.InfiniteProgressIndicator
-import top.yukonga.miuix.kmp.basic.Text
-import top.yukonga.miuix.kmp.basic.TextField
-import top.yukonga.miuix.kmp.theme.MiuixTheme
-import top.yukonga.miuix.kmp.extra.SuperDialog
-
-/** Плейсхолдеры полупрозрачные: половина непрозрачности цвета подписи. */
-private const val PLACEHOLDER_ALPHA = 0.5f
 
 /**
  * Диалог кнопки «Добавить»: принимает всё — ссылку https:// (отдельная
@@ -55,7 +52,7 @@ fun SubscriptionImportDialog(
     onImport: suspend (text: String) -> SubscriptionImportResult,
 ) {
     val s = strings
-    val colors = MiuixTheme.colorScheme
+    val colors = OneBoxTheme.colorScheme
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
@@ -63,10 +60,7 @@ fun SubscriptionImportDialog(
     var loading by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf<StatusMessage?>(null) }
 
-    val show = remember { mutableStateOf(true) }
-
-    SuperDialog(
-        show = show,
+    OneBoxDialog(
         title = s.subscriptionDialogTitle,
         onDismissRequest = { if (!loading) onDismiss() },
     ) {
@@ -78,9 +72,7 @@ fun SubscriptionImportDialog(
                     message = null
                 },
                 modifier = Modifier.fillMaxWidth(),
-                label = s.subscriptionUrlLabel,
-                labelColor = colors.onSecondaryContainer.copy(alpha = PLACEHOLDER_ALPHA),
-                useLabelAsPlaceholder = true,
+                placeholder = s.subscriptionUrlLabel,
                 maxLines = 6,
                 enabled = !loading,
                 leadingIcon = {
@@ -107,7 +99,7 @@ fun SubscriptionImportDialog(
                 Spacer(Modifier.height(12.dp))
                 Text(
                     text = msg.text,
-                    style = MiuixTheme.textStyles.footnote2,
+                    style = OneBoxTheme.textStyles.footnote2,
                     color = when (msg.tone) {
                         StatusMessage.Tone.SUCCESS -> colors.primary
                         StatusMessage.Tone.ERROR -> colors.error
@@ -124,7 +116,7 @@ fun SubscriptionImportDialog(
                 Spacer(Modifier.height(8.dp))
                 Text(
                     text = s.importingSubscription,
-                    style = MiuixTheme.textStyles.footnote2,
+                    style = OneBoxTheme.textStyles.footnote2,
                     color = colors.onSurfaceContainerVariant,
                 )
             }
@@ -194,7 +186,7 @@ fun SubscriptionImportDialog(
                 ) {
                     Text(
                         text = s.importAction,
-                        style = MiuixTheme.textStyles.button,
+                        style = OneBoxTheme.textStyles.button,
                     )
                 }
             }

@@ -15,17 +15,16 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.strela.onebox.ui.components.StatusPill
+import com.strela.onebox.ui.design.NavigationBar
+import com.strela.onebox.ui.design.NavigationBarItem
+import com.strela.onebox.ui.design.Scaffold
+import com.strela.onebox.ui.design.SmallTopAppBar
+import com.strela.onebox.ui.design.Text
 import com.strela.onebox.ui.design.icons.OneBoxIcons
 import com.strela.onebox.ui.screens.ConnectScreen
 import com.strela.onebox.ui.screens.ServersTab
 import com.strela.onebox.ui.screens.SettingsTab
 import com.strela.onebox.xray.XrayController
-import top.yukonga.miuix.kmp.basic.NavigationBar
-import top.yukonga.miuix.kmp.basic.NavigationBarItem
-import top.yukonga.miuix.kmp.basic.Scaffold
-import top.yukonga.miuix.kmp.basic.SmallTopAppBar
-import top.yukonga.miuix.kmp.basic.Text
-import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 private enum class MainTab(val icon: ImageVector) {
     MAIN(OneBoxIcons.Home),
@@ -61,8 +60,8 @@ fun OneBoxApp(
                 navigationIcon = {
                     Text(
                         text = "OneBox",
-                        style = MiuixTheme.textStyles.headline1,
-                        color = MiuixTheme.colorScheme.onBackground,
+                        style = OneBoxTheme.textStyles.headline1,
+                        color = OneBoxTheme.colorScheme.onBackground,
                         modifier = Modifier.padding(start = 16.dp),
                     )
                 },

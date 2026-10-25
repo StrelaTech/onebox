@@ -23,17 +23,17 @@ import androidx.compose.ui.unit.dp
 import com.strela.onebox.subscription.Server
 import com.strela.onebox.subscription.Subscription
 import com.strela.onebox.subscription.SubscriptionImportResult
+import com.strela.onebox.ui.OneBoxTheme
 import com.strela.onebox.ui.components.SubscriptionImportDialog
+import com.strela.onebox.ui.design.Button
+import com.strela.onebox.ui.design.Card
+import com.strela.onebox.ui.design.Icon
+import com.strela.onebox.ui.design.Text
 import com.strela.onebox.ui.design.icons.OneBoxIcons
 import com.strela.onebox.ui.kit.Badge
 import com.strela.onebox.ui.kit.IconTile
 import com.strela.onebox.ui.kit.SectionTitle
 import com.strela.onebox.xray.XrayController
-import top.yukonga.miuix.kmp.basic.Button
-import top.yukonga.miuix.kmp.basic.Card
-import top.yukonga.miuix.kmp.basic.Icon
-import top.yukonga.miuix.kmp.basic.Text
-import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 /**
  * Экран «Серверы»: в начале страницы — все подписки со всеми их серверами,
@@ -88,8 +88,8 @@ fun ServersScreen(
                         subscriptions.size,
                         subscriptions.sumOf { it.servers.size },
                     ),
-                    color = MiuixTheme.colorScheme.onSurfaceContainerVariant,
-                    background = MiuixTheme.colorScheme.surfaceContainerHigh,
+                    color = OneBoxTheme.colorScheme.onSurfaceContainerVariant,
+                    background = OneBoxTheme.colorScheme.surfaceContainerHigh,
                 )
             }
             Column(verticalArrangement = Arrangement.spacedBy(14.dp)) {
@@ -128,7 +128,7 @@ fun ServersScreen(
             Text(
                 text = s.addSubscriptionAction,
                 modifier = Modifier.padding(start = 10.dp),
-                style = MiuixTheme.textStyles.button,
+                style = OneBoxTheme.textStyles.button,
             )
         }
 
@@ -145,7 +145,7 @@ fun ServersScreen(
 
 @Composable
 private fun EmptySubscriptions() {
-    val colors = MiuixTheme.colorScheme
+    val colors = OneBoxTheme.colorScheme
     val s = strings
 
     Card(
@@ -166,13 +166,13 @@ private fun EmptySubscriptions() {
             )
             Text(
                 text = s.noSubscriptions,
-                style = MiuixTheme.textStyles.headline1,
+                style = OneBoxTheme.textStyles.headline1,
                 color = colors.onSurfaceContainer,
                 modifier = Modifier.padding(top = 12.dp),
             )
             Text(
                 text = s.noSubscriptionsHint,
-                style = MiuixTheme.textStyles.body2,
+                style = OneBoxTheme.textStyles.body2,
                 color = colors.onSurfaceContainerVariant,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 4.dp),

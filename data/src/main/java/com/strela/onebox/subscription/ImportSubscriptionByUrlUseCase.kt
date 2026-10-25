@@ -118,7 +118,7 @@ class ImportSubscriptionByUrlUseCase(
                 Subscription(
                     id = existing?.id ?: newId(),
                     title = title,
-                    description = meta.announce,
+                    description = meta.announce.orEmpty(),
                     usedBytes = meta.usedBytes,
                     trafficLimitBytes = meta.totalBytes,
                     expireAtMillis = meta.expireAtMillis,

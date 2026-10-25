@@ -10,11 +10,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.strela.onebox.ui.OneBoxTheme
+import com.strela.onebox.ui.design.Surface
+import com.strela.onebox.ui.design.Text
 import com.strela.onebox.ui.strings
 import com.strela.onebox.xray.XrayController
-import top.yukonga.miuix.kmp.basic.Surface
-import top.yukonga.miuix.kmp.basic.Text
-import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 /**
  * Визуальное состояние VPN: цвет и тексты для пилюли в шапке и карточки подключения.
@@ -79,7 +79,7 @@ fun StatusPill(status: XrayController.Status, modifier: Modifier = Modifier) {
             ) {}
             Text(
                 text = statusShort(status),
-                style = MiuixTheme.textStyles.footnote2,
+                style = OneBoxTheme.textStyles.footnote2,
                 color = color,
             )
         }

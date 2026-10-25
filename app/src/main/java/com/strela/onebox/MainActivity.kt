@@ -125,7 +125,7 @@ class MainActivity : ComponentActivity() {
         XrayController.connectVpn(this)
     }
 
-    /** Фон окна до первого кадра — в цвет темы Miuix, чтобы не мигало при старте. */
+    /** Фон окна до первого кадра — в цвет темы приложения, чтобы не мигало при старте. */
     private fun applyWindowBackground() {
         val dark = when (SettingsStore.theme.value) {
             ThemeMode.DARK -> true
@@ -138,7 +138,7 @@ class MainActivity : ComponentActivity() {
         )
     }
 
-    /** Иконки системных панелей должны контрастировать с фоном Miuix-темы. */
+    /** Иконки системных панелей должны контрастировать с фоном темы приложения. */
     @Composable
     private fun ApplySystemBars(darkTheme: Boolean) {
         val view = LocalView.current

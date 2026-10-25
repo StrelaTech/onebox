@@ -284,9 +284,7 @@ object SubscriptionStore {
         return Subscription(
             id = o.optString("id").ifEmpty { newId() },
             title = o.optString("title").ifBlank { o.optString("name").ifBlank { url ?: "" } },
-            // description: наличие Announce в далёкой истории не проверяем —
-            //Description берём из тега; если пусто, subscriber.description remains empty.
-            description = o.optString("description").ifBlank { "" },
+            // description: держат Announce (description); если пусто — description пусто.
             usedBytes = usage,
             trafficLimitBytes = o.optLong("trafficLimitBytes", -1L).takeIf { it >= 0 }
                 ?: legacy?.optLong("totalBytes", -1L)?.takeIf { it >= 0 },

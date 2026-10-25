@@ -17,10 +17,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import top.yukonga.miuix.kmp.basic.Icon
-import top.yukonga.miuix.kmp.basic.Surface
-import top.yukonga.miuix.kmp.basic.Text
-import top.yukonga.miuix.kmp.theme.MiuixTheme
+import com.strela.onebox.ui.OneBoxTheme
+import com.strela.onebox.ui.design.Icon
+import com.strela.onebox.ui.design.Surface
+import com.strela.onebox.ui.design.Text
 
 /** Небольшая иконка в цветном квадрате — общий элемент для карточек и списков. */
 @Composable
@@ -55,7 +55,7 @@ fun SectionTitle(
     text: String,
     icon: ImageVector? = null,
     modifier: Modifier = Modifier,
-    color: Color = MiuixTheme.colorScheme.onBackgroundVariant,
+    color: Color = OneBoxTheme.colorScheme.onBackgroundVariant,
 ) {
     Row(
         modifier = modifier,
@@ -72,7 +72,7 @@ fun SectionTitle(
         }
         Text(
             text = text.uppercase(),
-            style = MiuixTheme.textStyles.footnote1.copy(
+            style = OneBoxTheme.textStyles.footnote1.copy(
                 fontWeight = FontWeight.SemiBold,
                 letterSpacing = 0.5.sp,
             ),
@@ -88,8 +88,8 @@ fun SectionTitle(
 fun Badge(
     text: String,
     modifier: Modifier = Modifier,
-    color: Color = MiuixTheme.colorScheme.onPrimaryContainer,
-    background: Color = MiuixTheme.colorScheme.primaryContainer,
+    color: Color = OneBoxTheme.colorScheme.onPrimaryContainer,
+    background: Color = OneBoxTheme.colorScheme.primaryContainer,
 ) {
     Surface(
         modifier = modifier,
@@ -99,7 +99,7 @@ fun Badge(
         Text(
             text = text,
             modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-            style = MiuixTheme.textStyles.footnote2,
+            style = OneBoxTheme.textStyles.footnote2,
             color = color,
             maxLines = 1,
         )
@@ -127,7 +127,7 @@ fun InlineMessage(
         )
         Text(
             text = text,
-            style = MiuixTheme.textStyles.footnote2,
+            style = OneBoxTheme.textStyles.footnote2,
             color = color,
         )
     }

@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import com.strela.onebox.subscription.Server
 import com.strela.onebox.subscription.Subscription
 import com.strela.onebox.subscription.SubscriptionStore
+import com.strela.onebox.ui.OneBoxTheme
 import com.strela.onebox.ui.SubscriptionCard
 import com.strela.onebox.ui.components.statusColor
 import com.strela.onebox.ui.components.statusDescription
@@ -38,15 +39,13 @@ import com.strela.onebox.ui.kit.IconTile
 import com.strela.onebox.ui.kit.SectionTitle
 import com.strela.onebox.ui.strings
 import com.strela.onebox.xray.XrayController
-import top.yukonga.miuix.kmp.basic.Button
-import top.yukonga.miuix.kmp.basic.Card
-import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
-import top.yukonga.miuix.kmp.basic.Icon
-import top.yukonga.miuix.kmp.basic.IconButton
-import top.yukonga.miuix.kmp.basic.ProgressIndicatorDefaults
-import top.yukonga.miuix.kmp.basic.Surface
-import top.yukonga.miuix.kmp.basic.Text
-import top.yukonga.miuix.kmp.theme.MiuixTheme
+import com.strela.onebox.ui.design.Button
+import com.strela.onebox.ui.design.Card
+import com.strela.onebox.ui.design.CircularProgressIndicator
+import com.strela.onebox.ui.design.Icon
+import com.strela.onebox.ui.design.IconButton
+import com.strela.onebox.ui.design.Surface
+import com.strela.onebox.ui.design.Text
 
 /**
  * Экран «Подключение»: большая кнопка VPN + серверы активной подписки.
@@ -106,7 +105,7 @@ private fun ConnectHero(
     onStartVpn: () -> Unit,
     onStopVpn: () -> Unit,
 ) {
-    val colors = MiuixTheme.colorScheme
+    val colors = OneBoxTheme.colorScheme
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -127,7 +126,7 @@ private fun ConnectHero(
                 ) {}
                 Text(
                     text = statusTitle(status),
-                    style = MiuixTheme.textStyles.footnote1,
+                    style = OneBoxTheme.textStyles.footnote1,
                     color = statusColor(status),
                 )
             }
@@ -144,7 +143,7 @@ private fun ConnectHero(
 
             Text(
                 text = statusDescription(status),
-                style = MiuixTheme.textStyles.body2,
+                style = OneBoxTheme.textStyles.body2,
                 color = colors.onSurfaceContainerVariant,
                 textAlign = TextAlign.Center,
             )
@@ -171,7 +170,7 @@ private fun ConnectHero(
                         )
                         Text(
                             text = status.message,
-                            style = MiuixTheme.textStyles.footnote2.copy(
+                            style = OneBoxTheme.textStyles.footnote2.copy(
                                 fontFamily = FontFamily.Monospace,
                             ),
                             color = colors.error,
@@ -190,7 +189,7 @@ private fun BigConnectButton(
     onStartVpn: () -> Unit,
     onStopVpn: () -> Unit,
 ) {
-    val colors = MiuixTheme.colorScheme
+    val colors = OneBoxTheme.colorScheme
     val s = strings
     val starting = status is XrayController.Status.Starting
 
@@ -228,12 +227,9 @@ private fun BigConnectButton(
                 if (starting) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(38.dp),
-                        size = 38.dp,
                         strokeWidth = 3.dp,
-                        colors = ProgressIndicatorDefaults.progressIndicatorColors(
-                            foregroundColor = contentColor,
-                            backgroundColor = Color.Transparent,
-                        ),
+                        fillColor = contentColor,
+                        trackColor = Color.Transparent,
                     )
                 } else {
                     Icon(
@@ -245,7 +241,7 @@ private fun BigConnectButton(
                 }
                 Text(
                     text = label,
-                    style = MiuixTheme.textStyles.headline2,
+                    style = OneBoxTheme.textStyles.headline2,
                     color = contentColor,
                     modifier = Modifier.padding(top = 12.dp),
                 )
@@ -264,7 +260,7 @@ private fun SubscriptionServersSection(
     onSelectServer: (Server) -> Unit,
     onPing: (Server) -> Unit,
 ) {
-    val colors = MiuixTheme.colorScheme
+    val colors = OneBoxTheme.colorScheme
     val s = strings
 
     Row(
@@ -307,13 +303,13 @@ private fun SubscriptionServersSection(
                 )
                 Text(
                     text = if (hasSubscriptions) s.configMode else s.noSubscriptions,
-                    style = MiuixTheme.textStyles.headline1,
+                    style = OneBoxTheme.textStyles.headline1,
                     color = colors.onSurfaceContainer,
                     modifier = Modifier.padding(top = 12.dp),
                 )
                 Text(
                     text = if (hasSubscriptions) s.configModeHint else s.noSubscriptionsHint,
-                    style = MiuixTheme.textStyles.footnote2,
+                    style = OneBoxTheme.textStyles.footnote2,
                     color = colors.onSurfaceContainerVariant,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(top = 4.dp),
@@ -330,7 +326,7 @@ private fun SubscriptionServersSection(
                     )
                     Text(
                         text = if (hasSubscriptions) s.chooseSubscription else s.importAction,
-                        style = MiuixTheme.textStyles.button,
+                        style = OneBoxTheme.textStyles.button,
                         modifier = Modifier.padding(start = 10.dp),
                     )
                 }

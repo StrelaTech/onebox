@@ -16,16 +16,16 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.strela.onebox.subscription.Server
+import com.strela.onebox.ui.OneBoxTheme
+import com.strela.onebox.ui.design.CircularProgressIndicator
+import com.strela.onebox.ui.design.Icon
+import com.strela.onebox.ui.design.IconButton
+import com.strela.onebox.ui.design.Surface
+import com.strela.onebox.ui.design.Text
 import com.strela.onebox.ui.design.icons.OneBoxIcons
 import com.strela.onebox.ui.kit.Badge
 import com.strela.onebox.ui.kit.IconTile
 import com.strela.onebox.xray.XrayController
-import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
-import top.yukonga.miuix.kmp.basic.Icon
-import top.yukonga.miuix.kmp.basic.IconButton
-import top.yukonga.miuix.kmp.basic.Surface
-import top.yukonga.miuix.kmp.basic.Text
-import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 /**
  * Строка сервера: выбор, пинг и (опционально) удаление.
@@ -41,7 +41,7 @@ fun ServerRow(
     modifier: Modifier = Modifier,
     onDelete: (() -> Unit)? = null,
 ) {
-    val colors = MiuixTheme.colorScheme
+    val colors = OneBoxTheme.colorScheme
     val s = strings
 
     Surface(
@@ -73,7 +73,7 @@ fun ServerRow(
             ) {
                 Text(
                     text = server.name,
-                    style = MiuixTheme.textStyles.headline2,
+                    style = OneBoxTheme.textStyles.headline2,
                     color = colors.onSurfaceContainer,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -89,7 +89,7 @@ fun ServerRow(
                     }
                     Text(
                         text = transport,
-                        style = MiuixTheme.textStyles.footnote2,
+                        style = OneBoxTheme.textStyles.footnote2,
                         color = colors.onSurfaceContainerVariant,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -97,7 +97,7 @@ fun ServerRow(
                 }
                 Text(
                     text = server.endpoint,
-                    style = MiuixTheme.textStyles.footnote2.copy(fontFamily = FontFamily.Monospace),
+                    style = OneBoxTheme.textStyles.footnote2.copy(fontFamily = FontFamily.Monospace),
                     color = colors.onSurfaceContainerVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -120,10 +120,10 @@ fun ServerRow(
     }
 }
 
-/** Компактный индикатор пинга, оформленный как Miuix Surface. */
+/** Компактный индикатор пинга — кликабельная поверхность дизайн-кита. */
 @Composable
 private fun PingControl(ping: XrayController.Ping?, onPing: () -> Unit) {
-    val colors = MiuixTheme.colorScheme
+    val colors = OneBoxTheme.colorScheme
     val s = strings
 
     val label: String
@@ -169,7 +169,6 @@ private fun PingControl(ping: XrayController.Ping?, onPing: () -> Unit) {
             if (inProgress) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(14.dp),
-                    size = 14.dp,
                     strokeWidth = 1.8.dp,
                 )
             } else {
@@ -186,7 +185,7 @@ private fun PingControl(ping: XrayController.Ping?, onPing: () -> Unit) {
             }
             Text(
                 text = label,
-                style = MiuixTheme.textStyles.footnote2,
+                style = OneBoxTheme.textStyles.footnote2,
                 color = color,
             )
         }

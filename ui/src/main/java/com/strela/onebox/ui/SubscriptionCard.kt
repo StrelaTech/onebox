@@ -20,16 +20,16 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.strela.onebox.subscription.Server
 import com.strela.onebox.subscription.Subscription
+import com.strela.onebox.ui.OneBoxTheme
+import com.strela.onebox.ui.design.CircularProgressIndicator
+import com.strela.onebox.ui.design.Icon
+import com.strela.onebox.ui.design.IconButton
+import com.strela.onebox.ui.design.Surface
+import com.strela.onebox.ui.design.Text
 import com.strela.onebox.ui.design.icons.OneBoxIcons
 import com.strela.onebox.ui.kit.Badge
 import com.strela.onebox.ui.kit.IconTile
 import com.strela.onebox.xray.XrayController
-import top.yukonga.miuix.kmp.basic.CircularProgressIndicator
-import top.yukonga.miuix.kmp.basic.Icon
-import top.yukonga.miuix.kmp.basic.IconButton
-import top.yukonga.miuix.kmp.basic.Surface
-import top.yukonga.miuix.kmp.basic.Text
-import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 /**
  * Карточка одной подписки, сверху вниз:
@@ -61,7 +61,7 @@ fun SubscriptionCard(
     onDeleteServer: ((Server) -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
-    val colors = MiuixTheme.colorScheme
+    val colors = OneBoxTheme.colorScheme
     val s = strings
     var expanded by rememberSaveable(subscription.id) { mutableStateOf(selected) }
 
@@ -84,7 +84,7 @@ fun SubscriptionCard(
                 ) {
                     Text(
                         text = subscription.title,
-                        style = MiuixTheme.textStyles.headline1,
+                        style = OneBoxTheme.textStyles.headline1,
                         color = colors.onSurfaceContainer,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -108,7 +108,7 @@ fun SubscriptionCard(
                 if (subscription.description.isNotBlank()) {
                     Text(
                         text = subscription.description,
-                        style = MiuixTheme.textStyles.footnote2,
+                        style = OneBoxTheme.textStyles.footnote2,
                         color = colors.onSurfaceContainerVariant,
                         maxLines = 3,
                         overflow = TextOverflow.Ellipsis,
@@ -128,7 +128,7 @@ fun SubscriptionCard(
                         text = subscription.expireAtMillis
                             ?.let { expireAt -> s.expiresAt(s.formatDate(expireAt)) }
                             ?: s.noExpiry,
-                        style = MiuixTheme.textStyles.footnote2,
+                        style = OneBoxTheme.textStyles.footnote2,
                         color = if (subscription.expireAtMillis?.let { expireAt ->
                                 expireAt < System.currentTimeMillis()
                             } == true
@@ -153,7 +153,6 @@ fun SubscriptionCard(
                             if (refreshing) {
                                 CircularProgressIndicator(
                                     modifier = Modifier.size(18.dp),
-                                    size = 18.dp,
                                     strokeWidth = 1.8.dp,
                                 )
                             } else {
@@ -189,7 +188,7 @@ fun SubscriptionCard(
                         ?: s.trafficUsedNoLimit(s.formatBytes(used))
                     Text(
                         text = traffic,
-                        style = MiuixTheme.textStyles.footnote2,
+                        style = OneBoxTheme.textStyles.footnote2,
                         color = colors.onSurfaceContainerVariant,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -204,7 +203,7 @@ fun SubscriptionCard(
                     subscription.isJson && servers.isEmpty() ->
                         Text(
                             text = s.configMode,
-                            style = MiuixTheme.textStyles.footnote2,
+                            style = OneBoxTheme.textStyles.footnote2,
                             color = colors.onSurfaceContainerVariant,
                             modifier = Modifier.padding(top = 12.dp, start = 2.dp),
                         )
@@ -212,7 +211,7 @@ fun SubscriptionCard(
                     servers.isEmpty() ->
                         Text(
                             text = s.noServersInSubscription,
-                            style = MiuixTheme.textStyles.footnote2,
+                            style = OneBoxTheme.textStyles.footnote2,
                             color = colors.onSurfaceContainerVariant,
                             modifier = Modifier.padding(top = 12.dp, start = 2.dp),
                         )
@@ -245,7 +244,7 @@ private fun PingAllButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val colors = MiuixTheme.colorScheme
+    val colors = OneBoxTheme.colorScheme
     val s = strings
 
     Surface(
@@ -263,7 +262,6 @@ private fun PingAllButton(
             if (inProgress) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(14.dp),
-                    size = 14.dp,
                     strokeWidth = 1.8.dp,
                 )
             } else {
@@ -276,7 +274,7 @@ private fun PingAllButton(
             }
             Text(
                 text = s.pingAll,
-                style = MiuixTheme.textStyles.footnote2,
+                style = OneBoxTheme.textStyles.footnote2,
                 color = colors.primary,
             )
         }

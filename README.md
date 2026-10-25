@@ -4,7 +4,6 @@
 
 **Всё, что нужно для вашего VPN-подключения — в одном приложении.**
 
-[![CI](https://github.com/StrelaTech/onebox-dev/actions/workflows/ci.yml/badge.svg)](https://github.com/StrelaTech/onebox-dev/actions/workflows/ci.yml)
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL--3.0-blue.svg)](LICENSE)
 
 </div>
@@ -27,8 +26,8 @@ OneBox — бесплатное приложение для Android, котор�
   подписки и сколько трафика осталось.
 - 🌍 **Использует geoip/geosite-данные** — распаковываются автоматически при
   первом запуске, ничего скачивать вручную не нужно.
-- 🎨 **Современный интерфейс** — Jetpack Compose (Material +
-  [Miuix](https://github.com/miuix-kotlin/miuix)).
+- 🎨 **Современный интерфейс** — чистый Jetpack Compose (Compose
+  Foundation + собственный дизайн-кит, без Material и Miuix).
 
 ## Поддерживаемые протоколы
 
@@ -38,7 +37,7 @@ OneBox — бесплатное приложение для Android, котор�
 ## Как начать пользоваться
 
 1. **Установите приложение.** Скачайте последний APK со
-   [страницы Releases](https://github.com/StrelaTech/onebox-dev/releases)
+   [страницы Releases](https://github.com/StrelaTech/onebox/releases)
    и установите его (потребуется разрешение «Установить из неизвестных
    источников»). Нужен Android 7.0 или новее.
 2. **Добавьте подписку.** Откройте вкладку «Серверы» → «Добавить
@@ -61,7 +60,7 @@ OneBox — бесплатное приложение для Android, котор�
 | Модуль    | Тип              | Назначение                                                        |
 |-----------|------------------|-------------------------------------------------------------------|
 | `app`     | application      | Точка входа (`MainActivity`), иконки, манифест, подпись релиза     |
-| `ui`      | library          | Compose-интерфейс: экраны, компоненты, тема, сгенерированные иконки |
+| `ui`      | library          | Compose-интерфейс: экраны, компоненты, тема, собственный дизайн-кит |
 | `core`    | library          | Чистая логика: парсинг ссылок/подписок, сборка JSON-конфига ядра, i18n-строки |
 | `data`    | library          | Хранилища (SharedPreferences), загрузка подписок (OkHttp), use-case'ы |
 | `engine`  | library          | `TunVpnService`, обёртка `XrayController`, управление гео-файлами   |
@@ -85,6 +84,7 @@ OneBox — бесплатное приложение для Android, котор�
 
 ```bash
 # 1. Собрать xray.aar и опубликовать в локальный Maven-репозиторий
+#    (делается один раз, повторно — при изменениях в Go-коде)
 ./scripts/build-xray-aar.sh
 
 # 2. Отладочный APK
@@ -122,30 +122,21 @@ keyPassword=...
 Сам `*.jks` / `*.keystore` в репозиторий не коммится. Без
 `keystore.properties` сборка `release` пойдёт без подписи (unsigned).
 
-## Версионирование
+## Релизы
 
-`versionName` / `versionCode` задаются в [`app/build.gradle.kts`](app/build.gradle.kts)
-и автоматически обновляются release-workflow. Версия `X.Y.Z` соответствует
-`versionCode = X*10000 + Y*100 + Z` (например, `26.0.1-alpha` → `260001`).
+GitHub Actions не используется — релизы собираются локально и вручную:
 
-## CI / CD
+1. Обновите `versionName` / `versionCode` в [`app/build.gradle.kts`](app/build.gradle.kts).
+   Версия `X.Y.Z` соответствует `versionCode = X*10000 + Y*100 + Z`
+   (например, `26.0.1-alpha` → `260001`).
+2. Соберите `assembleRelease` (и при необходимости `bundleRelease`).
+3. Готовые артефакты скопируйте в `dist/`, переименовав в формате
+   `OneBox-<версия>.apk` / `.aab`, снимите контрольные суммы
+   (`sha256sum … > SHA256SUMS.txt`) и приложите к Release на GitHub.
 
-- **CI** (`.github/workflows/ci.yml`) — на каждый push / PR в `main`:
-  собирает `xray.aar` → `assembleDebug` → unit-тесты → `lintDebug`,
-  выкладывает артефакты (debug APK, отчёты тестов и линта).
-- **Release** (`.github/workflows/release.yml`) — ручной запуск
-  (`workflow_dispatch`): собирает подписанные APK и AAB, проверяет подпись
-  `apksigner`, бампит версию, создаёт GitHub Release с тегом `vX.Y.Z`, после
-  сборки удаляет файлы подписи.
-
-Для релиза нужны секреты репозитория:
-
-| Секрет              | Описание                                  |
-|---------------------|-------------------------------------------|
-| `KEYSTORE_BASE64`   | вывод `base64 -w0 onebox-release.jks`     |
-| `KEYSTORE_PASSWORD` | пароль keystore                           |
-| `KEY_ALIAS`         | псевдоним ключа (например, `onebox`)      |
-| `KEY_PASSWORD`      | пароль ключа                              |
+Маппинги для смотра обфускации лежат в
+`app/build/outputs/mapping/release/mapping.txt` — сохраняйте их для каждой
+версии, чтобы можно было разбирать краши.
 
 ## Лицензия
 

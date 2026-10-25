@@ -31,17 +31,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import com.strela.onebox.i18n.AppLanguage
 import com.strela.onebox.settings.ThemeMode
+import com.strela.onebox.ui.OneBoxTheme
+import com.strela.onebox.ui.design.Card
+import com.strela.onebox.ui.design.HorizontalDivider
+import com.strela.onebox.ui.design.Icon
+import com.strela.onebox.ui.design.Surface
+import com.strela.onebox.ui.design.Switch
+import com.strela.onebox.ui.design.Text
 import com.strela.onebox.ui.design.icons.OneBoxIcons
 import com.strela.onebox.ui.kit.IconTile
 import com.strela.onebox.ui.kit.SectionTitle
 import kotlinx.coroutines.delay
-import top.yukonga.miuix.kmp.basic.Card
-import top.yukonga.miuix.kmp.basic.HorizontalDivider
-import top.yukonga.miuix.kmp.basic.Icon
-import top.yukonga.miuix.kmp.basic.Surface
-import top.yukonga.miuix.kmp.basic.Switch
-import top.yukonga.miuix.kmp.basic.Text
-import top.yukonga.miuix.kmp.theme.MiuixTheme
 
 /**
  * Экран «Настройки»: внешний вид, язык, параметры подключения,
@@ -63,7 +63,7 @@ fun SettingsScreen(
     onResetSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val colors = MiuixTheme.colorScheme
+    val colors = OneBoxTheme.colorScheme
     val context = LocalContext.current
     val s = strings
 
@@ -141,7 +141,7 @@ fun SettingsScreen(
         SettingsSection(title = s.diagnostics, icon = OneBoxIcons.Terminal) {
             Text(
                 text = s.logsHint,
-                style = MiuixTheme.textStyles.footnote2,
+                style = OneBoxTheme.textStyles.footnote2,
                 color = colors.onSurfaceContainerVariant,
                 modifier = Modifier.padding(horizontal = 18.dp, vertical = 14.dp),
             )
@@ -217,7 +217,7 @@ fun SettingsScreen(
                     )
                     Text(
                         text = message,
-                        style = MiuixTheme.textStyles.footnote2,
+                        style = OneBoxTheme.textStyles.footnote2,
                         color = colors.primary,
                         modifier = Modifier.padding(start = 8.dp),
                     )
@@ -256,7 +256,7 @@ private fun DropdownRow(
     selectedLabel: String,
     options: List<Pair<String, () -> Unit>>,
 ) {
-    val colors = MiuixTheme.colorScheme
+    val colors = OneBoxTheme.colorScheme
     var expanded by remember { mutableStateOf(false) }
 
     Row(
@@ -281,13 +281,13 @@ private fun DropdownRow(
         ) {
             Text(
                 text = title,
-                style = MiuixTheme.textStyles.headline2,
+                style = OneBoxTheme.textStyles.headline2,
                 color = colors.onSurfaceContainer,
             )
             if (!subtitle.isNullOrBlank()) {
                 Text(
                     text = subtitle,
-                    style = MiuixTheme.textStyles.footnote2,
+                    style = OneBoxTheme.textStyles.footnote2,
                     color = colors.onSurfaceContainerVariant,
                     modifier = Modifier.padding(top = 2.dp),
                 )
@@ -295,7 +295,7 @@ private fun DropdownRow(
         }
         Text(
             text = selectedLabel,
-            style = MiuixTheme.textStyles.footnote2,
+            style = OneBoxTheme.textStyles.footnote2,
             color = colors.onSurfaceContainerVariant,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -330,7 +330,7 @@ private fun DropdownRow(
                             ) {
                                 Text(
                                     text = label,
-                                    style = MiuixTheme.textStyles.body2,
+                                    style = OneBoxTheme.textStyles.body2,
                                     color = colors.onSurfaceContainer,
                                     modifier = Modifier.weight(1f),
                                     maxLines = 1,
@@ -361,7 +361,7 @@ private fun ToggleRow(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
 ) {
-    val colors = MiuixTheme.colorScheme
+    val colors = OneBoxTheme.colorScheme
 
     Row(
         modifier = Modifier
@@ -385,12 +385,12 @@ private fun ToggleRow(
         ) {
             Text(
                 text = title,
-                style = MiuixTheme.textStyles.headline2,
+                style = OneBoxTheme.textStyles.headline2,
                 color = colors.onSurfaceContainer,
             )
             Text(
                 text = subtitle,
-                style = MiuixTheme.textStyles.footnote2,
+                style = OneBoxTheme.textStyles.footnote2,
                 color = colors.onSurfaceContainerVariant,
                 modifier = Modifier.padding(top = 3.dp),
             )
@@ -406,10 +406,10 @@ private fun ActionRow(
     title: String,
     subtitle: String,
     onClick: () -> Unit,
-    tint: Color = MiuixTheme.colorScheme.primary,
-    iconBackground: Color = MiuixTheme.colorScheme.primaryContainer,
+    tint: Color = OneBoxTheme.colorScheme.primary,
+    iconBackground: Color = OneBoxTheme.colorScheme.primaryContainer,
 ) {
-    val colors = MiuixTheme.colorScheme
+    val colors = OneBoxTheme.colorScheme
 
     Row(
         modifier = Modifier
@@ -433,12 +433,12 @@ private fun ActionRow(
         ) {
             Text(
                 text = title,
-                style = MiuixTheme.textStyles.headline2,
+                style = OneBoxTheme.textStyles.headline2,
                 color = colors.onSurfaceContainer,
             )
             Text(
                 text = subtitle,
-                style = MiuixTheme.textStyles.footnote2,
+                style = OneBoxTheme.textStyles.footnote2,
                 color = colors.onSurfaceContainerVariant,
                 modifier = Modifier.padding(top = 3.dp),
             )
@@ -459,7 +459,7 @@ private fun InfoRow(
     title: String,
     value: String,
 ) {
-    val colors = MiuixTheme.colorScheme
+    val colors = OneBoxTheme.colorScheme
 
     Row(
         modifier = Modifier
@@ -477,7 +477,7 @@ private fun InfoRow(
         )
         Text(
             text = title,
-            style = MiuixTheme.textStyles.headline2,
+            style = OneBoxTheme.textStyles.headline2,
             color = colors.onSurfaceContainer,
             modifier = Modifier
                 .weight(1f)
@@ -485,7 +485,7 @@ private fun InfoRow(
         )
         Text(
             text = value,
-            style = MiuixTheme.textStyles.footnote2.copy(
+            style = OneBoxTheme.textStyles.footnote2.copy(
                 fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
             ),
             color = colors.onSurfaceContainerVariant,
@@ -499,6 +499,6 @@ private fun InfoRow(
 private fun SettingsDivider(startIndent: androidx.compose.ui.unit.Dp = 58.dp) {
     HorizontalDivider(
         modifier = Modifier.padding(start = startIndent),
-        color = MiuixTheme.colorScheme.dividerLine,
+        color = OneBoxTheme.colorScheme.dividerLine,
     )
 }
