@@ -22,9 +22,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.strela.onebox.i18n.OneBoxStrings
 import com.strela.onebox.subscription.ImportDetector
+import com.strela.onebox.subscription.Subscription
 import com.strela.onebox.subscription.SubscriptionImportReason
 import com.strela.onebox.subscription.SubscriptionImportResult
 import com.strela.onebox.subscription.SubscriptionUrl
+import com.strela.onebox.ui.design.icons.OneBoxIcons
 import com.strela.onebox.ui.strings
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
@@ -37,24 +39,27 @@ import top.yukonga.miuix.kmp.basic.TextField
 import top.yukonga.miuix.kmp.theme.MiuixTheme
 import top.yukonga.miuix.kmp.extra.SuperDialog
 
+/** Плейсхолдеры полупрозрачные: половина непрозрачности цвета подписи. */
+private const val PLACEHOLDER_ALPHA = 0.5f
+
 /**
- * Диалог импорта подписки: принимает ссылку https:// (список серверов или
- * JSON-конфиг(ы) ответа), вставленный JSON-конфиг или список ссылок.
- * Вся бизнес-логика — в коллбэке [onImport] (UseCase / SubscriptionStore),
+ * Диалог кнопки «Добавить»: принимает всё — ссылку https:// (отдельная
+ * URL-подписка), URI-ссылки серверов или JSON-конфиг (стандартный профиль
+ * «Серверы»), base64 (сначала расшифровывается). Тип определяет
+ * [onImport] — вся бизнес-логика там (AddSubscriptionUseCase),
  * диалог только управляет состоянием и сообщениями.
  */
 @Composable
 fun SubscriptionImportDialog(
     onDismiss: () -> Unit,
-    onImport: suspend (text: String, title: String) -> SubscriptionImportResult,
+    onImport: suspend (text: String) -> SubscriptionImportResult,
 ) {
     val s = strings
     val colors = MiuixTheme.colorScheme
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    var url by rememberSaveable { mutableStateOf("") }
-    var title by rememberSaveable { mutableStateOf("") }
+    var text by rememberSaveable { mutableStateOf("") }
     var loading by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf<StatusMessage?>(null) }
 
@@ -66,51 +71,30 @@ fun SubscriptionImportDialog(
         onDismissRequest = { if (!loading) onDismiss() },
     ) {
         Column {
-            // Название подписки: важно для JSON-конфигов и списков ссылок —
-            // URL-подписка берёт заголовок из метаданных ответа
             TextField(
-                value = title,
-                onValueChange = { title = it },
-                modifier = Modifier.fillMaxWidth(),
-                label = s.subscriptionTitleOptional,
-                useLabelAsPlaceholder = true,
-                singleLine = true,
-                enabled = !loading,
-                leadingIcon = {
-                    Icon(
-                        imageVector = com.strela.onebox.ui.design.icons.OneBoxIcons.Tag,
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp),
-                        tint = colors.onSecondaryContainer,
-                    )
-                },
-            )
-
-            Spacer(Modifier.height(14.dp))
-
-            TextField(
-                value = url,
+                value = text,
                 onValueChange = {
-                    url = it
+                    text = it
                     message = null
                 },
                 modifier = Modifier.fillMaxWidth(),
                 label = s.subscriptionUrlLabel,
+                labelColor = colors.onSecondaryContainer.copy(alpha = PLACEHOLDER_ALPHA),
                 useLabelAsPlaceholder = true,
                 maxLines = 6,
                 enabled = !loading,
                 leadingIcon = {
                     Icon(
-                        imageVector = com.strela.onebox.ui.design.icons.OneBoxIcons.Link,
+                        imageVector = OneBoxIcons.Link,
                         contentDescription = null,
                         modifier = Modifier.size(20.dp),
                         tint = colors.onSecondaryContainer,
                     )
                 },
                 trailingIcon = {
-                    IconButton(onClick = { pasteFromClipboard(context) { url = it; message = null } }) {
+                    IconButton(onClick = { pasteFromClipboard(context) { text = it; message = null } }) {
                         Icon(
-                            imageVector = com.strela.onebox.ui.design.icons.OneBoxIcons.Clipboard,
+                            imageVector = OneBoxIcons.Clipboard,
                             contentDescription = s.pasteFromClipboard,
                             modifier = Modifier.size(20.dp),
                             tint = colors.onSecondaryContainer,
@@ -157,7 +141,7 @@ fun SubscriptionImportDialog(
                             loading = true
                             message = null
                             val result = try {
-                                onImport(url, title)
+                                onImport(text)
                             } catch (e: CancellationException) {
                                 throw e
                             } catch (e: Exception) {
@@ -169,7 +153,13 @@ fun SubscriptionImportDialog(
                             loading = false
                             when (result) {
                                 is SubscriptionImportResult.Success -> {
-                                    message = if (result.created) {
+                                    message = if (result.subscription.id == Subscription.SERVERS_ID) {
+                                        // самодельные серверы легли в стандартный профиль «Серверы»
+                                        StatusMessage(
+                                            text = s.addedServers(result.serversAdded),
+                                            tone = StatusMessage.Tone.SUCCESS,
+                                        )
+                                    } else if (result.created) {
                                         StatusMessage(
                                             text = s.subscriptionAdded(
                                                 result.subscription.title,
@@ -186,10 +176,9 @@ fun SubscriptionImportDialog(
                                             tone = StatusMessage.Tone.SUCCESS,
                                         )
                                     }
-                                    // успешно импортированное — очищаем, неудачный ввод остаётся на месте
-                                    if (result.created) {
-                                        url = ""
-                                        title = ""
+                                    // успешно импортированное — очищаем, неудачный ввод остаётся
+                                    if (result.created || result.subscription.id == Subscription.SERVERS_ID) {
+                                        text = ""
                                     }
                                 }
 
@@ -201,7 +190,7 @@ fun SubscriptionImportDialog(
                         }
                     },
                     modifier = Modifier.weight(1f),
-                    enabled = url.isNotBlank() && !loading,
+                    enabled = text.isNotBlank() && !loading,
                 ) {
                     Text(
                         text = s.importAction,
@@ -224,17 +213,20 @@ private data class StatusMessage(val text: String, val tone: Tone) {
  */
 private fun pasteFromClipboard(context: Context, onText: (String) -> Unit) {
     val clipboard = context.getSystemService(ClipboardManager::class.java) ?: return
-    val text = clipboard.primaryClip
+    val clipboardText = clipboard.primaryClip
         ?.takeIf { it.itemCount > 0 }
         ?.getItemAt(0)
         ?.coerceToText(context)
         ?.toString()
         .orEmpty()
 
-    // сначала ссылка (в нормализованном виде), затем любой распознаваемый контент
-    SubscriptionUrl.validateOrNull(text)?.let { return onText(it) }
-    if (!text.startsWith("http", ignoreCase = true) && ImportDetector.detect(text) != null) {
-        onText(text)
+    // сначала ссылка (в нормализованном виде), затем любой распознаваемый контент;
+    // нераспознанный мусор в поле не попадает
+    SubscriptionUrl.validateOrNull(clipboardText)?.let { return onText(it) }
+    if (!clipboardText.startsWith("http", ignoreCase = true) &&
+        ImportDetector.detect(clipboardText) != null
+    ) {
+        onText(clipboardText)
     }
 }
 
@@ -243,4 +235,6 @@ private fun SubscriptionImportReason.toMessage(s: OneBoxStrings): String = when 
     SubscriptionImportReason.INVALID_URL -> s.errorInvalidUrl
     SubscriptionImportReason.NETWORK -> s.errorNetwork
     SubscriptionImportReason.EMPTY_CONTENT -> s.errorNoServersInSubscription
+    SubscriptionImportReason.UNRECOGNIZED_CONTENT -> s.unrecognizedInput
+    SubscriptionImportReason.NO_NEW_SERVERS -> s.noNewServers
 }

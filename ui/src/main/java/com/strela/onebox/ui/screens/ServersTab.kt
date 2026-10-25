@@ -10,15 +10,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.strela.onebox.log.AppLog
+import com.strela.onebox.subscription.AddSubscriptionUseCase
 import com.strela.onebox.subscription.HttpSubscriptionFetcher
-import com.strela.onebox.subscription.ImportContent
-import com.strela.onebox.subscription.ImportDetector
 import com.strela.onebox.subscription.ImportSubscriptionByUrlUseCase
-import com.strela.onebox.subscription.SubscriptionStore
 import com.strela.onebox.subscription.StoreSubscriptionRepository
-import com.strela.onebox.subscription.SubscriptionImportReason
 import com.strela.onebox.subscription.SubscriptionImportResult
-import com.strela.onebox.subscription.SubscriptionUrl
+import com.strela.onebox.subscription.SubscriptionStore
 import com.strela.onebox.ui.ServersScreen
 import com.strela.onebox.xray.XrayController
 import kotlinx.coroutines.launch
@@ -34,10 +31,21 @@ fun ServersTab(context: Context, modifier: Modifier = Modifier) {
     val selectedSubscriptionId by SubscriptionStore.selectedSubscriptionId.collectAsState()
     val pings by XrayController.pings.collectAsState()
 
+    val repository = remember(context) { StoreSubscriptionRepository(context) }
     val importSubscription = remember(context) {
+        // обновление уже знакомых URL-подписок с карточки
         ImportSubscriptionByUrlUseCase(
             fetcher = HttpSubscriptionFetcher(),
-            repository = StoreSubscriptionRepository(context),
+            repository = repository,
+        )
+    }
+    val addSubscription = remember(context) {
+        // кнопка «Добавить»: тип вставленного текста определяется автоматически —
+        // URL даёт отдельный профиль, URI/JSON идут в стандартный профиль
+        // «Серверы», base64 сначала расшифровывается
+        AddSubscriptionUseCase(
+            fetcher = HttpSubscriptionFetcher(),
+            repository = repository,
         )
     }
 
@@ -73,20 +81,6 @@ fun ServersTab(context: Context, modifier: Modifier = Modifier) {
         selectedSubscriptionId = selectedSubscriptionId,
         pings = pings,
         refreshingUrls = refreshingUrls,
-        onImportServers = { servers ->
-            AppLog.i("ServersTab: распознаны ссылки, серверов=${servers.size}")
-            val added = SubscriptionStore.importServers(context, servers)?.servers?.size ?: 0
-            if (added > 0) XrayController.refreshFromProfile()
-            added
-        },
-        onImportConfig = { configs, subscriptionTitle ->
-            AppLog.i("ServersTab: распознано JSON-конфигов=${configs.size}")
-            // все конфиги попадают в ОДНУ подписку — каждый конфиг становится сервером
-            val added = SubscriptionStore.importJsons(context, configs, subscriptionTitle)
-                .firstOrNull()?.servers?.size ?: 0
-            if (added > 0) XrayController.refreshFromProfile()
-            added
-        },
         onDeleteSubscription = { id ->
             SubscriptionStore.removeSubscription(context, id)
             XrayController.refreshFromProfile()
@@ -104,43 +98,20 @@ fun ServersTab(context: Context, modifier: Modifier = Modifier) {
         },
         onRefreshSubscription = refresh,
         onPing = { server -> XrayController.pingServer(server) },
-        onImportSubscription = { text, title ->
-            // Ссылка https:// — импорт по URL; всё остальное, что удалось
-            // распознать (JSON-конфиги, список ссылок, base64), — отдельная подписка
-            // из вставленного содержимого.
-            val result = when {
-                SubscriptionUrl.validateOrNull(text) != null -> importSubscription(text)
-
-                else -> when (val content = ImportDetector.detect(text)) {
-                    is ImportContent.Config -> {
-                        SubscriptionStore.importJsons(context, content.configs, title)
-                            .firstOrNull()
-                            ?.let { SubscriptionImportResult.Success(it, created = true, serversCount = it.servers.size) }
-                            ?: SubscriptionImportResult.Failure(SubscriptionImportReason.EMPTY_CONTENT)
-                    }
-
-                    is ImportContent.Servers -> {
-                        SubscriptionStore.importServersAsSubscription(context, content.servers, title)
-                            ?.let { SubscriptionImportResult.Success(it, created = true, serversCount = it.servers.size) }
-                            ?: SubscriptionImportResult.Failure(SubscriptionImportReason.EMPTY_CONTENT)
-                    }
-
-                    null -> SubscriptionImportResult.Failure(SubscriptionImportReason.INVALID_URL)
-                }
-            }
+        onImportSubscription = { text ->
+            val result = addSubscription(text)
             when (result) {
                 is SubscriptionImportResult.Success -> {
                     AppLog.i(
-                        "ServersTab: подписка «${result.subscription.title}» " +
-                            "${if (result.created) "добавлена" else "обновлена"}, " +
-                            "серверов=${result.serversCount}"
+                        "ServersTab: добавлено в «${result.subscription.title}», " +
+                            "новых серверов=${result.serversAdded}"
                     )
-                    // обновлённая подписка могла стать активной — перечитываем конфиг ядра
+                    // новая подписка могла стать активной — перечитываем конфиг ядра
                     XrayController.refreshFromProfile()
                 }
 
                 is SubscriptionImportResult.Failure -> {
-                    AppLog.w("ServersTab: импорт подписки не удался: ${result.reason}")
+                    AppLog.w("ServersTab: импорт не удался: ${result.reason}")
                 }
             }
             result

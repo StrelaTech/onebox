@@ -25,13 +25,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.strela.onebox.subscription.Server
 import com.strela.onebox.subscription.Subscription
 import com.strela.onebox.subscription.SubscriptionStore
-import com.strela.onebox.ui.ServerRow
-import com.strela.onebox.ui.components.SubscriptionMetaLines
+import com.strela.onebox.ui.SubscriptionCard
 import com.strela.onebox.ui.components.statusColor
 import com.strela.onebox.ui.components.statusDescription
 import com.strela.onebox.ui.components.statusTitle
@@ -341,85 +339,18 @@ private fun SubscriptionServersSection(
         return
     }
 
-    Surface(
-        onClick = onOpenSubscriptions,
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(18.dp),
-        color = colors.surfaceContainer,
-    ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
-        ) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                IconTile(
-                    icon = OneBoxIcons.Folder,
-                    tint = colors.primary,
-                    background = colors.primaryContainer,
-                    size = 44.dp,
-                    iconSize = 22.dp,
-                    corner = 13.dp,
-                )
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(start = 10.dp, end = 8.dp),
-                ) {
-                    Text(
-                        text = subscription.title,
-                        style = MiuixTheme.textStyles.headline1,
-                        color = colors.onSurfaceContainer,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    Text(
-                        text = if (subscription.isJson) s.configMode
-                        else s.serversCount(subscription.servers.size),
-                        style = MiuixTheme.textStyles.footnote2,
-                        color = colors.onSurfaceContainerVariant,
-                        modifier = Modifier.padding(top = 2.dp),
-                    )
-                }
-                Icon(
-                    imageVector = OneBoxIcons.ArrowRight,
-                    contentDescription = null,
-                    modifier = Modifier.size(18.dp),
-                    tint = colors.onSurfaceContainerVariant,
-                )
-            }
-
-            SubscriptionMetaLines(
-                subscription = subscription,
-                modifier = Modifier.padding(top = 10.dp),
-            )
-        }
-    }
-
-    Spacer(Modifier.height(14.dp))
-
-    if (subscription.servers.isEmpty()) {
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            insideMargin = PaddingValues(22.dp),
-        ) {
-            Text(
-                text = if (subscription.isJson) s.configModeHint else s.noServersInSubscription,
-                style = MiuixTheme.textStyles.footnote2,
-                color = colors.onSurfaceContainerVariant,
-            )
-        }
-    } else {
-        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            subscription.servers.forEach { server ->
-                ServerRow(
-                    server = server,
-                    selected = server.id == subscription.selectedServer?.id,
-                    ping = pings[server.id],
-                    onSelect = { onSelectServer(server) },
-                    onPing = { onPing(server) },
-                )
-            }
-        }
-    }
+    // Карточка подписки — ровно как на вкладке «Серверы», но список серверов
+    // показывает только выбранный. Кнопки подписки (пинг всех) работают;
+    // обновление и удаление остаются на вкладке «Серверы».
+    SubscriptionCard(
+        subscription = subscription,
+        servers = subscription.selectedServer?.let(::listOf).orEmpty(),
+        selected = true,
+        pings = pings,
+        onSelectServer = onSelectServer,
+        onPing = onPing,
+        onPingAll = { subscription.servers.forEach { XrayController.pingServer(it) } },
+    )
 }
 
 private val RunningColor = Color(0xFF34C759)

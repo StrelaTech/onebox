@@ -48,7 +48,7 @@ object ImportDetector {
 
         // 3. base64-подписка: декодируем и повторяем разбор.
         if (depth >= MAX_DEPTH) return null
-        val decoded = decodeBase64(text) ?: return null
+        val decoded = decodeBase64OrNull(text) ?: return null
         return detect(decoded, depth + 1)
     }
 
@@ -136,8 +136,11 @@ object ImportDetector {
     /**
      * Декодирует base64 (обычный или URL-safe, с переносами строк).
      * Возвращает null, если результат не похож на текст подписки.
+     *
+     * Публично: маршрутизация «Добавить» (см. AddSubscriptionUseCase) проверяет,
+     * что скрывается внутри base64, — там может быть и ссылка подписки.
      */
-    private fun decodeBase64(text: String): String? {
+    fun decodeBase64OrNull(text: String): String? {
         val compact = text.filterNot { it.isWhitespace() }
         if (compact.length < 8) return null
 

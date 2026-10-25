@@ -82,26 +82,20 @@ data class OneBoxStrings(
     val resetDone: String,
 
     // Экран серверов
-    val pasteLinkOrLines: String,
     val addedServers: (Int) -> String,
     val noNewServers: String,
-    val configImported: String,
-    val configsImported: (Int) -> String,
-    val noConfigImported: String,
     val unrecognizedInput: String,
     val allSubscriptions: String,
     val subscriptionsServersBadge: (subscriptions: Int, servers: Int) -> String,
-    val addServers: String,
-    val subscriptionTitleOptional: String,
     val importAction: String,
-    val clearField: String,
     val active: String,
+    val showServers: String,
+    val hideServers: String,
     val noServersInSubscription: String,
     val noSubscriptions: String,
     val noSubscriptionsHint: String,
     val deleteSubscription: (String) -> String,
     val refreshSubscription: String,
-    val serversCount: (Int) -> String,
 
     // Метаданные подписки: срок и трафик
     val expiresAt: (String) -> String,
@@ -112,8 +106,8 @@ data class OneBoxStrings(
     val formatDate: (Long) -> String,
     val formatBytes: (Long) -> String,
 
-    // Импорт подписки по URL
-    val importSubscriptionAction: String,
+    // Импорт подписки (кнопка «Добавить»)
+    val addSubscriptionAction: String,
     val subscriptionDialogTitle: String,
     val subscriptionUrlLabel: String,
     val pasteFromClipboard: String,
@@ -199,34 +193,20 @@ val RuStrings = OneBoxStrings(
     resetSettingsHint = "Тема, язык и параметры подключения",
     resetDone = "Настройки сброшены",
 
-    pasteLinkOrLines = "Вставьте ссылки, JSON-конфиг или base64-подписку",
     addedServers = { count -> "Добавлено серверов: $count" },
     noNewServers = "Новых серверов не найдено: дубликаты или ошибка разбора",
-    configImported = "JSON-конфиг сохранён и выбран для подключения",
-    configsImported = { count -> "Добавлено JSON-конфигов: $count" },
-    noConfigImported = "Не удалось импортировать JSON-конфиг",
     unrecognizedInput = "Не удалось распознать формат: вставьте ссылки, JSON или base64",
     allSubscriptions = "Все подписки",
     subscriptionsServersBadge = { subscriptions, servers -> "подп. $subscriptions · серв. $servers" },
-    addServers = "Импорт",
-    subscriptionTitleOptional = "Название подписки (опционально)",
     importAction = "Импортировать",
-    clearField = "Очистить поле",
     active = "активна",
+    showServers = "Показать список серверов",
+    hideServers = "Скрыть список серверов",
     noServersInSubscription = "В подписке пока нет серверов",
     noSubscriptions = "Подписок пока нет",
     noSubscriptionsHint = "Импортируйте подписку по URL, ссылки, JSON-конфиг или base64.",
     deleteSubscription = { name -> "Удалить подписку $name" },
     refreshSubscription = "Обновить подписку",
-    serversCount = { count ->
-        val mod10 = count % 10
-        val mod100 = count % 100
-        when {
-            mod10 == 1 && mod100 != 11 -> "$count сервер"
-            mod10 in 2..4 && mod100 !in 12..14 -> "$count сервера"
-            else -> "$count серверов"
-        }
-    },
 
     expiresAt = { date -> "Действует до $date" },
     expiredShort = "истекла",
@@ -236,9 +216,9 @@ val RuStrings = OneBoxStrings(
     formatDate = { millis -> formatDateWith(millis, LOCALE_RU, "d MMM yyyy") },
     formatBytes = { bytes -> formatBytesWith(bytes, LOCALE_RU, BYTES_UNITS_RU) },
 
-    importSubscriptionAction = "Подписка по URL",
-    subscriptionDialogTitle = "Импорт подписки",
-    subscriptionUrlLabel = "https://ссылка подписки или JSON-конфиг",
+    addSubscriptionAction = "Добавить",
+    subscriptionDialogTitle = "Добавить подписку",
+    subscriptionUrlLabel = "URL, ссылки серверов, JSON или base64",
     pasteFromClipboard = "Вставить из буфера обмена",
     clipboardNoHttpsUrl = "Буфер обмена пуст или не содержит ссылку/JSON",
     importingSubscription = "Загрузка подписки…",
@@ -320,26 +300,20 @@ val EnStrings = OneBoxStrings(
     resetSettingsHint = "Theme, language, and connection options",
     resetDone = "Settings reset",
 
-    pasteLinkOrLines = "Paste links, a JSON config, or a base64 subscription",
     addedServers = { count -> "Servers added: $count" },
     noNewServers = "No new servers found: duplicates or a parse error",
-    configImported = "JSON config saved and selected for connection",
-    configsImported = { count -> "JSON configs added: $count" },
-    noConfigImported = "Could not import the JSON config",
     unrecognizedInput = "Could not detect the format: paste links, JSON, or base64",
     allSubscriptions = "All subscriptions",
     subscriptionsServersBadge = { subscriptions, servers -> "sub. $subscriptions · srv. $servers" },
-    addServers = "Import",
-    subscriptionTitleOptional = "Subscription title (optional)",
     importAction = "Import",
-    clearField = "Clear field",
     active = "active",
+    showServers = "Show server list",
+    hideServers = "Hide server list",
     noServersInSubscription = "This subscription has no servers yet",
     noSubscriptions = "No subscriptions yet",
     noSubscriptionsHint = "Import a subscription by URL, links, a JSON config, or base64.",
     deleteSubscription = { name -> "Delete subscription $name" },
     refreshSubscription = "Refresh subscription",
-    serversCount = { count -> if (count == 1) "1 server" else "$count servers" },
 
     expiresAt = { date -> "Valid until $date" },
     expiredShort = "expired",
@@ -349,9 +323,9 @@ val EnStrings = OneBoxStrings(
     formatDate = { millis -> formatDateWith(millis, Locale.ENGLISH, "d MMM yyyy") },
     formatBytes = { bytes -> formatBytesWith(bytes, Locale.ENGLISH, BYTES_UNITS_EN) },
 
-    importSubscriptionAction = "Subscription URL",
-    subscriptionDialogTitle = "Import subscription",
-    subscriptionUrlLabel = "https://subscription link or JSON config",
+    addSubscriptionAction = "Add",
+    subscriptionDialogTitle = "Add subscription",
+    subscriptionUrlLabel = "URL, server links, JSON, or base64",
     pasteFromClipboard = "Paste from clipboard",
     clipboardNoHttpsUrl = "Clipboard is empty or has no link/JSON",
     importingSubscription = "Downloading subscription…",

@@ -11,13 +11,19 @@ sealed interface SubscriptionImportResult {
         /** false — обновляли уже существующую подписку с этим URL */
         val created: Boolean,
         val serversCount: Int,
+        /**
+         * Сколько серверов добавлено этим действием. У подписки по URL это
+         * все серверы ответа; в стандартном профиле «Серверы» — только
+         * действительно новые (без дубликатов).
+         */
+        val serversAdded: Int,
     ) : SubscriptionImportResult
 
     data class Failure(val reason: SubscriptionImportReason) : SubscriptionImportResult
 }
 
 /** Причина отказа импорта — UI мапит её в локализованное сообщение. */
-enum class SubscriptionImportReason { INSECURE_URL, INVALID_URL, NETWORK, EMPTY_CONTENT }
+enum class SubscriptionImportReason { INSECURE_URL, INVALID_URL, NETWORK, EMPTY_CONTENT, UNRECOGNIZED_CONTENT, NO_NEW_SERVERS }
 
 /**
  * Импорт подписки по URL — вся логика в одном месте:
@@ -112,7 +118,7 @@ class ImportSubscriptionByUrlUseCase(
                 Subscription(
                     id = existing?.id ?: newId(),
                     title = title,
-                    description = meta.announce ?: url,
+                    description = meta.announce,
                     usedBytes = meta.usedBytes,
                     trafficLimitBytes = meta.totalBytes,
                     expireAtMillis = meta.expireAtMillis,
@@ -129,6 +135,7 @@ class ImportSubscriptionByUrlUseCase(
             subscription = saved,
             created = existing == null,
             serversCount = saved.servers.size,
+            serversAdded = saved.servers.size,
         )
     }
 

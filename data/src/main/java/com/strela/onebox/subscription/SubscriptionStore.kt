@@ -60,7 +60,18 @@ object SubscriptionStore {
      * Возвращает подписку или null, если новых серверов не оказалось.
      * Подписка сразу становится выбранной.
      */
-    fun importServers(context: Context, servers: List<Server>): Subscription? {
+    fun importServers(context: Context, servers: List<Server>): Subscription? =
+        mergeServersIntoStandardProfile(context, servers)?.subscription
+
+    /**
+     * То же, что [importServers], но с количеством действительно новых серверов:
+     * его показывает сообщение «Добавлено серверов: N».
+     * null — ни одного нового сервера (дубликаты или пустая выборка).
+     */
+    fun mergeServersIntoStandardProfile(
+        context: Context,
+        servers: List<Server>,
+    ): StandardProfileMerge? {
         if (servers.isEmpty()) return null
 
         val existing = _subscriptions.value.firstOrNull { it.id == Subscription.SERVERS_ID }
@@ -92,7 +103,7 @@ object SubscriptionStore {
             "SubscriptionStore: ручной импорт в подписку «${subscription.title}», " +
                 "добавлено=$added, всего=${merged.size}"
         )
-        return subscription
+        return StandardProfileMerge(subscription = subscription, addedCount = added)
     }
 
     /** Находит подписку по нормализованному URL источника (ключ дедупликации). */
@@ -132,80 +143,6 @@ object SubscriptionStore {
                 "${if (existing == null) "создана" else "обновлена"}, серверов=${servers.size}"
         )
         return resolved
-    }
-
-    /**
-     * Создаёт подписку из вставленных конфигов xray-core: каждый конфиг
-     * раскладывается на сервер (с сохранением исходного JSON в Server.json),
-     * все они попадают в ОДНУ новую подписку. Заголовок: [fallbackTitle],
-     * иначе remarks первого конфига, иначе «Подписка N».
-     * Подписка сразу становится выбранной. Возвращает единственную созданную
-     * подписку или пустой список, если конфиги не разобрались.
-     */
-    fun importJsons(
-        context: Context,
-        configs: List<JsonConfig>,
-        fallbackTitle: String? = null,
-    ): List<Subscription> {
-        val servers = configs
-            .filter { it.json.isNotBlank() }
-            .mapNotNull { cfg -> XrayConfigParser.parse(cfg.json, cfg.name) }
-            .distinctByServer()
-        if (servers.isEmpty()) return emptyList()
-
-        val explicit = fallbackTitle?.trim()?.takeIf { it.isNotEmpty() }
-        val firstRemarks = configs.firstOrNull { !it.name.isNullOrBlank() }?.name
-        val created = Subscription(
-            id = newId(),
-            title = explicit
-                ?: firstRemarks?.takeIf { it.isNotBlank() }
-                ?: defaultSubscriptionName(_subscriptions.value.size + 1),
-            servers = servers,
-            selectedServerId = servers.first().id,
-        )
-
-        _subscriptions.value = _subscriptions.value + created
-        _selectedSubscriptionId.value = created.id
-        persist(context)
-        AppLog.i(
-            "SubscriptionStore: импортирована JSON-подписка «${created.title}», " +
-                "серверов=${servers.size}"
-        )
-        return listOf(created)
-    }
-
-    /** Создаёт JSON-подписку из одного вставленного конфига. */
-    fun importJson(context: Context, json: String, title: String? = null): Subscription? =
-        importJsons(context, listOf(JsonConfig(json)), title).firstOrNull()
-
-    /**
-     * Создаёт отдельную подписку из готовых серверов (например, из списка
-     * ссылок при импорте «подписки» без URL). Без дедупликации с уже
-     * существующими группами: каждое действие — новая подписка.
-     */
-    fun importServersAsSubscription(
-        context: Context,
-        servers: List<Server>,
-        title: String? = null,
-    ): Subscription? {
-        val merged = servers.distinctByServer()
-        if (merged.isEmpty()) return null
-
-        val created = Subscription(
-            id = newId(),
-            title = title?.trim()?.takeIf { it.isNotEmpty() }
-                ?: defaultSubscriptionName(_subscriptions.value.size + 1),
-            servers = merged,
-            selectedServerId = merged.first().id,
-        )
-        _subscriptions.value = _subscriptions.value + created
-        _selectedSubscriptionId.value = created.id
-        persist(context)
-        AppLog.i(
-            "SubscriptionStore: создана подписка «${created.title}» " +
-                "из ${merged.size} серверов вручную"
-        )
-        return created
     }
 
     fun removeSubscription(context: Context, id: String) {
@@ -265,9 +202,6 @@ object SubscriptionStore {
         _selectedSubscriptionId.value?.let { id -> _subscriptions.value.firstOrNull { it.id == id } }
 
     fun selectedServer(): Server? = selectedSubscription()?.selectedServer
-
-    private fun defaultSubscriptionName(number: Int): String =
-        SettingsStore.strings().defaultSubscriptionName(number)
 
     private fun persist(context: Context) {
         val prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
@@ -350,7 +284,8 @@ object SubscriptionStore {
         return Subscription(
             id = o.optString("id").ifEmpty { newId() },
             title = o.optString("title").ifBlank { o.optString("name").ifBlank { url ?: "" } },
-            // Описания нет — оставляем пустым; Announce → description, иначе — пусто.
+            // description: наличие Announce в далёкой истории не проверяем —
+            //Description берём из тега; если пусто, subscriber.description remains empty.
             description = o.optString("description").ifBlank { "" },
             usedBytes = usage,
             trafficLimitBytes = o.optLong("trafficLimitBytes", -1L).takeIf { it >= 0 }
