@@ -27,6 +27,9 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.strela.onebox.subscription.Server
+import com.strela.onebox.api.PingState
+import com.strela.onebox.api.VpnConnector
+import com.strela.onebox.api.VpnStatus
 import com.strela.onebox.subscription.Subscription
 import com.strela.onebox.subscription.SubscriptionStore
 import com.strela.onebox.ui.OneBoxTheme
@@ -38,7 +41,7 @@ import com.strela.onebox.ui.design.icons.OneBoxIcons
 import com.strela.onebox.ui.kit.IconTile
 import com.strela.onebox.ui.kit.SectionTitle
 import com.strela.onebox.ui.strings
-import com.strela.onebox.xray.XrayController
+import com.strela.onebox.ui.strings
 import com.strela.onebox.ui.design.Button
 import com.strela.onebox.ui.design.Card
 import com.strela.onebox.ui.design.CircularProgressIndicator
@@ -59,10 +62,10 @@ fun ConnectScreen(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    val status by XrayController.status.collectAsState()
+    val status by VpnConnector.status.collectAsState()
     val subscriptions by SubscriptionStore.subscriptions.collectAsState()
     val selectedSubscriptionId by SubscriptionStore.selectedSubscriptionId.collectAsState()
-    val pings by XrayController.pings.collectAsState()
+    val pings by VpnConnector.pings.collectAsState()
     val selected = remember(subscriptions, selectedSubscriptionId) {
         subscriptions.firstOrNull { it.id == selectedSubscriptionId }
     }
@@ -89,10 +92,10 @@ fun ConnectScreen(
             onSelectServer = { server ->
                 selected?.let {
                     SubscriptionStore.selectServer(context, it.id, server.id)
-                    XrayController.refreshFromProfile()
+                    VpnConnector.refreshFromProfile()
                 }
             },
-            onPing = { server -> XrayController.pingServer(server) },
+            onPing = { server -> VpnConnector.pingServer(server) },
         )
 
         Spacer(Modifier.height(24.dp))
@@ -101,7 +104,7 @@ fun ConnectScreen(
 
 @Composable
 private fun ConnectHero(
-    status: XrayController.Status,
+    status: VpnStatus,
     onStartVpn: () -> Unit,
     onStopVpn: () -> Unit,
 ) {
@@ -148,7 +151,7 @@ private fun ConnectHero(
                 textAlign = TextAlign.Center,
             )
 
-            if (status is XrayController.Status.Error) {
+            if (status is VpnStatus.Error) {
                 Spacer(Modifier.height(16.dp))
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
@@ -185,37 +188,37 @@ private fun ConnectHero(
 /** Главная кнопка: круг с иконкой и подписью, цвет зависит от состояния VPN. */
 @Composable
 private fun BigConnectButton(
-    status: XrayController.Status,
+    status: VpnStatus,
     onStartVpn: () -> Unit,
     onStopVpn: () -> Unit,
 ) {
     val colors = OneBoxTheme.colorScheme
     val s = strings
-    val starting = status is XrayController.Status.Starting
+    val starting = status is VpnStatus.Starting
 
     val fill = when (status) {
-        is XrayController.Status.Running -> RunningColor
-        is XrayController.Status.Starting -> StartingColor
-        is XrayController.Status.Error -> colors.error
-        is XrayController.Status.Stopped -> colors.primary
+        is VpnStatus.Running -> RunningColor
+        is VpnStatus.Starting -> StartingColor
+        is VpnStatus.Error -> colors.error
+        is VpnStatus.Stopped -> colors.primary
     }
-    val contentColor = if (status is XrayController.Status.Stopped) colors.onPrimary else Color.White
+    val contentColor = if (status is VpnStatus.Stopped) colors.onPrimary else Color.White
     val label = when (status) {
-        is XrayController.Status.Running -> s.disconnect
-        is XrayController.Status.Starting -> s.starting
-        is XrayController.Status.Error -> s.retry
-        is XrayController.Status.Stopped -> s.connect
+        is VpnStatus.Running -> s.disconnect
+        is VpnStatus.Starting -> s.starting
+        is VpnStatus.Error -> s.retry
+        is VpnStatus.Stopped -> s.connect
     }
     val icon = when (status) {
-        is XrayController.Status.Running -> OneBoxIcons.Pause
-        is XrayController.Status.Starting -> OneBoxIcons.Refresh
-        is XrayController.Status.Error -> OneBoxIcons.Refresh
-        is XrayController.Status.Stopped -> OneBoxIcons.Play
+        is VpnStatus.Running -> OneBoxIcons.Pause
+        is VpnStatus.Starting -> OneBoxIcons.Refresh
+        is VpnStatus.Error -> OneBoxIcons.Refresh
+        is VpnStatus.Stopped -> OneBoxIcons.Play
     }
 
     Surface(
         onClick = {
-            if (status is XrayController.Status.Running) onStopVpn() else onStartVpn()
+            if (status is VpnStatus.Running) onStopVpn() else onStartVpn()
         },
         enabled = !starting,
         modifier = Modifier.size(216.dp),
@@ -255,7 +258,7 @@ private fun BigConnectButton(
 private fun SubscriptionServersSection(
     subscription: Subscription?,
     hasSubscriptions: Boolean,
-    pings: Map<String, XrayController.Ping>,
+    pings: Map<String, PingState>,
     onOpenSubscriptions: () -> Unit,
     onSelectServer: (Server) -> Unit,
     onPing: (Server) -> Unit,
@@ -345,7 +348,7 @@ private fun SubscriptionServersSection(
         pings = pings,
         onSelectServer = onSelectServer,
         onPing = onPing,
-        onPingAll = { subscription.servers.forEach { XrayController.pingServer(it) } },
+        onPingAll = { subscription.servers.forEach { VpnConnector.pingServer(it) } },
     )
 }
 

@@ -15,6 +15,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.strela.onebox.ui.components.StatusPill
+import com.strela.onebox.api.VpnConnector
 import com.strela.onebox.ui.design.NavigationBar
 import com.strela.onebox.ui.design.NavigationBarItem
 import com.strela.onebox.ui.design.Scaffold
@@ -24,7 +25,6 @@ import com.strela.onebox.ui.design.icons.OneBoxIcons
 import com.strela.onebox.ui.screens.ConnectScreen
 import com.strela.onebox.ui.screens.ServersTab
 import com.strela.onebox.ui.screens.SettingsTab
-import com.strela.onebox.xray.XrayController
 
 private enum class MainTab(val icon: ImageVector) {
     MAIN(OneBoxIcons.Home),
@@ -51,7 +51,7 @@ fun OneBoxApp(
 ) {
     val context = LocalContext.current
     var tab by rememberSaveable { mutableStateOf(MainTab.MAIN) }
-    val status by XrayController.status.collectAsState()
+    val status by VpnConnector.status.collectAsState()
 
     Scaffold(
         topBar = {

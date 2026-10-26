@@ -19,7 +19,12 @@ android {
 }
 
 dependencies {
-    implementation(project(":core"))
+    // Прослойка: StoreProfileSource реализует ProfileSource из :api.
+    implementation(project(":api"))
+    implementation(project(":core-model"))
+    implementation(project(":core-parsing"))
+    implementation(project(":core-i18n"))
+    implementation(project(":core-log"))
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.okhttp)
 }

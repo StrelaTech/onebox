@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.strela.onebox.subscription.Server
+import com.strela.onebox.api.PingState
 import com.strela.onebox.subscription.Subscription
 import com.strela.onebox.subscription.SubscriptionImportResult
 import com.strela.onebox.ui.OneBoxTheme
@@ -33,7 +34,6 @@ import com.strela.onebox.ui.design.icons.OneBoxIcons
 import com.strela.onebox.ui.kit.Badge
 import com.strela.onebox.ui.kit.IconTile
 import com.strela.onebox.ui.kit.SectionTitle
-import com.strela.onebox.xray.XrayController
 
 /**
  * Экран «Серверы»: в начале страницы — все подписки со всеми их серверами,
@@ -49,7 +49,7 @@ import com.strela.onebox.xray.XrayController
 fun ServersScreen(
     subscriptions: List<Subscription>,
     selectedSubscriptionId: String?,
-    pings: Map<String, XrayController.Ping>,
+    pings: Map<String, PingState>,
     refreshingUrls: Set<String>,
     onDeleteSubscription: (String) -> Unit,
     onSelectServer: (subscriptionId: String, serverId: String) -> Unit,

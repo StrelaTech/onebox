@@ -10,6 +10,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.strela.onebox.log.AppLog
+import com.strela.onebox.api.VpnConnector
 import com.strela.onebox.subscription.AddSubscriptionUseCase
 import com.strela.onebox.subscription.HttpSubscriptionFetcher
 import com.strela.onebox.subscription.ImportSubscriptionByUrlUseCase
@@ -17,7 +18,6 @@ import com.strela.onebox.subscription.StoreSubscriptionRepository
 import com.strela.onebox.subscription.SubscriptionImportResult
 import com.strela.onebox.subscription.SubscriptionStore
 import com.strela.onebox.ui.ServersScreen
-import com.strela.onebox.xray.XrayController
 import kotlinx.coroutines.launch
 
 /**
@@ -29,7 +29,7 @@ fun ServersTab(context: Context, modifier: Modifier = Modifier) {
     val scope = rememberCoroutineScope()
     val subscriptions by SubscriptionStore.subscriptions.collectAsState()
     val selectedSubscriptionId by SubscriptionStore.selectedSubscriptionId.collectAsState()
-    val pings by XrayController.pings.collectAsState()
+    val pings by VpnConnector.pings.collectAsState()
 
     val repository = remember(context) { StoreSubscriptionRepository(context) }
     val importSubscription = remember(context) {
@@ -63,7 +63,7 @@ fun ServersTab(context: Context, modifier: Modifier = Modifier) {
                                 "серверов=${result.serversCount}"
                         )
                         // обновлённая подписка могла стать активной — перечитываем конфиг ядра
-                        XrayController.refreshFromProfile()
+                        VpnConnector.refreshFromProfile()
                     }
 
                     is SubscriptionImportResult.Failure -> {
@@ -83,21 +83,21 @@ fun ServersTab(context: Context, modifier: Modifier = Modifier) {
         refreshingUrls = refreshingUrls,
         onDeleteSubscription = { id ->
             SubscriptionStore.removeSubscription(context, id)
-            XrayController.refreshFromProfile()
+            VpnConnector.refreshFromProfile()
         },
         onSelectServer = { subscriptionId, serverId ->
             SubscriptionStore.selectServer(context, subscriptionId, serverId)
-            XrayController.refreshFromProfile()
+            VpnConnector.refreshFromProfile()
         },
         onDeleteServer = { subscriptionId, serverId ->
             SubscriptionStore.removeServer(context, subscriptionId, serverId)
-            XrayController.refreshFromProfile()
+            VpnConnector.refreshFromProfile()
         },
         onPingAll = { subscription ->
-            subscription.servers.forEach { XrayController.pingServer(it) }
+            subscription.servers.forEach { VpnConnector.pingServer(it) }
         },
         onRefreshSubscription = refresh,
-        onPing = { server -> XrayController.pingServer(server) },
+        onPing = { server -> VpnConnector.pingServer(server) },
         onImportSubscription = { text ->
             val result = addSubscription(text)
             when (result) {
@@ -107,7 +107,7 @@ fun ServersTab(context: Context, modifier: Modifier = Modifier) {
                             "новых серверов=${result.serversAdded}"
                     )
                     // новая подписка могла стать активной — перечитываем конфиг ядра
-                    XrayController.refreshFromProfile()
+                    VpnConnector.refreshFromProfile()
                 }
 
                 is SubscriptionImportResult.Failure -> {

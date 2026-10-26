@@ -2,13 +2,12 @@
 .gradle/
 .DS_Store
 
-# IDE
+AGENT.md
+
 .idea/
 
-# Local environment
 /local.properties
 
-# Build outputs
 /build
 /captures
 .externalNativeBuild
@@ -16,19 +15,15 @@
 **/build/
 **/.kotlin/
 
-# Python caches
 __pycache__/
 *.py[cod]
 
-# Release artifacts
 /dist/
 
-# Signing material
 *.jks
 *.keystore
 keystore.properties
 
-# Binary artifacts built by scripts/build-xray-aar.sh
 **/libs/*.aar
 **/xray/build/
 /local-maven/

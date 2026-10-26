@@ -30,6 +30,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import com.strela.onebox.i18n.AppLanguage
+import com.strela.onebox.settings.AppIcon
 import com.strela.onebox.settings.ThemeMode
 import com.strela.onebox.ui.OneBoxTheme
 import com.strela.onebox.ui.design.Card
@@ -53,11 +54,13 @@ fun SettingsScreen(
     language: AppLanguage,
     blockAds: Boolean,
     autoConnect: Boolean,
+    appIcon: AppIcon,
     activeSubscription: String?,
     onThemeChange: (ThemeMode) -> Unit,
     onLanguageChange: (AppLanguage) -> Unit,
     onBlockAdsChange: (Boolean) -> Unit,
     onAutoConnectChange: (Boolean) -> Unit,
+    onAppIconChange: (AppIcon) -> Unit,
     onShareLogs: () -> Unit,
     onClearLogs: () -> Unit,
     onResetSettings: () -> Unit,
@@ -100,6 +103,24 @@ fun SettingsScreen(
                     ?: s.themeSystemShort,
                 options = themeOptions.map { (mode, label) ->
                     label to { onThemeChange(mode) }
+                },
+            )
+
+            SettingsDivider(startIndent = 18.dp)
+
+            val iconOptions = listOf(
+                AppIcon.DEFAULT to s.appIconDefault,
+                AppIcon.ALT1 to s.appIconAlt1,
+                AppIcon.ALT2 to s.appIconAlt2,
+            )
+            DropdownRow(
+                icon = OneBoxIcons.Layers,
+                title = s.appIconTitle,
+                subtitle = s.appIcon,
+                selectedLabel = iconOptions.firstOrNull { it.first == appIcon }?.second
+                    ?: s.appIconDefault,
+                options = iconOptions.map { (icon, label) ->
+                    label to { onAppIconChange(icon) }
                 },
             )
 

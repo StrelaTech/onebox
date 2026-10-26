@@ -246,6 +246,14 @@ object OneBoxIcons {
         }
     }
 
+    val Layers: ImageVector by lazy {
+        image("Layers") {
+            svgPath("M12 2L2 7L12 12L22 7L12 2Z", stroke = true, width = 2f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+            svgPath("M2 17L12 22L22 17", stroke = true, width = 2f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+            svgPath("M2 12L12 17L22 12", stroke = true, width = 2f, cap = StrokeCap.Round, join = StrokeJoin.Round)
+        }
+    }
+
     val Lock: ImageVector by lazy {
         image("Lock") {
             svgPath("M18 11H6C4.89543 11 4 11.8954 4 13V19C4 20.1046 4.89543 21 6 21H18C19.1046 21 20 20.1046 20 19V13C20 11.8954 19.1046 11 18 11Z", fill = true, stroke = true, width = 3f, cap = StrokeCap.Round, join = StrokeJoin.Round)

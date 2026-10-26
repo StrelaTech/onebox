@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.strela.onebox.subscription.Server
+import com.strela.onebox.api.PingState
 import com.strela.onebox.subscription.Subscription
 import com.strela.onebox.ui.OneBoxTheme
 import com.strela.onebox.ui.design.CircularProgressIndicator
@@ -29,7 +30,6 @@ import com.strela.onebox.ui.design.Text
 import com.strela.onebox.ui.design.icons.OneBoxIcons
 import com.strela.onebox.ui.kit.Badge
 import com.strela.onebox.ui.kit.IconTile
-import com.strela.onebox.xray.XrayController
 
 /**
  * Карточка одной подписки, сверху вниз:
@@ -51,7 +51,7 @@ fun SubscriptionCard(
     subscription: Subscription,
     servers: List<Server>,
     selected: Boolean,
-    pings: Map<String, XrayController.Ping>,
+    pings: Map<String, PingState>,
     onSelectServer: (Server) -> Unit,
     onPing: (Server) -> Unit,
     onPingAll: (() -> Unit)? = null,
@@ -117,7 +117,7 @@ fun SubscriptionCard(
                 }
 
                 // Дата окончания из метаданных; справа — кнопки: пинг всех, обновление, удаление
-                val pingingAll = subscription.servers.any { pings[it.id] is XrayController.Ping.InProgress }
+                val pingingAll = subscription.servers.any { pings[it.id] is PingState.InProgress }
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()

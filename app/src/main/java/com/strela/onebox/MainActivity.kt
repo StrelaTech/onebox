@@ -28,8 +28,8 @@ import com.strela.onebox.subscription.SubscriptionStore
 import com.strela.onebox.settings.SettingsStore
 import com.strela.onebox.settings.ThemeMode
 import com.strela.onebox.ui.OneBoxApp
+import com.strela.onebox.api.VpnConnector
 import com.strela.onebox.ui.OneBoxTheme
-import com.strela.onebox.xray.XrayController
 
 /**
  * Тонкая Activity: инициализация процесса, VPN-разрешение, системные бары и шаринг логов.
@@ -44,7 +44,7 @@ class MainActivity : ComponentActivity() {
     ) { result ->
         AppLog.d("диалог согласия: resultCode=${result.resultCode}")
         if (result.resultCode == Activity.RESULT_OK && pendingVpnConnect) {
-            XrayController.connectVpn(this)
+            VpnConnector.start(this)
         }
         pendingVpnConnect = false
     }
@@ -58,12 +58,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        AppLog.init(applicationContext)
+        // Процесс уже проинициализирован в OneBoxApplication (лог, хранилища, ядра).
         AppLog.i("MainActivity: onCreate")
-
-        SettingsStore.init(applicationContext)
-        SubscriptionStore.init(applicationContext)
-        XrayController.init(applicationContext)
 
         applyWindowBackground()
         enableEdgeToEdge()
@@ -85,7 +81,7 @@ class MainActivity : ComponentActivity() {
                         AppLog.d("UI: запрос подключения VPN")
                         prepareAndStartVpn()
                     },
-                    onStopVpn = { XrayController.disconnectVpn(this) },
+                    onStopVpn = { VpnConnector.stop(this) },
                     onShareLogs = { shareLogs(this) },
                 )
             }
@@ -111,9 +107,9 @@ class MainActivity : ComponentActivity() {
     /** Поднимает VPN при запуске, если включено автоподключение и доступ уже выдан. */
     private fun maybeAutoConnect() {
         if (!SettingsStore.autoConnect.value) return
-        if (XrayController.isRunning) return
+        if (VpnConnector.isRunning) return
         val subscription = SubscriptionStore.selectedSubscription()
-        if ((subscription == null || (!subscription.isJson && subscription.selectedServer == null)) && !XrayController.hasUserConfig) {
+        if ((subscription == null || (!subscription.isJson && subscription.selectedServer == null)) && !VpnConnector.hasUserConfig) {
             AppLog.d("autoConnect: нет подписки или сохранённого конфига, пропускаю")
             return
         }
@@ -122,7 +118,7 @@ class MainActivity : ComponentActivity() {
             return
         }
         AppLog.i("autoConnect: запускаю VPN")
-        XrayController.connectVpn(this)
+        VpnConnector.start(this)
     }
 
     /** Фон окна до первого кадра — в цвет темы приложения, чтобы не мигало при старте. */
@@ -156,7 +152,7 @@ class MainActivity : ComponentActivity() {
         val prepare = VpnService.prepare(this)
         if (prepare == null) {
             AppLog.d("Vpn.prepare() == null → сразу стартуем сервис")
-            XrayController.connectVpn(this)
+            VpnConnector.start(this)
         } else {
             AppLog.d("Vpn.prepare() → показываю диалог согласия")
             pendingVpnConnect = true

@@ -24,9 +24,15 @@ android {
 }
 
 dependencies {
-    api(project(":core"))
+    // Прослойка: UI общается с ядрами только через VpnConnector (:api).
+    api(project(":api"))
+    // Модели и тексты у публичных сигнатур composables.
+    api(project(":core-model"))
+    api(project(":core-i18n"))
     implementation(project(":data"))
-    implementation(project(":engine"))
+    implementation(project(":core-log"))
+    // Диалог импорта вызывает детектор типов вставленного текста напрямую.
+    implementation(project(":core-parsing"))
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.compose.foundation)

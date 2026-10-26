@@ -19,9 +19,11 @@ android {
 }
 
 dependencies {
-    api(project(":core"))
+    // VpnConnector-фасад и другие типы прослойки доступны потребителям (:app).
+    api(project(":api"))
+    // Системный VpnService: TunVpnService и его мост, зарегистрированные ниже.
+    implementation(project(":vpn"))
+    // Ядро xray — одна из реализаций VpnCore; само по нейтральному сервису не нужно.
+    implementation(project(":xray"))
     implementation(project(":data"))
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.kotlinx.coroutines.core)
-    implementation("xray:xray:1.0.0@aar")
 }

@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.strela.onebox.subscription.Server
+import com.strela.onebox.api.PingState
 import com.strela.onebox.ui.OneBoxTheme
 import com.strela.onebox.ui.design.CircularProgressIndicator
 import com.strela.onebox.ui.design.Icon
@@ -25,7 +26,6 @@ import com.strela.onebox.ui.design.Text
 import com.strela.onebox.ui.design.icons.OneBoxIcons
 import com.strela.onebox.ui.kit.Badge
 import com.strela.onebox.ui.kit.IconTile
-import com.strela.onebox.xray.XrayController
 
 /**
  * Строка сервера: выбор, пинг и (опционально) удаление.
@@ -35,7 +35,7 @@ import com.strela.onebox.xray.XrayController
 fun ServerRow(
     server: Server,
     selected: Boolean,
-    ping: XrayController.Ping?,
+    ping: PingState?,
     onSelect: () -> Unit,
     onPing: () -> Unit,
     modifier: Modifier = Modifier,
@@ -122,7 +122,7 @@ fun ServerRow(
 
 /** Компактный индикатор пинга — кликабельная поверхность дизайн-кита. */
 @Composable
-private fun PingControl(ping: XrayController.Ping?, onPing: () -> Unit) {
+private fun PingControl(ping: PingState?, onPing: () -> Unit) {
     val colors = OneBoxTheme.colorScheme
     val s = strings
 
@@ -130,19 +130,19 @@ private fun PingControl(ping: XrayController.Ping?, onPing: () -> Unit) {
     val color: Color
     val inProgress: Boolean
     when (ping) {
-        is XrayController.Ping.InProgress -> {
+        is PingState.InProgress -> {
             label = "…"
             color = colors.primary
             inProgress = true
         }
 
-        is XrayController.Ping.Ok -> {
+        is PingState.Ok -> {
             label = s.pingMs(ping.millis)
             color = colors.primary
             inProgress = false
         }
 
-        is XrayController.Ping.Failed -> {
+        is PingState.Failed -> {
             label = s.pingFailed
             color = colors.error
             inProgress = false
@@ -173,7 +173,7 @@ private fun PingControl(ping: XrayController.Ping?, onPing: () -> Unit) {
                 )
             } else {
                 Icon(
-                    imageVector = if (ping is XrayController.Ping.Failed) {
+                    imageVector = if (ping is PingState.Failed) {
                         OneBoxIcons.Close
                     } else {
                         OneBoxIcons.Zap

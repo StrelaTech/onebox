@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Сборка xray-core в AAR для Android (gomobile bind).
 # Артефакт публикуется в локальный Maven-репозиторий local-maven/, откуда его
-# подхватывает библиотечный модуль engine (локальные .aar в AAR-модулях
+# подхватывает библиотечный модуль engines/xray (локальные .aar в AAR-модулях
 # AGP не поддерживает).
 set -euo pipefail
 

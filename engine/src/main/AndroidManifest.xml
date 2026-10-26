@@ -1,16 +1,2 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <application>
-        <service
-            android:name="com.strela.onebox.vpn.TunVpnService"
-            android:exported="false"
-            android:foregroundServiceType="systemExempted"
-            android:permission="android.permission.BIND_VPN_SERVICE">
-            <intent-filter>
-                <action android:name="android.net.VpnService" />
-            </intent-filter>
-        </service>
-    </application>
-
-</manifest>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" />

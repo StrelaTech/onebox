@@ -8,6 +8,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.strela.onebox.log.AppLog
 import com.strela.onebox.subscription.SubscriptionStore
+import com.strela.onebox.settings.AppIcon
 import com.strela.onebox.settings.SettingsStore
 import com.strela.onebox.ui.SettingsScreen
 
@@ -24,6 +25,7 @@ fun SettingsTab(
     val language by SettingsStore.language.collectAsState()
     val blockAds by SettingsStore.blockAds.collectAsState()
     val autoConnect by SettingsStore.autoConnect.collectAsState()
+    val appIcon by SettingsStore.appIcon.collectAsState()
     val subscriptions by SubscriptionStore.subscriptions.collectAsState()
     val selectedSubscriptionId by SubscriptionStore.selectedSubscriptionId.collectAsState()
     val activeSubscription = remember(subscriptions, selectedSubscriptionId) {
@@ -35,11 +37,13 @@ fun SettingsTab(
         language = language,
         blockAds = blockAds,
         autoConnect = autoConnect,
+        appIcon = appIcon,
         activeSubscription = activeSubscription,
         onThemeChange = { SettingsStore.setTheme(context, it) },
         onLanguageChange = { SettingsStore.setLanguage(context, it) },
         onBlockAdsChange = { SettingsStore.setBlockAds(context, it) },
         onAutoConnectChange = { SettingsStore.setAutoConnect(context, it) },
+        onAppIconChange = { SettingsStore.setAppIcon(context, it) },
         onShareLogs = onShareLogs,
         onClearLogs = { AppLog.clear() },
         onResetSettings = { SettingsStore.reset(context) },

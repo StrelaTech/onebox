@@ -1,6 +1,8 @@
 package com.strela.onebox.settings
 
+import android.content.ComponentName
 import android.content.Context
+import android.content.pm.PackageManager
 import com.strela.onebox.i18n.AppLanguage
 import com.strela.onebox.i18n.OneBoxStrings
 import com.strela.onebox.i18n.stringsFor
@@ -20,8 +22,19 @@ enum class ThemeMode(val key: String) {
     }
 }
 
+/** Варианты иконки приложения. */
+enum class AppIcon(val key: String) {
+    DEFAULT("default"),
+    ALT1("alt1"),
+    ALT2("alt2");
+
+    companion object {
+        fun fromKey(key: String?): AppIcon = entries.firstOrNull { it.key == key } ?: DEFAULT
+    }
+}
+
 /**
- * Настройки приложения (язык, тема и параметры подключения) в SharedPreferences.
+ * Настройки приложения (язык, тема, иконка и параметры подключения) в SharedPreferences.
  * Значения доступны как StateFlow — Compose перерисовывается при изменении.
  */
 object SettingsStore {
@@ -29,6 +42,7 @@ object SettingsStore {
     private const val PREFS = "settings"
     private const val KEY_LANGUAGE = "language"
     private const val KEY_THEME = "theme"
+    private const val KEY_APP_ICON = "app_icon"
     private const val KEY_BLOCK_ADS = "block_ads"
     private const val KEY_AUTO_CONNECT = "auto_connect"
 
@@ -37,6 +51,9 @@ object SettingsStore {
 
     private val _theme = MutableStateFlow(ThemeMode.SYSTEM)
     val theme: StateFlow<ThemeMode> = _theme.asStateFlow()
+
+    private val _appIcon = MutableStateFlow(AppIcon.DEFAULT)
+    val appIcon: StateFlow<AppIcon> = _appIcon.asStateFlow()
 
     private val _blockAds = MutableStateFlow(true)
     val blockAds: StateFlow<Boolean> = _blockAds.asStateFlow()
@@ -50,12 +67,15 @@ object SettingsStore {
             .getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         _language.value = AppLanguage.fromCode(prefs.getString(KEY_LANGUAGE, null))
         _theme.value = ThemeMode.fromKey(prefs.getString(KEY_THEME, null))
+        _appIcon.value = AppIcon.fromKey(prefs.getString(KEY_APP_ICON, null))
         _blockAds.value = prefs.getBoolean(KEY_BLOCK_ADS, true)
         _autoConnect.value = prefs.getBoolean(KEY_AUTO_CONNECT, false)
         AppLog.i(
             "SettingsStore: язык=${_language.value.code}, тема=${_theme.value.key}, " +
-                "блокировка рекламы=${_blockAds.value}, автоподключение=${_autoConnect.value}"
+                "иконка=${_appIcon.value.key}, блокировка рекламы=${_blockAds.value}, автоподключение=${_autoConnect.value}"
         )
+        // Применяем сохранённую иконку при старте
+        applyAppIcon(context, _appIcon.value)
     }
 
     fun setLanguage(context: Context, language: AppLanguage) {
@@ -86,15 +106,25 @@ object SettingsStore {
         AppLog.i("SettingsStore: автоподключение ${if (enabled) "включено" else "выключено"}")
     }
 
+    fun setAppIcon(context: Context, icon: AppIcon) {
+        if (_appIcon.value == icon) return
+        _appIcon.value = icon
+        prefs(context).edit().putString(KEY_APP_ICON, icon.key).apply()
+        AppLog.i("SettingsStore: выбрана иконка ${icon.key}")
+        applyAppIcon(context, icon)
+    }
+
     /** Возвращает все настройки к значениям по умолчанию. */
     fun reset(context: Context) {
         _theme.value = ThemeMode.SYSTEM
         _language.value = AppLanguage.RU
+        _appIcon.value = AppIcon.DEFAULT
         _blockAds.value = true
         _autoConnect.value = false
         prefs(context).edit()
             .putString(KEY_THEME, _theme.value.key)
             .putString(KEY_LANGUAGE, _language.value.code)
+            .putString(KEY_APP_ICON, _appIcon.value.key)
             .putBoolean(KEY_BLOCK_ADS, _blockAds.value)
             .putBoolean(KEY_AUTO_CONNECT, _autoConnect.value)
             .apply()
@@ -103,6 +133,26 @@ object SettingsStore {
 
     /** Тексты для текущего языка — для мест вне Compose (сервис, хранилище профилей). */
     fun strings(): OneBoxStrings = stringsFor(_language.value)
+
+    /** Применяет выбранную иконку через activity-alias. */
+    private fun applyAppIcon(context: Context, icon: AppIcon) {
+        val pm = context.packageManager
+        val packageName = context.packageName
+        val aliases = mapOf(
+            AppIcon.DEFAULT to "$packageName.icon.default",
+            AppIcon.ALT1 to "$packageName.icon.alt1",
+            AppIcon.ALT2 to "$packageName.icon.alt2",
+        )
+        aliases.forEach { (key, alias) ->
+            val state = if (key == icon) PackageManager.COMPONENT_ENABLED_STATE_ENABLED
+            else PackageManager.COMPONENT_ENABLED_STATE_DISABLED
+            pm.setComponentEnabledSetting(
+                ComponentName(packageName, alias),
+                state,
+                PackageManager.DONT_KILL_APP
+            )
+        }
+    }
 
     private fun prefs(context: Context) =
         context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
