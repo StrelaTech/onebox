@@ -132,15 +132,22 @@ data class OneBoxTextStyles(
     val button: TextStyle,
 )
 
-private fun defaultOneBoxTextStyles() = OneBoxTextStyles(
-    headline1 = TextStyle(fontSize = 20.sp, lineHeight = 26.sp, fontWeight = FontWeight.SemiBold),
-    headline2 = TextStyle(fontSize = 16.sp, lineHeight = 21.sp, fontWeight = FontWeight.SemiBold),
-    body1 = TextStyle(fontSize = 15.sp, lineHeight = 20.sp, fontWeight = FontWeight.Normal),
-    body2 = TextStyle(fontSize = 14.sp, lineHeight = 19.sp, fontWeight = FontWeight.Normal),
-    footnote1 = TextStyle(fontSize = 13.sp, lineHeight = 17.sp, fontWeight = FontWeight.Medium),
-    footnote2 = TextStyle(fontSize = 12.sp, lineHeight = 16.sp, fontWeight = FontWeight.Normal),
-    button = TextStyle(fontSize = 15.sp, lineHeight = 20.sp, fontWeight = FontWeight.SemiBold),
-)
+/**
+ * Типографика приложения. Каждый размер умножается на масштаб текста
+ * из настроек: масштаб 1,3 — все размеры и межстрочные интервалы на 30 % больше.
+ */
+private fun defaultOneBoxTextStyles(scale: Float = 1f): OneBoxTextStyles {
+    val sp = { size: Int -> (size * scale).sp }
+    return OneBoxTextStyles(
+        headline1 = TextStyle(fontSize = sp(20), lineHeight = sp(26), fontWeight = FontWeight.SemiBold),
+        headline2 = TextStyle(fontSize = sp(16), lineHeight = sp(21), fontWeight = FontWeight.SemiBold),
+        body1 = TextStyle(fontSize = sp(15), lineHeight = sp(20), fontWeight = FontWeight.Normal),
+        body2 = TextStyle(fontSize = sp(14), lineHeight = sp(19), fontWeight = FontWeight.Normal),
+        footnote1 = TextStyle(fontSize = sp(13), lineHeight = sp(17), fontWeight = FontWeight.Medium),
+        footnote2 = TextStyle(fontSize = sp(12), lineHeight = sp(16), fontWeight = FontWeight.Normal),
+        button = TextStyle(fontSize = sp(15), lineHeight = sp(20), fontWeight = FontWeight.SemiBold),
+    )
+}
 
 val LocalOneBoxColors = staticCompositionLocalOf { LightMono }
 val LocalOneBoxTextStyles = staticCompositionLocalOf { defaultOneBoxTextStyles() }
@@ -162,14 +169,16 @@ object OneBoxTheme {
 fun OneBoxTheme(
     darkTheme: Boolean,
     language: AppLanguage,
+    fontScale: Float = 1f,
     content: @Composable () -> Unit,
 ) {
     val colors = if (darkTheme) DarkMono else LightMono
     val indication = remember(colors) { PressIndication(colors.pressedOverlay) }
+    val textStyles = remember(fontScale) { defaultOneBoxTextStyles(fontScale) }
 
     CompositionLocalProvider(
         LocalOneBoxColors provides colors,
-        LocalOneBoxTextStyles provides defaultOneBoxTextStyles(),
+        LocalOneBoxTextStyles provides textStyles,
         LocalContentColor provides colors.onBackground,
         LocalIndication provides indication,
         LocalStrings provides stringsFor(language),

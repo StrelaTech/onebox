@@ -1,6 +1,7 @@
 package com.strela.onebox.profile
 
 import android.content.Context
+import com.strela.onebox.api.PingOptions
 import com.strela.onebox.api.ProfileSelection
 import com.strela.onebox.api.ProfileSource
 import com.strela.onebox.log.AppLog
@@ -36,6 +37,8 @@ class StoreProfileSource(context: Context) : ProfileSource {
 
     override fun blockAds(): Boolean = SettingsStore.blockAds.value
 
+    override fun pingOptions(): PingOptions = SettingsStore.pingOptions.value
+
     override fun userConfig(): String? = userConfigJson
 
     override fun saveUserConfig(json: String) {
@@ -45,6 +48,15 @@ class StoreProfileSource(context: Context) : ProfileSource {
             .putString(KEY_CONFIG, json)
             .apply()
         AppLog.i("StoreProfileSource: сохранён пользовательский JSON-конфиг")
+    }
+
+    override fun clearUserConfig() {
+        userConfigJson = null
+        app.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            .edit()
+            .remove(KEY_CONFIG)
+            .apply()
+        AppLog.i("StoreProfileSource: пользовательский JSON-конфиг удалён")
     }
 
     private fun readUserConfig(context: Context): String? {

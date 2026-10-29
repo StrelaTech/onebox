@@ -2,20 +2,15 @@
 package xray
 
 import (
-	"context"
 	"errors"
 	"io"
 	stdlog "log"
-	"net"
-	"net/http"
 	"os"
 	"strconv"
 	"sync"
-	"time"
 
 	applog "github.com/xtls/xray-core/app/log"
 	xlog "github.com/xtls/xray-core/common/log"
-	xnet "github.com/xtls/xray-core/common/net"
 	"github.com/xtls/xray-core/core"
 	_ "github.com/xtls/xray-core/main/distro/all" // все протоколы/транспорты + JSON-лоадер
 	_ "github.com/xtls/xray-core/proxy/tun"       // tun-инбаунд для VpnService (не входит в distro/all)
@@ -105,78 +100,4 @@ func IsRunning() bool {
 	mu.Lock()
 	defer mu.Unlock()
 	return instance != nil
-}
-
-// PingThroughOutbound измеряет задержку до узла на другом конце туннеля.
-//
-// Делает HTTP GET на [probeUrl] через запущенное ядро (тот же путь, что и
-// реальный трафик: маршрутизация → outbound прокси) и возвращает полное время
-// ответа в миллисекундах. Так измеряется реальная задержка сервера, включая
-// установку соединения и прокси-хендшейк — как это делает сам xray в observatory.
-//
-// target/port используются, если probeUrl пуст (не задан) — тогда запрос идёт на
-// https://target:port/ и ожидается любой ответ.
-// timeoutMs — лимит в миллисекундах.
-func PingThroughOutbound(target string, port int, probeUrl string, timeoutMs int) (int64, error) {
-	mu.Lock()
-	inst := instance
-	mu.Unlock()
-
-	if inst == nil {
-		return 0, errors.New("xray: not running")
-	}
-	if timeoutMs <= 0 {
-		timeoutMs = 5000
-	}
-	if probeUrl == "" {
-		probeUrl = "https://www.gstatic.com/generate_204"
-	}
-
-	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(timeoutMs)*time.Millisecond)
-	defer cancel()
-
-	dial := func(ctx context.Context, network, addr string) (net.Conn, error) {
-		dest, err := xnet.ParseDestination(network + ":" + addr)
-		if err != nil {
-			return nil, err
-		}
-		return core.Dial(ctx, inst, dest)
-	}
-
-	transport := &http.Transport{
-		ForceAttemptHTTP2: true,
-		DialContext:       dial,
-		// не переиспользуем соединения — каждый пинг должен быть честным
-		DisableKeepAlives: true,
-	}
-	client := &http.Client{
-		Transport: transport,
-		Timeout:   time.Duration(timeoutMs) * time.Millisecond,
-		// не идём по редиректам — 204/3xx уже означают живое соединение
-		CheckRedirect: func(*http.Request, []*http.Request) error {
-			return http.ErrUseLastResponse
-		},
-	}
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, probeUrl, nil)
-	if err != nil {
-		// if probeUrl isn't a URL, treat as host:port
-		probeUrl = "https://" + net.JoinHostPort(target, strconv.Itoa(port)) + "/"
-		req, err = http.NewRequestWithContext(ctx, http.MethodGet, probeUrl, nil)
-		if err != nil {
-			return 0, err
-		}
-	}
-
-	start := time.Now()
-	resp, err := client.Do(req)
-	elapsed := time.Since(start).Milliseconds()
-	if err != nil {
-		return 0, err
-	}
-	if resp.Body != nil {
-		_, _ = io.Copy(io.Discard, resp.Body)
-		resp.Body.Close()
-	}
-	return elapsed, nil
 }

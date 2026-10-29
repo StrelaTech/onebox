@@ -152,6 +152,21 @@ object SubscriptionStore {
         persist(context)
     }
 
+    /**
+     * Полный сброс подписок: убирает список и выбор целиком (сброс настроек).
+     * Ключи prefs стираются полностью — «selected» снова станет не задан,
+     * и первая добавленная подписка выберется автоматически.
+     */
+    fun clearAll(context: Context) {
+        _subscriptions.value = emptyList()
+        _selectedSubscriptionId.value = null
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            .edit()
+            .clear()
+            .apply()
+        AppLog.i("SubscriptionStore: все подписки удалены (сброс настроек)")
+    }
+
     fun removeServer(context: Context, subscriptionId: String, serverId: String) {
         val current = _subscriptions.value.mapNotNull { subscription ->
             if (subscription.id != subscriptionId) return@mapNotNull subscription

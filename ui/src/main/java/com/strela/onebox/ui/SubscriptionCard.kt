@@ -25,6 +25,7 @@ import com.strela.onebox.ui.OneBoxTheme
 import com.strela.onebox.ui.design.CircularProgressIndicator
 import com.strela.onebox.ui.design.Icon
 import com.strela.onebox.ui.design.IconButton
+import com.strela.onebox.ui.design.LinearProgressIndicator
 import com.strela.onebox.ui.design.Surface
 import com.strela.onebox.ui.design.Text
 import com.strela.onebox.ui.design.icons.OneBoxIcons
@@ -116,7 +117,7 @@ fun SubscriptionCard(
                     )
                 }
 
-                // Дата окончания из метаданных; справа — кнопки: пинг всех, обновление, удаление
+                // Остаток срока из метаданных; справа — кнопки: пинг всех, обновление, удаление
                 val pingingAll = subscription.servers.any { pings[it.id] is PingState.InProgress }
                 Row(
                     modifier = Modifier
@@ -126,7 +127,7 @@ fun SubscriptionCard(
                 ) {
                     Text(
                         text = subscription.expireAtMillis
-                            ?.let { expireAt -> s.expiresAt(s.formatDate(expireAt)) }
+                            ?.let { expireAt -> s.expiresLeft(expireAt) }
                             ?: s.noExpiry,
                         style = OneBoxTheme.textStyles.footnote2,
                         color = if (subscription.expireAtMillis?.let { expireAt ->
@@ -180,11 +181,11 @@ fun SubscriptionCard(
                     }
                 }
 
-                // Потрачено/лимит
+                // Потрачено/лимит + полоска прогресса трафика
                 subscription.usedBytes?.let { used ->
-                    val traffic = subscription.trafficLimitBytes
-                        ?.takeIf { it > 0 }
-                        ?.let { limit -> s.trafficUsed(s.formatBytes(used), s.formatBytes(limit)) }
+                    val limit = subscription.trafficLimitBytes?.takeIf { it > 0 }
+                    val traffic = limit
+                        ?.let { s.trafficUsed(s.formatBytes(used), s.formatBytes(it)) }
                         ?: s.trafficUsedNoLimit(s.formatBytes(used))
                     Text(
                         text = traffic,
@@ -194,6 +195,15 @@ fun SubscriptionCard(
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.padding(top = 8.dp),
                     )
+                    // Полоска — только когда известен лимит: иначе прогресс не определён
+                    limit?.let {
+                        LinearProgressIndicator(
+                            progress = used.toFloat() / it,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 6.dp),
+                        )
+                    }
                 }
             }
 

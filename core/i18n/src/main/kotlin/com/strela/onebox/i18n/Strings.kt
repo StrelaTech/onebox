@@ -1,7 +1,5 @@
 package com.strela.onebox.i18n
 
-import java.text.SimpleDateFormat
-import java.util.Date
 import java.util.Locale
 
 /** Язык интерфейса. По умолчанию — русский. */
@@ -58,15 +56,16 @@ data class OneBoxStrings(
     val themeDark: String,
     val themeLight: String,
     val themeSystemShort: String,
+    val textSize: String,
+    val textSizeHint: String,
+    val textSizeSmall: String,
+    val textSizeNormal: String,
+    val textSizeLarge: String,
+    val textSizeHuge: String,
     val language: String,
     val languageRussian: String,
     val languageEnglish: String,
     val languageHint: String,
-    val appIcon: String,
-    val appIconTitle: String,
-    val appIconDefault: String,
-    val appIconAlt1: String,
-    val appIconAlt2: String,
     val connection: String,
     val blockAds: String,
     val blockAdsHint: String,
@@ -74,7 +73,12 @@ data class OneBoxStrings(
     val autoConnectHint: String,
     val diagnostics: String,
     val logsHint: String,
-    val shareLogsHint: String,
+    val viewLogs: String,
+    val viewLogsHint: String,
+    val logsConsole: String,
+    val logsConsoleEmpty: String,
+    val importLogs: String,
+    val importLogsHint: String,
     val clearLogs: String,
     val clearLogsHint: String,
     val logsCleared: String,
@@ -103,12 +107,11 @@ data class OneBoxStrings(
     val refreshSubscription: String,
 
     // Метаданные подписки: срок и трафик
-    val expiresAt: (String) -> String,
+    val expiresLeft: (Long) -> String,
     val expiredShort: String,
     val noExpiry: String,
     val trafficUsed: (used: String, limit: String) -> String,
     val trafficUsedNoLimit: (String) -> String,
-    val formatDate: (Long) -> String,
     val formatBytes: (Long) -> String,
 
     // Импорт подписки (кнопка «Добавить»)
@@ -129,13 +132,38 @@ data class OneBoxStrings(
 
     // Строка сервера
     val deleteServer: (String) -> String,
-    val ping: String,
     val pingAll: String,
     val pingFailed: String,
     val pingMs: (Long) -> String,
 
+    // Настройки пинга (экран «Пинг»)
+    val settingsPing: String,
+    val settingsPingHint: String,
+    val pingScreenTitle: String,
+    val pingMethod: String,
+    val pingMethodGet: String,
+    val pingMethodHead: String,
+    val pingMethodTcp: String,
+    val pingMethodIcmp: String,
+    val pingMethodHintGet: String,
+    val pingMethodHintHead: String,
+    val pingMethodHintTcp: String,
+    val pingMethodHintIcmp: String,
+    val pingTimeout: String,
+    val pingTimeoutHint: String,
+    val pingSeconds: (Int) -> String,
+    val pingUrlTest: String,
+    val pingUrlTestHint: String,
+    val pingUrlPresetGoogle: String,
+    val pingUrlPresetCloudflare: String,
+    val pingUrlPresetGithub: String,
+    val pingUrlOther: String,
+    val pingUrlLabel: String,
+    val pingUrlHint: String,
+
     // Прочее
     val defaultSubscriptionName: (Int) -> String,
+    val close: String,
     val vpnActiveNotification: String,
     val vpnChannelName: String
 )
@@ -175,15 +203,16 @@ val RuStrings = OneBoxStrings(
     themeDark = "Тёмная",
     themeLight = "Светлая",
     themeSystemShort = "Система",
+    textSize = "Размер текста",
+    textSizeHint = "Применяется ко всему интерфейсу",
+    textSizeSmall = "Мелкий",
+    textSizeNormal = "Обычный",
+    textSizeLarge = "Крупный",
+    textSizeHuge = "Очень крупный",
     language = "Язык",
     languageRussian = "Русский",
     languageEnglish = "English",
     languageHint = "Русский — по умолчанию",
-    appIcon = "Иконка приложения",
-    appIconTitle = "Стиль иконки",
-    appIconDefault = "Классическая",
-    appIconAlt1 = "Минималистичная",
-    appIconAlt2 = "Цветная",
     connection = "Подключение",
     blockAds = "Блокировать рекламу",
     blockAdsHint = "Рекламные и трекинговые домены — при следующем подключении",
@@ -191,7 +220,12 @@ val RuStrings = OneBoxStrings(
     autoConnectHint = "Запускать VPN при старте, если доступ уже разрешён",
     diagnostics = "Диагностика",
     logsHint = "Помогут разобраться в ошибках подключения",
-    shareLogsHint = "Отправить файл журнала",
+    viewLogs = "Посмотреть логи",
+    viewLogsHint = "Консоль журнала приложения",
+    logsConsole = "Логи",
+    logsConsoleEmpty = "Журнал пуст",
+    importLogs = "Импортировать логи",
+    importLogsHint = "Передать журнал файлом",
     clearLogs = "Очистить логи",
     clearLogsHint = "Удалить сохранённые записи",
     logsCleared = "Логи очищены",
@@ -200,7 +234,7 @@ val RuStrings = OneBoxStrings(
     coreVersion = "Ядро xray",
     activeSubscription = "Активная подписка",
     resetSettings = "Сбросить настройки",
-    resetSettingsHint = "Тема, язык и параметры подключения",
+    resetSettingsHint = "Всё: настройки, подписки и конфиг",
     resetDone = "Настройки сброшены",
 
     addedServers = { count -> "Добавлено серверов: $count" },
@@ -214,16 +248,15 @@ val RuStrings = OneBoxStrings(
     hideServers = "Скрыть список серверов",
     noServersInSubscription = "В подписке пока нет серверов",
     noSubscriptions = "Подписок пока нет",
-    noSubscriptionsHint = "Импортируйте подписку по URL, ссылки, JSON-конфиг или base64.",
+    noSubscriptionsHint = "Импортируйте подписку",
     deleteSubscription = { name -> "Удалить подписку $name" },
     refreshSubscription = "Обновить подписку",
 
-    expiresAt = { date -> "Действует до $date" },
+    expiresLeft = { millis -> formatRemainingWith(millis, LOCALE_RU, RU_REMAINING_UNITS, "истекла") },
     expiredShort = "истекла",
     noExpiry = "Бессрочная",
     trafficUsed = { used, limit -> "Трафик: $used из $limit" },
     trafficUsedNoLimit = { used -> "Трафик: $used" },
-    formatDate = { millis -> formatDateWith(millis, LOCALE_RU, "d MMM yyyy") },
     formatBytes = { bytes -> formatBytesWith(bytes, LOCALE_RU, BYTES_UNITS_RU) },
 
     addSubscriptionAction = "Добавить",
@@ -242,12 +275,36 @@ val RuStrings = OneBoxStrings(
     serversSubscriptionTitle = "Серверы",
 
     deleteServer = { name -> "Удалить сервер $name" },
-    ping = "Пинг",
     pingAll = "Пинг всех",
     pingFailed = "нет",
     pingMs = { millis -> "$millis мс" },
 
+    settingsPing = "Пинг",
+    settingsPingHint = "Метод, тайм-аут и URL-тест",
+    pingScreenTitle = "Пинг",
+    pingMethod = "Метод пинга",
+    pingMethodGet = "via Proxy GET",
+    pingMethodHead = "via Proxy HEAD",
+    pingMethodTcp = "TCP",
+    pingMethodIcmp = "ICMP",
+    pingMethodHintGet = "HTTP GET через ядро — тот же путь, что у трафика",
+    pingMethodHintHead = "HTTP HEAD через ядро — тот же путь, что у трафика",
+    pingMethodHintTcp = "Только TCP-соединение с сервером, без ядра",
+    pingMethodHintIcmp = "ICMP-эхо на адрес сервера — если устройство разрешает",
+    pingTimeout = "Тайм-аут",
+    pingTimeoutHint = "Ждать ответ не дольше",
+    pingSeconds = { seconds -> "$seconds с" },
+    pingUrlTest = "URL-тест",
+    pingUrlTestHint = "Цель HTTP-проб (GET/HEAD)",
+    pingUrlPresetGoogle = "Google · generate_204",
+    pingUrlPresetCloudflare = "Cloudflare · generate_204",
+    pingUrlPresetGithub = "GitHub · robots.txt",
+    pingUrlOther = "Другой URL…",
+    pingUrlLabel = "URL",
+    pingUrlHint = "Используется с GET/HEAD; для TCP и ICMP нужен только адрес сервера",
+
     defaultSubscriptionName = { number -> "Подписка $number" },
+    close = "Закрыть",
     vpnActiveNotification = "VPN активен",
     vpnChannelName = "OneBox VPN"
 )
@@ -287,15 +344,16 @@ val EnStrings = OneBoxStrings(
     themeDark = "Dark",
     themeLight = "Light",
     themeSystemShort = "System",
+    textSize = "Text size",
+    textSizeHint = "Applies to the entire interface",
+    textSizeSmall = "Small",
+    textSizeNormal = "Normal",
+    textSizeLarge = "Large",
+    textSizeHuge = "Extra large",
     language = "Language",
     languageRussian = "Русский",
     languageEnglish = "English",
     languageHint = "Russian is the default",
-    appIcon = "App Icon",
-    appIconTitle = "Icon Style",
-    appIconDefault = "Classic",
-    appIconAlt1 = "Minimal",
-    appIconAlt2 = "Colorful",
     connection = "Connection",
     blockAds = "Block ads",
     blockAdsHint = "Ad and tracking domains — on the next connection",
@@ -303,7 +361,12 @@ val EnStrings = OneBoxStrings(
     autoConnectHint = "Start VPN on launch if access is already granted",
     diagnostics = "Diagnostics",
     logsHint = "Helps diagnose connection problems",
-    shareLogsHint = "Send the log file",
+    viewLogs = "View logs",
+    viewLogsHint = "In-app log console",
+    logsConsole = "Logs",
+    logsConsoleEmpty = "Log is empty",
+    importLogs = "Import logs",
+    importLogsHint = "Share the log file",
     clearLogs = "Clear logs",
     clearLogsHint = "Delete saved entries",
     logsCleared = "Logs cleared",
@@ -312,7 +375,7 @@ val EnStrings = OneBoxStrings(
     coreVersion = "xray core",
     activeSubscription = "Active subscription",
     resetSettings = "Reset settings",
-    resetSettingsHint = "Theme, language, and connection options",
+    resetSettingsHint = "Everything: settings, subscriptions, and config",
     resetDone = "Settings reset",
 
     addedServers = { count -> "Servers added: $count" },
@@ -326,16 +389,15 @@ val EnStrings = OneBoxStrings(
     hideServers = "Hide server list",
     noServersInSubscription = "This subscription has no servers yet",
     noSubscriptions = "No subscriptions yet",
-    noSubscriptionsHint = "Import a subscription by URL, links, a JSON config, or base64.",
+    noSubscriptionsHint = "Import a subscription",
     deleteSubscription = { name -> "Delete subscription $name" },
     refreshSubscription = "Refresh subscription",
 
-    expiresAt = { date -> "Valid until $date" },
+    expiresLeft = { millis -> formatRemainingWith(millis, Locale.ENGLISH, EN_REMAINING_UNITS, "expired") },
     expiredShort = "expired",
     noExpiry = "No expiry",
     trafficUsed = { used, limit -> "Traffic: $used of $limit" },
     trafficUsedNoLimit = { used -> "Traffic: $used" },
-    formatDate = { millis -> formatDateWith(millis, Locale.ENGLISH, "d MMM yyyy") },
     formatBytes = { bytes -> formatBytesWith(bytes, Locale.ENGLISH, BYTES_UNITS_EN) },
 
     addSubscriptionAction = "Add",
@@ -354,12 +416,36 @@ val EnStrings = OneBoxStrings(
     serversSubscriptionTitle = "Servers",
 
     deleteServer = { name -> "Delete server $name" },
-    ping = "Ping",
     pingAll = "Ping all",
     pingFailed = "none",
     pingMs = { millis -> "$millis ms" },
 
+    settingsPing = "Ping",
+    settingsPingHint = "Method, timeout, and URL test",
+    pingScreenTitle = "Ping",
+    pingMethod = "Ping method",
+    pingMethodGet = "via Proxy GET",
+    pingMethodHead = "via Proxy HEAD",
+    pingMethodTcp = "TCP",
+    pingMethodIcmp = "ICMP",
+    pingMethodHintGet = "HTTP GET through the core — the same path as real traffic",
+    pingMethodHintHead = "HTTP HEAD through the core — the same path as real traffic",
+    pingMethodHintTcp = "Plain TCP connection to the server, without the core",
+    pingMethodHintIcmp = "ICMP echo to the server address — if the device allows it",
+    pingTimeout = "Timeout",
+    pingTimeoutHint = "Maximum wait for a reply",
+    pingSeconds = { seconds -> "$seconds s" },
+    pingUrlTest = "URL test",
+    pingUrlTestHint = "HTTP probe target (GET/HEAD)",
+    pingUrlPresetGoogle = "Google · generate_204",
+    pingUrlPresetCloudflare = "Cloudflare · generate_204",
+    pingUrlPresetGithub = "GitHub · robots.txt",
+    pingUrlOther = "Custom URL…",
+    pingUrlLabel = "URL",
+    pingUrlHint = "Used with GET/HEAD; TCP and ICMP only need the server address",
+
     defaultSubscriptionName = { number -> "Subscription $number" },
+    close = "Close",
     vpnActiveNotification = "VPN is on",
     vpnChannelName = "OneBox VPN"
 )
@@ -369,11 +455,30 @@ fun stringsFor(language: AppLanguage): OneBoxStrings = when (language) {
     AppLanguage.EN -> EnStrings
 }
 
-/** Форматирует дату окончания подписки: «24 окт 2026» / "24 Oct 2026". */
-private fun formatDateWith(millis: Long, locale: Locale, pattern: String): String =
-    runCatching {
-        SimpleDateFormat(pattern, locale).format(Date(millis))
-    }.getOrDefault("")
+/**
+ * Остаток срока подписки: «Осталось 45 дн.» / "45 d left".
+ * Истёкшая подписка — «истекла» / "expired". До двух суток считаем в часах,
+ * до двух месяцев — в днях, дальше — в месяцах (вверх — неполный час/день
+ * уже целый).
+ */
+private fun formatRemainingWith(millis: Long, locale: Locale, units: Array<String>, expired: String): String {
+    val diff = millis - System.currentTimeMillis()
+    if (diff <= 0) return expired
+    val hours = (diff + MILLIS_PER_HOUR - 1) / MILLIS_PER_HOUR
+    val (count, unit) = when {
+        hours < 48L -> hours to units[0]
+        hours < 48L * 60L -> (hours + 23L) / 24L to units[1]
+        else -> Math.round(hours / 24.0 / 30.436875).toLong().coerceAtLeast(2L) to units[2]
+    }
+    return when (locale.language) {
+        "ru" -> "Осталось $count $unit"
+        else -> "$count $unit left"
+    }
+}
+
+private const val MILLIS_PER_HOUR = 3_600_000L
+
+private val EN_REMAINING_UNITS = arrayOf("h", "d", "mo")
 
 /**
  * Человекочитаемый размер трафика: 2048 → «2 КБ».
@@ -396,6 +501,7 @@ private fun formatBytesWith(bytes: Long, locale: Locale, units: Array<String>): 
 }
 
 private val LOCALE_RU = Locale("ru")
+private val RU_REMAINING_UNITS = arrayOf("ч.", "дн.", "мес.")
 
 private val BYTES_UNITS_RU = arrayOf("Б", "КБ", "МБ", "ГБ", "ТБ")
 private val BYTES_UNITS_EN = arrayOf("B", "KB", "MB", "GB", "TB")

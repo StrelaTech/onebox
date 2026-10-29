@@ -88,3 +88,28 @@ fun InfiniteProgressIndicator(
         )
     }
 }
+
+/**
+ * Линейный индикатор заданного прогресса: закруглённый трек и заполнение
+ * [progress] (0..1, значения сверх диапазона обрезаются). Чистая версия
+ * на Canvas — весь дизайн-кит живёт без androidx.compose.material*.
+ */
+@Composable
+fun LinearProgressIndicator(
+    progress: Float,
+    modifier: Modifier = Modifier,
+    fillColor: Color = OneBoxTheme.colorScheme.primary,
+    trackColor: Color = OneBoxTheme.colorScheme.surfaceContainerHigh,
+) {
+    Canvas(modifier.height(4.dp)) {
+        val radius = CornerRadius(size.height / 2f, size.height / 2f)
+        drawRoundRect(color = trackColor, size = size, cornerRadius = radius)
+
+        val width = (size.width * progress.coerceIn(0f, 1f)).coerceAtLeast(size.height)
+        drawRoundRect(
+            color = fillColor,
+            size = Size(width, size.height),
+            cornerRadius = radius,
+        )
+    }
+}

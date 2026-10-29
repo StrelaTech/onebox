@@ -2,6 +2,8 @@ package com.strela.onebox.xray
 
 import android.content.Context
 import com.strela.onebox.api.ProfileSource
+import com.strela.onebox.api.PingMethod
+import com.strela.onebox.api.PingOptions
 import com.strela.onebox.api.PingState
 import com.strela.onebox.api.VpnCore
 import com.strela.onebox.api.VpnStatus
@@ -30,7 +32,7 @@ object XrayEngine : VpnCore {
 
     override val displayName: String = "Xray"
 
-    /** Лимит ожидания ответа при пинге профиля, мс. */
+    /** Лимит ожидания ответа при пинге, если настройки не отдали своё значение, мс. */
     private const val PING_TIMEOUT_MS = 5000L
 
     /** Остановки ядра сериализуются в одном потоке: stop'ы не идут параллельно. */
@@ -186,51 +188,90 @@ object XrayEngine : VpnCore {
     }
 
     /**
-     * Пингует сервер через ядро (в фоне).
+     * Пингует сервер выбранным способом (настройки пинга, в фоне).
      *
-     * Поднимает ядро с конфигом именно этого сервера, измеряет задержку и гасит.
-     * Если VPN уже поднят — пинг невозможен (второй инстанс ядра не создаётся),
-     * поэтому сообщаем об этом, а не меряем «не тот» сервер.
+     * GET/HEAD — HTTP-проба через временное ядро: поднимает инстанс с конфигом
+     * именно этого сервера, меряет, гасит. Если VPN уже поднят — пинг
+     * невозможен (второй инстанс ядра не создаётся), поэтому сообщаем об
+     * этом, а не меряем «не тот» сервер.
+     *
+     * TCP/ICMP — ядро не нужно: голый хендшейк/эхо на адрес сервера, работают
+     * и при активном VPN, и параллельно (nativeLock не задействуется).
      */
     override fun pingServer(server: Server) {
         if (_pings.value[server.id] is PingState.InProgress) return
         setPing(server.id, PingState.InProgress)
 
-        Thread {
-            synchronized(nativeLock) {
-                // источник истины — нативное состояние ядра, а не поток статуса
-                val alreadyRunning = try {
-                    Xray.isRunning()
-                } catch (_: Throwable) {
-                    _status.value is VpnStatus.Running || _status.value is VpnStatus.Starting
-                }
-                if (alreadyRunning) {
-                    AppLog.w("pingServer: ядро занято (VPN активен), пинг невозможен")
-                    setPing(server.id, PingState.Failed("отключите VPN"))
-                    return@synchronized
-                }
+        val options = profiles.pingOptions()
+        val timeoutMs = options.timeoutMs.takeIf { it > 0 } ?: PING_TIMEOUT_MS
+        val method = options.method
 
-                try {
-                    GeoAssets.ensure(appContext)
-                    Xray.setQuiet()
-                    Xray.startInstance(XrayConfigBuilder.build(server, profiles.blockAds()))
-                    try {
-                        val ms = Xray.pingThroughOutbound("", 0L, "", PING_TIMEOUT_MS)
-                        AppLog.i("pingServer: ${server.name} → $ms мс")
-                        setPing(server.id, PingState.Ok(ms))
-                    } finally {
-                        try {
-                            Xray.stopInstance()
-                        } catch (e: Exception) {
-                            AppLog.w("pingServer: не удалось остановить ядро после пинга", e)
-                        }
-                    }
-                } catch (e: Exception) {
-                    AppLog.w("pingServer: ${server.name} → ошибка: ${e.message}")
-                    setPing(server.id, PingState.Failed(e.message ?: "неизвестная ошибка"))
+        Thread {
+            try {
+                if (method == PingMethod.TCP || method == PingMethod.ICMP) {
+                    pingDirect(server, method, options, timeoutMs)
+                } else {
+                    pingThroughCore(server, method, options, timeoutMs)
                 }
+            } catch (e: Exception) {
+                AppLog.w("pingServer: ${server.name} → ошибка: ${e.message}")
+                setPing(server.id, PingState.Failed(e.message ?: "неизвестная ошибка"))
             }
         }.start()
+    }
+
+    /** Пинг без ядра: TCP-хендшейк или ICMP-эхо напрямую на адрес сервера. */
+    private fun pingDirect(
+        server: Server,
+        method: PingMethod,
+        options: PingOptions,
+        timeoutMs: Long,
+    ) {
+        val ms = Xray.ping(method.key, server.address, server.port.toLong(), timeoutMs, options.testUrl)
+        AppLog.i("pingServer(${method.key}): ${server.name} → $ms мс")
+        setPing(server.id, PingState.Ok(ms))
+    }
+
+    /** HTTP-проба через ядро: временный инстанс под этот сервер, start→ping→stop. */
+    private fun pingThroughCore(
+        server: Server,
+        method: PingMethod,
+        options: PingOptions,
+        timeoutMs: Long,
+    ) {
+        synchronized(nativeLock) {
+            // источник истины — нативное состояние ядра, а не поток статуса
+            val alreadyRunning = try {
+                Xray.isRunning()
+            } catch (_: Throwable) {
+                _status.value is VpnStatus.Running || _status.value is VpnStatus.Starting
+            }
+            if (alreadyRunning) {
+                AppLog.w("pingServer: ядро занято (VPN активен), пинг невозможен")
+                setPing(server.id, PingState.Failed("отключите VPN"))
+                return@synchronized
+            }
+
+            try {
+                GeoAssets.ensure(appContext)
+                Xray.setQuiet()
+                Xray.startInstance(XrayConfigBuilder.build(server, profiles.blockAds()))
+                try {
+                    val ms = Xray.ping(method.key, server.address, server.port.toLong(), timeoutMs, options.testUrl)
+                    AppLog.i("pingServer(${method.key}): ${server.name} → $ms мс")
+                    setPing(server.id, PingState.Ok(ms))
+                } finally {
+                    try {
+                        Xray.stopInstance()
+                    } catch (e: Exception) {
+                        AppLog.w("pingServer: не удалось остановить ядро после пинга", e)
+                    }
+                }
+            } catch (e: Exception) {
+                AppLog.w("pingServer: ${server.name} → ошибка: ${e.message}")
+                setPing(server.id, PingState.Failed(e.message ?: "неизвестная ошибка"))
+            }
+        }
     }
 
     override fun saveUserConfig(json: String) {

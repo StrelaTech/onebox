@@ -27,46 +27,6 @@
             </intent-filter>
         </activity>
 
-        <!-- Алиасы для смены иконки приложения -->
-        <activity-alias
-            android:name=".icon.default"
-            android:enabled="true"
-            android:exported="true"
-            android:icon="@mipmap/ic_launcher"
-            android:roundIcon="@mipmap/ic_launcher_round"
-            android:targetActivity=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity-alias>
-
-        <activity-alias
-            android:name=".icon.alt1"
-            android:enabled="false"
-            android:exported="true"
-            android:icon="@mipmap/ic_launcher_alt1"
-            android:roundIcon="@mipmap/ic_launcher_alt1_round"
-            android:targetActivity=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity-alias>
-
-        <activity-alias
-            android:name=".icon.alt2"
-            android:enabled="false"
-            android:exported="true"
-            android:icon="@mipmap/ic_launcher_alt2"
-            android:roundIcon="@mipmap/ic_launcher_alt2_round"
-            android:targetActivity=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity-alias>
-
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"

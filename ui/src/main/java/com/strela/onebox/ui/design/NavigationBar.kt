@@ -60,12 +60,16 @@ fun NavigationBar(
     }
 }
 
-/** Элемент нижней навигации: иконка + подпись, выбранная — цветом onBackground. */
+/**
+ * Элемент нижней навигации: иконка + подпись. Выбранная вкладка показывает
+ * filled-иконку, не выбранная — outline.
+ */
 @Composable
 fun RowScope.NavigationBarItem(
     selected: Boolean,
     onClick: () -> Unit,
-    icon: ImageVector,
+    outline: ImageVector,
+    filled: ImageVector,
     label: String,
 ) {
     val colors = OneBoxTheme.colorScheme
@@ -79,7 +83,7 @@ fun RowScope.NavigationBarItem(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Icon(
-            imageVector = icon,
+            imageVector = if (selected) filled else outline,
             contentDescription = null,
             modifier = Modifier
                 .padding(top = 8.dp)

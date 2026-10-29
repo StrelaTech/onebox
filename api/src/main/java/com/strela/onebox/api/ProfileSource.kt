@@ -29,9 +29,15 @@ interface ProfileSource {
     /** Блокировка рекламы (настройка) — учитывается при сборке конфига ядра. */
     fun blockAds(): Boolean
 
+    /** Настройки пинга серверов (метод, тайм-аут, URL-тест). */
+    fun pingOptions(): PingOptions
+
     /** Пользовательский «сырой» конфиг (JSON-режим); null — не сохранён. */
     fun userConfig(): String?
 
     /** Сохраняет пользовательский «сырой» конфиг (JSON-режим). */
     fun saveUserConfig(json: String)
+
+    /** Удаляет пользовательский «сырой» конфиг (сброс настроек). */
+    fun clearUserConfig()
 }

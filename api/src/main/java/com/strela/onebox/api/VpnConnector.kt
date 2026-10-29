@@ -173,6 +173,15 @@ object VpnConnector {
     /** Сохраняет пользовательский JSON-конфиг (JSON-режим). */
     fun saveUserConfig(json: String) = core.saveUserConfig(json)
 
+    /**
+     * Удаляет пользовательский «сырой» конфиг (сброс настроек). Конфиг
+     * сразу пересобирается из активного профиля.
+     */
+    fun clearUserConfig() {
+        profiles?.clearUserConfig()
+        refreshFromProfile()
+    }
+
     /** Список зарегистрированных ядер (для выбора ядра в настройках). */
     fun registeredCores(): List<VpnCore> = cores.values.toList()
 

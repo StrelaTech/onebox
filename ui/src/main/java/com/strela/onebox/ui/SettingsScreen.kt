@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -28,9 +27,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Popup
 import com.strela.onebox.i18n.AppLanguage
-import com.strela.onebox.settings.AppIcon
+import com.strela.onebox.settings.SettingsStore
 import com.strela.onebox.settings.ThemeMode
 import com.strela.onebox.ui.OneBoxTheme
 import com.strela.onebox.ui.design.Card
@@ -40,27 +38,31 @@ import com.strela.onebox.ui.design.Surface
 import com.strela.onebox.ui.design.Switch
 import com.strela.onebox.ui.design.Text
 import com.strela.onebox.ui.design.icons.OneBoxIcons
+import com.strela.onebox.ui.kit.DropdownRow
 import com.strela.onebox.ui.kit.IconTile
 import com.strela.onebox.ui.kit.SectionTitle
 import kotlinx.coroutines.delay
 
 /**
  * Экран «Настройки»: внешний вид, язык, параметры подключения,
- * диагностика и сведения о приложении.
+ * диагностика (консоль и файл логов) и сведения о приложении.
  */
 @Composable
 fun SettingsScreen(
     theme: ThemeMode,
     language: AppLanguage,
+    fontScale: Float,
     blockAds: Boolean,
     autoConnect: Boolean,
-    appIcon: AppIcon,
+    coreVersion: String,
     activeSubscription: String?,
     onThemeChange: (ThemeMode) -> Unit,
     onLanguageChange: (AppLanguage) -> Unit,
+    onFontScaleChange: (Float) -> Unit,
     onBlockAdsChange: (Boolean) -> Unit,
     onAutoConnectChange: (Boolean) -> Unit,
-    onAppIconChange: (AppIcon) -> Unit,
+    onOpenPing: () -> Unit,
+    onOpenLogs: () -> Unit,
     onShareLogs: () -> Unit,
     onClearLogs: () -> Unit,
     onResetSettings: () -> Unit,
@@ -108,19 +110,20 @@ fun SettingsScreen(
 
             SettingsDivider(startIndent = 18.dp)
 
-            val iconOptions = listOf(
-                AppIcon.DEFAULT to s.appIconDefault,
-                AppIcon.ALT1 to s.appIconAlt1,
-                AppIcon.ALT2 to s.appIconAlt2,
+            val textSizeOptions = listOf(
+                SettingsStore.FONT_SCALE_SMALL to s.textSizeSmall,
+                SettingsStore.FONT_SCALE_NORMAL to s.textSizeNormal,
+                SettingsStore.FONT_SCALE_LARGE to s.textSizeLarge,
+                SettingsStore.FONT_SCALE_HUGE to s.textSizeHuge,
             )
             DropdownRow(
-                icon = OneBoxIcons.Layers,
-                title = s.appIconTitle,
-                subtitle = s.appIcon,
-                selectedLabel = iconOptions.firstOrNull { it.first == appIcon }?.second
-                    ?: s.appIconDefault,
-                options = iconOptions.map { (icon, label) ->
-                    label to { onAppIconChange(icon) }
+                icon = OneBoxIcons.FormatSize,
+                title = s.textSize,
+                subtitle = s.textSizeHint,
+                selectedLabel = textSizeOptions.firstOrNull { it.first == fontScale }?.second
+                    ?: s.textSizeNormal,
+                options = textSizeOptions.map { (scale, label) ->
+                    label to { onFontScaleChange(scale) }
                 },
             )
 
@@ -168,9 +171,23 @@ fun SettingsScreen(
             )
             SettingsDivider(startIndent = 18.dp)
             ActionRow(
+                icon = OneBoxIcons.Wifi,
+                title = s.settingsPing,
+                subtitle = s.settingsPingHint,
+                onClick = onOpenPing,
+            )
+            SettingsDivider()
+            ActionRow(
                 icon = OneBoxIcons.Eye,
-                title = "Посмотреть логи",
-                subtitle = "Открыть журнал",
+                title = s.viewLogs,
+                subtitle = s.viewLogsHint,
+                onClick = onOpenLogs,
+            )
+            SettingsDivider()
+            ActionRow(
+                icon = OneBoxIcons.Upload,
+                title = s.importLogs,
+                subtitle = s.importLogsHint,
                 onClick = onShareLogs,
             )
             SettingsDivider()
@@ -194,10 +211,11 @@ fun SettingsScreen(
                 value = appVersion,
             )
             SettingsDivider()
+            // Точная версия ядра приходит от нативного xray-core через прослойку
             InfoRow(
                 icon = OneBoxIcons.Terminal,
                 title = s.coreVersion,
-                value = "xray",
+                value = coreVersion,
             )
             SettingsDivider()
             InfoRow(
@@ -268,112 +286,7 @@ private fun SettingsSection(
     Spacer(Modifier.height(24.dp))
 }
 
-/** Строка с выпадающим меню: нажатие открывает всплывающий список вариантов. */
-@Composable
-private fun DropdownRow(
-    icon: ImageVector,
-    title: String,
-    subtitle: String? = null,
-    selectedLabel: String,
-    options: List<Pair<String, () -> Unit>>,
-) {
-    val colors = OneBoxTheme.colorScheme
-    var expanded by remember { mutableStateOf(false) }
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { expanded = true }
-            .padding(horizontal = 18.dp, vertical = 14.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        IconTile(
-            icon = icon,
-            tint = colors.primary,
-            background = colors.primaryContainer,
-            size = 38.dp,
-            iconSize = 19.dp,
-            corner = 12.dp,
-        )
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .padding(start = 14.dp, end = 12.dp),
-        ) {
-            Text(
-                text = title,
-                style = OneBoxTheme.textStyles.headline2,
-                color = colors.onSurfaceContainer,
-            )
-            if (!subtitle.isNullOrBlank()) {
-                Text(
-                    text = subtitle,
-                    style = OneBoxTheme.textStyles.footnote2,
-                    color = colors.onSurfaceContainerVariant,
-                    modifier = Modifier.padding(top = 2.dp),
-                )
-            }
-        }
-        Text(
-            text = selectedLabel,
-            style = OneBoxTheme.textStyles.footnote2,
-            color = colors.onSurfaceContainerVariant,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
-        Icon(
-            imageVector = if (expanded) OneBoxIcons.ArrowUp else OneBoxIcons.ArrowDown,
-            contentDescription = null,
-            modifier = Modifier
-                .padding(start = 6.dp)
-                .size(18.dp),
-            tint = colors.onSurfaceContainerVariant,
-        )
-
-        if (expanded) {
-            Popup(onDismissRequest = { expanded = false }) {
-                Surface(
-                    shape = RoundedCornerShape(16.dp),
-                    color = colors.surfaceContainerHigh,
-                    shadowElevation = 12.dp,
-                ) {
-                    Column(modifier = Modifier.padding(8.dp)) {
-                        options.forEach { (label, onSelect) ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .clickable {
-                                        expanded = false
-                                        onSelect()
-                                    }
-                                    .padding(horizontal = 18.dp, vertical = 13.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Text(
-                                    text = label,
-                                    style = OneBoxTheme.textStyles.body2,
-                                    color = colors.onSurfaceContainer,
-                                    modifier = Modifier.weight(1f),
-                                    maxLines = 1,
-                                )
-                                if (label == selectedLabel) {
-                                    Icon(
-                                        imageVector = OneBoxIcons.Check,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(18.dp),
-                                        tint = colors.primary,
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-/** Строка с переключателем: иконка, заголовок, пояснение. */
+/** Секция настроек: подпись сверху и карточка с содержимым. */
 @Composable
 private fun ToggleRow(
     icon: ImageVector,

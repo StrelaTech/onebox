@@ -67,6 +67,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val language by SettingsStore.language.collectAsState()
             val themeMode by SettingsStore.theme.collectAsState()
+            val fontScale by SettingsStore.fontScale.collectAsState()
             val darkTheme = when (themeMode) {
                 ThemeMode.DARK -> true
                 ThemeMode.LIGHT -> false
@@ -75,7 +76,7 @@ class MainActivity : ComponentActivity() {
 
             ApplySystemBars(darkTheme = darkTheme)
 
-            OneBoxTheme(darkTheme = darkTheme, language = language) {
+            OneBoxTheme(darkTheme = darkTheme, language = language, fontScale = fontScale) {
                 OneBoxApp(
                     onStartVpn = {
                         AppLog.d("UI: запрос подключения VPN")

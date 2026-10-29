@@ -23,13 +23,16 @@ import com.strela.onebox.ui.design.SmallTopAppBar
 import com.strela.onebox.ui.design.Text
 import com.strela.onebox.ui.design.icons.OneBoxIcons
 import com.strela.onebox.ui.screens.ConnectScreen
+import com.strela.onebox.ui.screens.LogsConsoleScreen
+import com.strela.onebox.ui.screens.PingSettingsScreen
 import com.strela.onebox.ui.screens.ServersTab
 import com.strela.onebox.ui.screens.SettingsTab
 
-private enum class MainTab(val icon: ImageVector) {
-    MAIN(OneBoxIcons.Home),
-    SERVERS(OneBoxIcons.Globe),
-    SETTINGS(OneBoxIcons.Settings),
+/** Вкладки навигации: outline-иконка, пока не выбрана, filled — когда выбрана. */
+private enum class MainTab(val outline: ImageVector, val filled: ImageVector) {
+    MAIN(OneBoxIcons.HomeOutline, OneBoxIcons.Home),
+    SERVERS(OneBoxIcons.Globe, OneBoxIcons.GlobeFilled),
+    SETTINGS(OneBoxIcons.SettingsOutline, OneBoxIcons.Settings),
 }
 
 @Composable
@@ -41,6 +44,7 @@ private fun MainTab.title(): String = when (this) {
 
 /**
  * Оболочка приложения: шапка, нижняя навигация и переключение вкладок.
+ * Поверх вкладок открывается консоль логов (см. [LogsConsoleScreen]).
  * Содержимое вкладок живёт в ui/screens.
  */
 @Composable
@@ -51,6 +55,8 @@ fun OneBoxApp(
 ) {
     val context = LocalContext.current
     var tab by rememberSaveable { mutableStateOf(MainTab.MAIN) }
+    var showLogsConsole by rememberSaveable { mutableStateOf(false) }
+    var showPingSettings by rememberSaveable { mutableStateOf(false) }
     val status by VpnConnector.status.collectAsState()
 
     Scaffold(
@@ -79,7 +85,8 @@ fun OneBoxApp(
                     NavigationBarItem(
                         selected = entry == tab,
                         onClick = { tab = entry },
-                        icon = entry.icon,
+                        outline = entry.outline,
+                        filled = entry.filled,
                         label = entry.title(),
                     )
                 }
@@ -94,11 +101,11 @@ fun OneBoxApp(
         ) {
             when (tab) {
                 MainTab.MAIN -> ConnectScreen(
-        onStartVpn = onStartVpn,
-        onStopVpn = onStopVpn,
-        onOpenSubscriptions = { tab = MainTab.SERVERS },
-        modifier = Modifier.fillMaxSize(),
-    )
+                    onStartVpn = onStartVpn,
+                    onStopVpn = onStopVpn,
+                    onOpenSubscriptions = { tab = MainTab.SERVERS },
+                    modifier = Modifier.fillMaxSize(),
+                )
 
                 MainTab.SERVERS -> ServersTab(
                     context = context,
@@ -107,10 +114,28 @@ fun OneBoxApp(
 
                 MainTab.SETTINGS -> SettingsTab(
                     context = context,
+                    onOpenPing = { showPingSettings = true },
+                    onOpenLogs = { showLogsConsole = true },
                     onShareLogs = onShareLogs,
                     modifier = Modifier.fillMaxSize(),
                 )
             }
         }
+    }
+
+    // Экран настроек пинга открывается поверх всего, как консоль логов
+    if (showPingSettings) {
+        PingSettingsScreen(
+            onClose = { showPingSettings = false },
+            modifier = Modifier.fillMaxSize(),
+        )
+    }
+
+    // Консоль логов открывается поверх всего, включая нижнюю навигацию
+    if (showLogsConsole) {
+        LogsConsoleScreen(
+            onClose = { showLogsConsole = false },
+            modifier = Modifier.fillMaxSize(),
+        )
     }
 }

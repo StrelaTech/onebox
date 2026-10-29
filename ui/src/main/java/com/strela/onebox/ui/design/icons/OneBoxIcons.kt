@@ -1,523 +1,558 @@
 package com.strela.onebox.ui.design.icons
 
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.PathParser
 import androidx.compose.ui.unit.dp
 
 /**
- * Иконки OneBox. Сгенерировано из `res/icons` скриптом
- * `scripts/generate_icons.py` — не редактировать вручную.
+ * Иконки OneBox — официальные [Google Material Symbols](https://fonts.google.com/icons).
+ * SVG-исходники лежат в `app/src/main/res/icons/{outline,filled}` и скачаны с
+ * fonts.gstatic.com (стиль outlined / fill1, вес 400, размер 24).
  *
- * Предпочтение отдаётся filled-варианту, outline используется как запасной
- * (например, для иконок, которых нет в filled, или если в SVG есть маска).
- * Цвет задаётся при отрисовке через `Icon(tint = ...)`, поэтому в самих
- * векторах используется чёрный.
+ * Для нижней навигации у Home/Globe/Settings есть пары: outline-варианты
+ * (`HomeOutline`, `Globe`, `SettingsOutline`) рисуются для невыбранной вкладки,
+ * fill-варианты (`Home`, `GlobeFilled`, `Settings`) — для выбранной.
+ * Цвет задаётся при отрисовке через `Icon(tint = ...)`, поэтому в самих векторах
+ * используется чёрный.
  */
 object OneBoxIcons {
 
+    /** Google Material Symbols: `warning` (outline, 24 px). */
     val Alert: ImageVector by lazy {
-        image("Alert") {
-            svgPath("M12 1.64746C12.5583 1.6475 13.1072 1.7916 13.5937 2.06543C14.0804 2.33944 14.4886 2.73438 14.7783 3.21191L14.7822 3.21777L23.2519 17.3574C23.2554 17.3631 23.2594 17.3692 23.2627 17.375C23.5464 17.8664 23.6966 18.4238 23.6982 18.9912C23.6998 19.5585 23.5523 20.1165 23.2715 20.6094C22.9905 21.1023 22.5847 21.514 22.0957 21.8018C21.6068 22.0893 21.0506 22.2438 20.4834 22.25H3.51561C2.94838 22.2437 2.39221 22.0894 1.90331 21.8018C1.41428 21.514 1.0095 21.1023 0.728504 20.6094C0.447573 20.1165 0.300194 19.5586 0.301746 18.9912C0.303337 18.4238 0.453614 17.8664 0.737293 17.375C0.740563 17.3693 0.74371 17.363 0.747059 17.3574L9.21776 3.21777L9.22069 3.21191L9.33495 3.03711C9.61371 2.63781 9.9794 2.30526 10.4053 2.06543C10.8919 1.79144 11.4415 1.6475 12 1.64746ZM12 15.5C11.1716 15.5 10.5 16.1716 10.5 17C10.5 17.8284 11.1716 18.5 12 18.5C12.8284 18.5 13.5 17.8284 13.5 17C13.5 16.1716 12.8284 15.5 12 15.5ZM12 7.75C11.3096 7.75001 10.75 8.30965 10.75 9V13C10.75 13.6904 11.3096 14.25 12 14.25C12.6903 14.25 13.25 13.6904 13.25 13V9C13.25 8.30964 12.6903 7.75 12 7.75Z", fill = true)
-        }
+        material(
+            name = "Alert",
+            d = "m40 -120 440 -760 440 760H40Zm138 -80h604L480 -720 178 -200Zm330.5 -51.5Q520 -263 520 -280t-11.5 -28.5Q497 -320 480 -320t-28.5 11.5Q440 -297 440 -280t11.5 28.5Q463 -240 480 -240t28.5 -11.5ZM440 -360h80v-200h-80v200Zm40 -100Z",
+        )
     }
 
+    /** Google Material Symbols: `arrow_downward` (outline, 24 px). */
     val ArrowDown: ImageVector by lazy {
-        image("ArrowDown") {
-            svgPath("M12,5L12,19", stroke = true, width = 3f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M19,12L12,19L5,12", stroke = true, width = 3f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "ArrowDown",
+            d = "M440 -800v487L216 -537l-56 57 320 320 320 -320 -56 -57 -224 224v-487h-80Z",
+        )
     }
 
+    /** Google Material Symbols: `arrow_back` (outline, 24 px). */
     val ArrowLeft: ImageVector by lazy {
-        image("ArrowLeft") {
-            svgPath("M19,12L5,12", stroke = true, width = 3f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M12,19L5,12L12,5", stroke = true, width = 3f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "ArrowLeft",
+            d = "m313 -440 224 224 -57 56 -320 -320 320 -320 57 56 -224 224h487v80H313Z",
+        )
     }
 
+    /** Google Material Symbols: `arrow_forward` (outline, 24 px). */
     val ArrowRight: ImageVector by lazy {
-        image("ArrowRight") {
-            svgPath("M5,12L19,12", stroke = true, width = 2f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M12,5L19,12L12,19", stroke = true, width = 2f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "ArrowRight",
+            d = "M647 -440H160v-80h487L423 -744l57 -56 320 320 -320 320 -57 -56 224 -224Z",
+        )
     }
 
+    /** Google Material Symbols: `arrow_upward` (outline, 24 px). */
     val ArrowUp: ImageVector by lazy {
-        image("ArrowUp") {
-            svgPath("M12,19L12,5", stroke = true, width = 3f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M5,12L12,5L19,12", stroke = true, width = 3f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "ArrowUp",
+            d = "M440 -160v-487L216 -423l-56 -57 320 -320 320 320 -56 57 -224 -224v487h-80Z",
+        )
     }
 
+    /** Google Material Symbols: `battery_full` (outline, 24 px). */
     val Battery: ImageVector by lazy {
-        image("Battery") {
-            svgPath("M17 4.75C18.7949 4.75 20.25 6.20507 20.25 8V16C20.25 17.7949 18.7949 19.25 17 19.25H3C1.20507 19.25 -0.25 17.7949 -0.25 16V8C-0.25 6.20507 1.20507 4.75 3 4.75H17ZM5 8.75C4.30964 8.75 3.75 9.30964 3.75 10V14C3.75 14.6904 4.30964 15.25 5 15.25C5.69036 15.25 6.25 14.6904 6.25 14V10C6.25 9.30964 5.69036 8.75 5 8.75ZM9 8.75C8.30964 8.75 7.75 9.30964 7.75 10V14C7.75 14.6904 8.30964 15.25 9 15.25C9.69036 15.25 10.25 14.6904 10.25 14V10C10.25 9.30964 9.69036 8.75 9 8.75ZM13 8.75C12.3096 8.75 11.75 9.30964 11.75 10V14C11.75 14.6904 12.3096 15.25 13 15.25C13.6904 15.25 14.25 14.6904 14.25 14V10C14.25 9.30964 13.6904 8.75 13 8.75Z", fill = true)
-            svgPath("M23 10V14", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Battery",
+            d = "M320 -80q-17 0 -28.5 -11.5T280 -120v-640q0 -17 11.5 -28.5T320 -800h80v-80h160v80h80q17 0 28.5 11.5T680 -760v640q0 17 -11.5 28.5T640 -80H320Z",
+        )
     }
 
+    /** Google Material Symbols: `notifications` (outline, 24 px). */
     val Bell: ImageVector by lazy {
-        image("Bell") {
-            svgPath("M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z", fill = true, stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M13.73 21C13.5542 21.3031 13.3018 21.5547 12.9982 21.7295C12.6946 21.9044 12.3504 21.9965 12 21.9965C11.6496 21.9965 11.3054 21.9044 11.0018 21.7295C10.6982 21.5547 10.4458 21.3031 10.27 21", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Bell",
+            d = "M160 -200v-80h80v-280q0 -83 50 -147.5T420 -792v-28q0 -25 17.5 -42.5T480 -880q25 0 42.5 17.5T540 -820v28q80 20 130 84.5T720 -560v280h80v80H160Zm320 -300Zm0 420q-33 0 -56.5 -23.5T400 -160h160q0 33 -23.5 56.5T480 -80ZM320 -280h320v-280q0 -66 -47 -113t-113 -47q-66 0 -113 47t-47 113v280Z",
+        )
     }
 
+    /** Google Material Symbols: `notifications_off` (outline, 24 px). */
     val BellOff: ImageVector by lazy {
-        image("BellOff") {
-            svgPath("M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z", fill = true, stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M13.73 21C13.5542 21.3031 13.3018 21.5547 12.9982 21.7295C12.6946 21.9044 12.3504 21.9965 12 21.9965C11.6496 21.9965 11.3054 21.9044 11.0018 21.7295C10.6982 21.5547 10.4458 21.3031 10.27 21", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M2 2L22 22", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "BellOff",
+            d = "M160 -200v-80h80v-280q0 -33 8.5 -65t25.5 -61l60 60q-7 16 -10.5 32.5T320 -560v280h248L56 -792l56 -56 736 736 -56 56 -146 -144H160Zm560 -154 -80 -80v-126q0 -66 -47 -113t-113 -47q-26 0 -50 8t-44 24l-58 -58q20 -16 43 -28t49 -18v-28q0 -25 17.5 -42.5T480 -880q25 0 42.5 17.5T540 -820v28q80 20 130 84.5T720 -560v206Zm-276 -50Zm36 324q-33 0 -56.5 -23.5T400 -160h160q0 33 -23.5 56.5T480 -80Zm33 -481Z",
+        )
     }
 
+    /** Google Material Symbols: `bluetooth` (outline, 24 px). */
     val Bluetooth: ImageVector by lazy {
-        image("Bluetooth") {
-            svgPath("M6.5 6.5L17.5 17.5L12 23V1L17.5 6.5L6.5 17.5", stroke = true, width = 2f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Bluetooth",
+            d = "M440 -80v-304L256 -200l-56 -56 224 -224 -224 -224 56 -56 184 184v-304h40l228 228 -172 172 172 172L480 -80h-40Zm80 -496 76 -76 -76 -74v150Zm0 342 76 -74 -76 -76v150Z",
+        )
     }
 
+    /** Google Material Symbols: `bookmark` (filled, 24 px). */
     val Bookmark: ImageVector by lazy {
-        image("Bookmark") {
-            svgPath("M19 21L12 16L5 21V5C5 4.46957 5.21071 3.96086 5.58579 3.58579C5.96086 3.21071 6.46957 3 7 3H17C17.5304 3 18.0391 3.21071 18.4142 3.58579C18.7893 3.96086 19 4.46957 19 5V21Z", fill = true, stroke = true, width = 3f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Bookmark",
+            d = "M200 -120v-640q0 -33 23.5 -56.5T280 -840h400q33 0 56.5 23.5T760 -760v640L480 -240 200 -120Z",
+        )
     }
 
-    val C: ImageVector by lazy {
-        image("C") {
-            svgPath("M20.6602 7V17L12 22L3.33984 17V7L12 2L20.6602 7ZM12.1396 8C10.2799 8.00019 9.00006 9.50008 9 11.8398C9 14.1797 10.2598 15.6795 12.1396 15.6797C13.1796 15.6797 13.96 15.1797 14.5 14.2197L13.1797 13.46C12.8997 13.9199 12.5796 14.1797 12.1396 14.1797C11.2799 14.1795 10.7598 13.3996 10.7598 11.8398C10.7598 10.2802 11.2799 9.50021 12.1396 9.5C12.5795 9.5 12.8997 9.75994 13.1797 10.2197L14.5 9.45996V9.44043C13.96 8.50043 13.1796 8 12.1396 8Z", fill = true)
-            svgPath("M12 0L1.5 6V18L12 24L22.5 18V6L12 0ZM12 2.18L20.5 7.09V16.91L12 21.82L3.5 16.91V7.09L12 2.18Z", fill = true)
-        }
-    }
-
+    /** Google Material Symbols: `photo_camera` (outline, 24 px). */
     val Camera: ImageVector by lazy {
-        image("Camera") {
-            svgPath("M15 1.75C15.4179 1.75 15.8082 1.95889 16.04 2.30664L17.6689 4.75H21C21.862 4.75 22.6884 5.09266 23.2979 5.70215C23.9073 6.31164 24.25 7.13805 24.25 8V19C24.25 19.862 23.9073 20.6884 23.2979 21.2979C22.6884 21.9073 21.862 22.25 21 22.25H3C2.13805 22.25 1.31164 21.9073 0.702148 21.2979C0.0926556 20.6884 -0.25 19.862 -0.25 19V8C-0.25 7.13805 0.0926552 6.31164 0.702148 5.70215C1.31164 5.09266 2.13805 4.75 3 4.75H6.33105L7.95996 2.30664L8.05371 2.18262C8.28944 1.90966 8.63429 1.75 9 1.75H15ZM12 9C9.79086 9 8 10.7909 8 13C8 15.2091 9.79086 17 12 17C14.2091 17 16 15.2091 16 13C16 10.7909 14.2091 9 12 9Z", fill = true)
-        }
+        material(
+            name = "Camera",
+            d = "M480 -260q75 0 127.5 -52.5T660 -440q0 -75 -52.5 -127.5T480 -620q-75 0 -127.5 52.5T300 -440q0 75 52.5 127.5T480 -260Zm0 -80q-42 0 -71 -29t-29 -71q0 -42 29 -71t71 -29q42 0 71 29t29 71q0 42 -29 71t-71 29ZM160 -120q-33 0 -56.5 -23.5T80 -200v-480q0 -33 23.5 -56.5T160 -760h126l74 -80h240l74 80h126q33 0 56.5 23.5T880 -680v480q0 33 -23.5 56.5T800 -120H160Zm0 -80h640v-480H638l-73 -80H395l-73 80H160v480Zm320 -240Z",
+        )
     }
 
+    /** Google Material Symbols: `chat` (outline, 24 px). */
     val Chat: ImageVector by lazy {
-        image("Chat") {
-            svgPath("M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z", fill = true, stroke = true, width = 3f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Chat",
+            d = "M240 -400h320v-80H240v80Zm0 -120h480v-80H240v80Zm0 -120h480v-80H240v80ZM80 -80v-720q0 -33 23.5 -56.5T160 -880h640q33 0 56.5 23.5T880 -800v480q0 33 -23.5 56.5T800 -240H240L80 -80Zm126 -240h594v-480H160v525l46 -45Zm-46 0v-480 480Z",
+        )
     }
 
+    /** Google Material Symbols: `check` (outline, 24 px). */
     val Check: ImageVector by lazy {
-        image("Check") {
-            svgPath("M20,6L9,17L4,12", stroke = true, width = 3f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Check",
+            d = "M382 -240 154 -468l57 -57 171 171 367 -367 57 57 -424 424Z",
+        )
     }
 
+    /** Google Material Symbols: `content_paste` (outline, 24 px). */
     val Clipboard: ImageVector by lazy {
-        image("Clipboard") {
-            svgPath("M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M9,2h6a1,1 0 0 1 1,1v2a1,1 0 0 1 -1,1h-6a1,1 0 0 1 -1,-1v-2a1,1 0 0 1 1,-1Z", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Clipboard",
+            d = "M200 -120q-33 0 -56.5 -23.5T120 -200v-560q0 -33 23.5 -56.5T200 -840h167q11 -35 43 -57.5t70 -22.5q40 0 71.5 22.5T594 -840h166q33 0 56.5 23.5T840 -760v560q0 33 -23.5 56.5T760 -120H200Zm0 -80h560v-560h-80v120H280v-120h-80v560Zm308.5 -571.5Q520 -783 520 -800t-11.5 -28.5Q497 -840 480 -840t-28.5 11.5Q440 -817 440 -800t11.5 28.5Q463 -760 480 -760t28.5 -11.5Z",
+        )
     }
 
+    /** Google Material Symbols: `schedule` (outline, 24 px). */
     val Clock: ImageVector by lazy {
-        image("Clock") {
-            svgPath("M12 1.75C17.6609 1.75 22.25 6.33908 22.25 12C22.25 17.6609 17.6609 22.25 12 22.25C6.33908 22.25 1.75 17.6609 1.75 12C1.75 6.33908 6.33908 1.75 12 1.75ZM12 5.75C11.3096 5.75 10.75 6.30964 10.75 7V12C10.75 12.3315 10.8818 12.6494 11.1162 12.8838L14.1162 15.8838C14.6044 16.3719 15.3956 16.3719 15.8838 15.8838C16.3719 15.3956 16.3719 14.6044 15.8838 14.1162L13.25 11.4824V7C13.25 6.30964 12.6904 5.75 12 5.75Z", fill = true)
-        }
+        material(
+            name = "Clock",
+            d = "m612 -292 56 -56 -148 -148v-184h-80v216l172 172ZM480 -80q-83 0 -156 -31.5T197 -197q-54 -54 -85.5 -127T80 -480q0 -83 31.5 -156T197 -763q54 -54 127 -85.5T480 -880q83 0 156 31.5T763 -763q54 54 85.5 127T880 -480q0 83 -31.5 156T763 -197q-54 54 -127 85.5T480 -80Zm0 -400Zm0 320q133 0 226.5 -93.5T800 -480q0 -133 -93.5 -226.5T480 -800q-133 0 -226.5 93.5T160 -480q0 133 93.5 226.5T480 -160Z",
+        )
     }
 
+    /** Google Material Symbols: `close` (outline, 24 px). */
     val Close: ImageVector by lazy {
-        image("Close") {
-            svgPath("M18,6L6,18", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M6,6L18,18", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Close",
+            d = "m256 -200 -56 -56 224 -224 -224 -224 56 -56 224 224 224 -224 56 56 -224 224 224 224 -56 56 -224 -224 -224 224Z",
+        )
     }
 
+    /** Google Material Symbols: `code` (outline, 24 px). */
     val Code: ImageVector by lazy {
-        image("Code") {
-            svgPath("M16,18L22,12L16,6", stroke = true, width = 3f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M8,6L2,12L8,18", stroke = true, width = 3f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Code",
+            d = "M320 -240 80 -480l240 -240 57 57 -184 184 183 183 -56 56Zm320 0 -57 -57 184 -184 -183 -183 56 -56 240 240 -240 240Z",
+        )
     }
 
-    val Cpp: ImageVector by lazy {
-        image("Cpp") {
-            svgPath("M20.6602 7V17L12 22L3.33984 17V7L12 2L20.6602 7ZM8.74023 8.16016C6.88023 8.16016 5.59961 9.66 5.59961 12C5.59961 14.34 6.86023 15.8398 8.74023 15.8398C9.78009 15.8398 10.5597 15.3398 11.0996 14.3799L9.78027 13.6201C9.50032 14.08 9.18011 14.3398 8.74023 14.3398C7.88023 14.3398 7.36035 13.56 7.36035 12C7.36035 10.44 7.88023 9.66016 8.74023 9.66016C9.18011 9.66025 9.50032 9.91996 9.78027 10.3799L11.0996 9.62012V9.59961C10.5597 8.65998 9.77995 8.16023 8.74023 8.16016ZM12.2998 10.2002V11.7998H11.2002V12.9004H12.2998V14.5H13.4004V12.9004H14.5V11.7998H13.4004V10.2002H12.2998ZM15.9004 10.2002V11.7998H14.7998V12.9004H15.9004V14.5H17V12.9004H18.0996V11.7998H17V10.2002H15.9004Z", fill = true)
-            svgPath("M12 0L1.5 6V18L12 24L22.5 18V6L12 0ZM12 2.18L20.5 7.09V16.91L12 21.82L3.5 16.91V7.09L12 2.18Z", fill = true)
-        }
-    }
-
+    /** Google Material Symbols: `storage` (outline, 24 px). */
     val Database: ImageVector by lazy {
-        image("Database") {
-            svgPath("     M12 2     C16.9706 2 21 3.34315 21 5     C21 6.65685 16.9706 8 12 8     C7.02944 8 3 6.65685 3 5     C3 3.34315 7.02944 2 12 2     Z   ", fill = true, evenOdd = true)
-            svgPath("     M3 8.5     C4.5 9.7 8 10.5 12 10.5     C16 10.5 19.5 9.7 21 8.5     L21 12     C21 13.6569 16.9706 15 12 15     C7.02944 15 3 13.6569 3 12     Z   ", fill = true, evenOdd = true)
-            svgPath("     M3 15.5     C4.5 16.7 8 17.5 12 17.5     C16 17.5 19.5 16.7 21 15.5     L21 19     C21 20.6569 16.9706 22 12 22     C7.02944 22 3 20.6569 3 19     Z   ", fill = true, evenOdd = true)
-        }
+        material(
+            name = "Database",
+            d = "M120 -160v-160h720v160H120Zm80 -40h80v-80h-80v80Zm-80 -440v-160h720v160H120Zm80 -40h80v-80h-80v80Zm-80 280v-160h720v160H120Zm80 -40h80v-80h-80v80Z",
+        )
     }
 
+    /** Google Material Symbols: `download` (outline, 24 px). */
     val Download: ImageVector by lazy {
-        image("Download") {
-            svgPath("M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M7,10L12,15L17,10", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M12,15L12,3", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Download",
+            d = "M480 -320 280 -520l56 -58 104 104v-326h80v326l104 -104 56 58 -200 200ZM240 -160q-33 0 -56.5 -23.5T160 -240v-120h80v120h480v-120h80v120q0 33 -23.5 56.5T720 -160H240Z",
+        )
     }
 
+    /** Google Material Symbols: `edit` (outline, 24 px). */
     val Edit: ImageVector by lazy {
-        image("Edit") {
-            svgPath("M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M18.5 2.5C18.8978 2.10218 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10218 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10218 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z", fill = true, stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Edit",
+            d = "M200 -200h57l391 -391 -57 -57 -391 391v57Zm-80 80v-170l528 -527q12 -11 26.5 -17t30.5 -6q16 0 31 6t26 18l55 56q12 11 17.5 26t5.5 30q0 16 -5.5 30.5T817 -647L290 -120H120Zm640 -584 -56 -56 56 56Zm-141 85 -28 -29 57 57 -29 -28Z",
+        )
     }
 
+    /** Google Material Symbols: `visibility` (outline, 24 px). */
     val Eye: ImageVector by lazy {
-        image("Eye") {
-            svgPath("M12.0001 2.75C15.9994 2.75002 19.0572 5.0335 21.0372 7.14551C22.0384 8.21356 22.802 9.27715 23.3155 10.0723C23.5729 10.4709 23.7704 10.8048 23.9044 11.043C23.9714 11.1621 24.0229 11.2577 24.0587 11.3252C24.0764 11.3587 24.0897 11.3859 24.0997 11.4053C24.1046 11.4149 24.1094 11.4228 24.1124 11.4287C24.1139 11.4317 24.1153 11.4345 24.1163 11.4365C24.1167 11.4374 24.1169 11.4388 24.1173 11.4395V11.4404C24.1118 11.4437 24.0353 11.4824 23.0001 12C24.0353 12.5176 24.1118 12.5563 24.1173 12.5596V12.5605C24.1169 12.5612 24.1167 12.5626 24.1163 12.5635C24.1153 12.5655 24.1139 12.5683 24.1124 12.5713C24.1094 12.5772 24.1046 12.5851 24.0997 12.5947C24.0897 12.6141 24.0764 12.6413 24.0587 12.6748C24.0229 12.7423 23.9714 12.8379 23.9044 12.957C23.7704 13.1952 23.5729 13.5291 23.3155 13.9277C22.802 14.7228 22.0384 15.7864 21.0372 16.8545C19.0572 18.9665 15.9994 21.25 12.0001 21.25C8.0007 21.25 4.94298 18.9665 2.96296 16.8545C1.96171 15.7864 1.19815 14.7229 0.684636 13.9277C0.427212 13.5291 0.229759 13.1952 0.0957684 12.957C0.0287524 12.8379 -0.022799 12.7423 -0.0585285 12.6748C-0.0762827 12.6413 -0.0895823 12.6141 -0.0995441 12.5947C-0.104496 12.5851 -0.109238 12.5772 -0.112239 12.5713C-0.113736 12.5683 -0.11514 12.5655 -0.116146 12.5635L-0.117122 12.5605V12.5596C-0.111254 12.5561 -0.0322341 12.5161 1.00007 12C-0.0322341 11.4839 -0.111254 11.4439 -0.117122 11.4404V11.4395L-0.116146 11.4365C-0.11514 11.4345 -0.113736 11.4317 -0.112239 11.4287C-0.109238 11.4228 -0.104496 11.4149 -0.0995441 11.4053C-0.0895823 11.3859 -0.0762827 11.3587 -0.0585285 11.3252C-0.022799 11.2577 0.0287524 11.1621 0.0957684 11.043C0.229759 10.8048 0.427212 10.4709 0.684636 10.0723C1.19815 9.27715 1.96171 8.21356 2.96296 7.14551C4.94298 5.03349 8.0007 2.75 12.0001 2.75ZM12.0001 7.75C9.65286 7.75 7.75007 9.65279 7.75007 12C7.75007 14.3472 9.65286 16.25 12.0001 16.25C14.3472 16.25 16.2501 14.3472 16.2501 12C16.2501 9.65281 14.3472 7.75004 12.0001 7.75ZM12.0001 10.25C12.9665 10.25 13.7501 11.0335 13.7501 12C13.7501 12.9665 12.9665 13.75 12.0001 13.75C11.0336 13.75 10.2501 12.9665 10.2501 12C10.2501 11.0335 11.0336 10.25 12.0001 10.25ZM1.00007 12L-0.118099 12.5586C-0.293793 12.2069 -0.293793 11.7931 -0.118099 11.4414L1.00007 12ZM24.1182 11.4414C24.2939 11.7931 24.2939 12.2069 24.1182 12.5586L23.0001 12L24.1182 11.4414Z", fill = true)
-        }
+        material(
+            name = "Eye",
+            d = "M607.5 -372.5Q660 -425 660 -500t-52.5 -127.5Q555 -680 480 -680t-127.5 52.5Q300 -575 300 -500t52.5 127.5Q405 -320 480 -320t127.5 -52.5Zm-204 -51Q372 -455 372 -500t31.5 -76.5Q435 -608 480 -608t76.5 31.5Q588 -545 588 -500t-31.5 76.5Q525 -392 480 -392t-76.5 -31.5ZM214 -281.5Q94 -363 40 -500q54 -137 174 -218.5T480 -800q146 0 266 81.5T920 -500q-54 137 -174 218.5T480 -200q-146 0 -266 -81.5ZM480 -500Zm207.5 160.5Q782 -399 832 -500q-50 -101 -144.5 -160.5T480 -720q-113 0 -207.5 59.5T128 -500q50 101 144.5 160.5T480 -280q113 0 207.5 -59.5Z",
+        )
     }
 
+    /** Google Material Symbols: `description` (outline, 24 px). */
     val File: ImageVector by lazy {
-        image("File") {
-            svgPath("M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M14 2V8H20", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M5,9h14v12h-14Z", fill = true)
-            svgPath("M5,3h9v7h-9Z", fill = true)
-        }
+        material(
+            name = "File",
+            d = "M320 -240h320v-80H320v80Zm0 -160h320v-80H320v80ZM240 -80q-33 0 -56.5 -23.5T160 -160v-640q0 -33 23.5 -56.5T240 -880h320l240 240v480q0 33 -23.5 56.5T720 -80H240Zm280 -520v-200H240v640h480v-440H520ZM240 -800v200 -200 640 -640Z",
+        )
     }
 
+    /** Google Material Symbols: `folder` (outline, 24 px). */
     val Folder: ImageVector by lazy {
-        image("Folder") {
-            svgPath("M22 19C22 19.5304 21.7893 20.0391 21.4142 20.4142C21.0391 20.7893 20.5304 21 20 21H4C3.46957 21 2.96086 20.7893 2.58579 20.4142C2.21071 20.0391 2 19.5304 2 19V5C2 4.46957 2.21071 3.96086 2.58579 3.58579C2.96086 3.21071 3.46957 3 4 3H9L11 6H20C20.5304 6 21.0391 6.21071 21.4142 6.58579C21.7893 6.96086 22 7.46957 22 8V19Z", fill = true, stroke = true, width = 3f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Folder",
+            d = "M160 -160q-33 0 -56.5 -23.5T80 -240v-480q0 -33 23.5 -56.5T160 -800h240l80 80h320q33 0 56.5 23.5T880 -640v400q0 33 -23.5 56.5T800 -160H160Zm0 -80h640v-400H447l-80 -80H160v480Zm0 0v-480 480Z",
+        )
     }
 
-    val Github: ImageVector by lazy {
-        image("Github") {
-            svgPath("M12 0.297C5.37 0.297 1.90735e-06 5.67 1.90735e-06 12.297C1.90735e-06 17.6 3.438 22.097 8.205 23.682C8.805 23.795 9.025 23.424 9.025 23.105C9.025 22.82 9.015 22.065 9.01 21.065C5.672 21.789 4.968 19.455 4.968 19.455C4.422 18.07 3.633 17.7 3.633 17.7C2.546 16.956 3.717 16.971 3.717 16.971C4.922 17.055 5.555 18.207 5.555 18.207C6.625 20.042 8.364 19.512 9.05 19.205C9.158 18.429 9.467 17.9 9.81 17.6C7.145 17.3 4.344 16.268 4.344 11.67C4.344 10.36 4.809 9.29 5.579 8.45C5.444 8.147 5.039 6.927 5.684 5.274C5.684 5.274 6.689 4.952 8.984 6.504C9.944 6.237 10.964 6.105 11.984 6.099C13.004 6.105 14.024 6.237 14.984 6.504C17.264 4.952 18.269 5.274 18.269 5.274C18.914 6.927 18.509 8.147 18.389 8.45C19.154 9.29 19.619 10.36 19.619 11.67C19.619 16.28 16.814 17.295 14.144 17.59C14.564 17.95 14.954 18.686 14.954 19.81C14.954 21.416 14.939 22.706 14.939 23.096C14.939 23.411 15.149 23.786 15.764 23.666C20.565 22.092 24 17.592 24 12.297C24 5.67 18.627 0.297 12 0.297Z", fill = true)
-        }
+    /** Google Material Symbols: `format_size` (outline, 24 px). */
+    val FormatSize: ImageVector by lazy {
+        material(
+            name = "FormatSize",
+            d = "M560 -160v-520H360v-120h520v120H680v520H560Zm-360 0v-320H80v-120h360v120H320v320H200Z",
+        )
     }
 
+    /** Google Material Symbols: `public` (outline, 24 px). */
     val Globe: ImageVector by lazy {
-        image("Globe") {
-            svgPath("M3,12a9,9 0 1 0 18,0a9,9 0 1 0 -18,0Z", stroke = true, width = 2f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M3,12L21,12", stroke = true, width = 2f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z", stroke = true, width = 2f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Globe",
+            d = "M324 -111.5Q251 -143 197 -197t-85.5 -127Q80 -397 80 -480t31.5 -156Q143 -709 197 -763t127 -85.5Q397 -880 480 -880t156 31.5Q709 -817 763 -763t85.5 127Q880 -563 880 -480t-31.5 156Q817 -251 763 -197t-127 85.5Q563 -80 480 -80t-156 -31.5ZM440 -162v-78q-33 0 -56.5 -23.5T360 -320v-40L168 -552q-3 18 -5.5 36t-2.5 36q0 121 79.5 212T440 -162Zm276 -102q41 -45 62.5 -100.5T800 -480q0 -98 -54.5 -179T600 -776v16q0 33 -23.5 56.5T520 -680h-80v80q0 17 -11.5 28.5T400 -560h-80v80h240q17 0 28.5 11.5T600 -440v120h40q26 0 47 15.5t29 40.5Z",
+        )
     }
 
+    /** Google Material Symbols: `public` (filled, 24 px). */
+    val GlobeFilled: ImageVector by lazy {
+        material(
+            name = "GlobeFilled",
+            d = "M324 -111.5Q251 -143 197 -197t-85.5 -127Q80 -397 80 -480t31.5 -156Q143 -709 197 -763t127 -85.5Q397 -880 480 -880t156 31.5Q709 -817 763 -763t85.5 127Q880 -563 880 -480t-31.5 156Q817 -251 763 -197t-127 85.5Q563 -80 480 -80t-156 -31.5ZM440 -162v-78q-33 0 -56.5 -23.5T360 -320v-40L168 -552q-3 18 -5.5 36t-2.5 36q0 121 79.5 212T440 -162Zm276 -102q41 -45 62.5 -100.5T800 -480q0 -98 -54.5 -179T600 -776v16q0 33 -23.5 56.5T520 -680h-80v80q0 17 -11.5 28.5T400 -560h-80v80h240q17 0 28.5 11.5T600 -440v120h40q26 0 47 15.5t29 40.5Z",
+        )
+    }
+
+    /** Google Material Symbols: `headphones` (outline, 24 px). */
     val Headphones: ImageVector by lazy {
-        image("Headphones") {
-            svgPath("M3 18V12C3 9.61305 3.94821 7.32387 5.63604 5.63604C7.32387 3.94821 9.61305 3 12 3C14.3869 3 16.6761 3.94821 18.364 5.63604C20.0518 7.32387 21 9.61305 21 12V18", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M21 19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H18C17.4696 21 16.9609 20.7893 16.5858 20.4142C16.2107 20.0391 16 19.5304 16 19V16C16 15.4696 16.2107 14.9609 16.5858 14.5858C16.9609 14.2107 17.4696 14 18 14H21V19ZM3 19C3 19.5304 3.21071 20.0391 3.58579 20.4142C3.96086 20.7893 4.46957 21 5 21H6C6.53043 21 7.03914 20.7893 7.41421 20.4142C7.78929 20.0391 8 19.5304 8 19V16C8 15.4696 7.78929 14.9609 7.41421 14.5858C7.03914 14.2107 6.53043 14 6 14H3V19Z", fill = true, stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Headphones",
+            d = "M360 -120H200q-33 0 -56.5 -23.5T120 -200v-280q0 -75 28.5 -140.5t77 -114q48.5 -48.5 114 -77T480 -840q75 0 140.5 28.5t114 77q48.5 48.5 77 114T840 -480v280q0 33 -23.5 56.5T760 -120H600v-320h160v-40q0 -117 -81.5 -198.5T480 -760q-117 0 -198.5 81.5T200 -480v40h160v320Zm-80 -240h-80v160h80v-160Zm400 0v160h80v-160h-80Zm-400 0h-80 80Zm400 0h80 -80Z",
+        )
     }
 
+    /** Google Material Symbols: `favorite` (filled, 24 px). */
     val Heart: ImageVector by lazy {
-        image("Heart") {
-            svgPath("M20.84 4.61C20.3292 4.099 19.7228 3.69365 19.0554 3.41708C18.3879 3.14052 17.6725 2.99817 16.95 2.99817C16.2275 2.99817 15.5121 3.14052 14.8446 3.41708C14.1772 3.69365 13.5708 4.099 13.06 4.61L12 5.67L10.94 4.61C9.90831 3.57831 8.50903 2.99871 7.05 2.99871C5.59097 2.99871 4.19169 3.57831 3.16 4.61C2.12831 5.64169 1.54871 7.04097 1.54871 8.5C1.54871 9.95903 2.12831 11.3583 3.16 12.39L4.22 13.45L12 21.23L19.78 13.45L20.84 12.39C21.351 11.8792 21.7564 11.2728 22.0329 10.6054C22.3095 9.9379 22.4518 9.22249 22.4518 8.5C22.4518 7.77751 22.3095 7.0621 22.0329 6.39464C21.7564 5.72719 21.351 5.12076 20.84 4.61Z", fill = true, stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Heart",
+            d = "m480 -120 -58 -52q-101 -91 -167 -157T150 -447.5Q111 -500 95.5 -544T80 -634q0 -94 63 -157t157 -63q52 0 99 22t81 62q34 -40 81 -62t99 -22q94 0 157 63t63 157q0 46 -15.5 90T810 -447.5Q771 -395 705 -329T538 -172l-58 52Z",
+        )
     }
 
+    /** Google Material Symbols: `home` (filled, 24 px). */
     val Home: ImageVector by lazy {
-        image("Home") {
-            svgPath("M3 10.5L12 3l9 7.5", fill = true, stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5", fill = true, stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Home",
+            d = "M160 -120v-480l320 -240 320 240v480H560v-280H400v280H160Z",
+        )
     }
 
+    /** Google Material Symbols: `home` (outline, 24 px). */
+    val HomeOutline: ImageVector by lazy {
+        material(
+            name = "HomeOutline",
+            d = "M240 -200h120v-240h240v240h120v-360L480 -740 240 -560v360Zm-80 80v-480l320 -240 320 240v480H520v-240h-80v240H160Zm320 -350Z",
+        )
+    }
+
+    /** Google Material Symbols: `image` (outline, 24 px). */
     val Image: ImageVector by lazy {
-        image("Image") {
-            svgPath("M5,3h14a2,2 0 0 1 2,2v14a2,2 0 0 1 -2,2h-14a2,2 0 0 1 -2,-2v-14a2,2 0 0 1 2,-2Z", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M7,8.5a1.5,1.5 0 1 0 3,0a1.5,1.5 0 1 0 -3,0Z", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M21 15l-5-5L5 21", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Image",
+            d = "M200 -120q-33 0 -56.5 -23.5T120 -200v-560q0 -33 23.5 -56.5T200 -840h560q33 0 56.5 23.5T840 -760v560q0 33 -23.5 56.5T760 -120H200Zm0 -80h560v-560H200v560Zm40 -80h480L570 -480 450 -320l-90 -120 -120 160Zm-40 80v-560 560Z",
+        )
     }
 
+    /** Google Material Symbols: `info` (outline, 24 px). */
     val Info: ImageVector by lazy {
-        image("Info") {
-            svgPath("M12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2ZM12 10C11.4477 10 11 10.4477 11 11V16C11 16.5523 11.4477 17 12 17C12.5523 17 13 16.5523 13 16V11C13 10.4477 12.5523 10 12 10ZM12 6.5C11.1716 6.5 10.5 7.17157 10.5 8C10.5 8.82843 11.1716 9.5 12 9.5C12.8284 9.5 13.5 8.82843 13.5 8C13.5 7.17157 12.8284 6.5 12 6.5Z", fill = true)
-        }
+        material(
+            name = "Info",
+            d = "M440 -280h80v-240h-80v240Zm68.5 -331.5Q520 -623 520 -640t-11.5 -28.5Q497 -680 480 -680t-28.5 11.5Q440 -657 440 -640t11.5 28.5Q463 -600 480 -600t28.5 -11.5ZM480 -80q-83 0 -156 -31.5T197 -197q-54 -54 -85.5 -127T80 -480q0 -83 31.5 -156T197 -763q54 -54 127 -85.5T480 -880q83 0 156 31.5T763 -763q54 54 85.5 127T880 -480q0 83 -31.5 156T763 -197q-54 54 -127 85.5T480 -80Zm0 -80q134 0 227 -93t93 -227q0 -134 -93 -227t-227 -93q-134 0 -227 93t-93 227q0 134 93 227t227 93Zm0 -320Z",
+        )
     }
 
-    val Link: ImageVector by lazy {
-        image("Link") {
-            svgPath("M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
-    }
-
+    /** Google Material Symbols: `layers` (outline, 24 px). */
     val Layers: ImageVector by lazy {
-        image("Layers") {
-            svgPath("M12 2L2 7L12 12L22 7L12 2Z", stroke = true, width = 2f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M2 17L12 22L22 17", stroke = true, width = 2f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M2 12L12 17L22 12", stroke = true, width = 2f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Layers",
+            d = "M480 -118 120 -398l66 -50 294 228 294 -228 66 50 -360 280Zm0 -202L120 -600l360 -280 360 280 -360 280Zm0 -280Zm0 178 230 -178 -230 -178 -230 178 230 178Z",
+        )
     }
 
+    /** Google Material Symbols: `link` (outline, 24 px). */
+    val Link: ImageVector by lazy {
+        material(
+            name = "Link",
+            d = "M440 -280H280q-83 0 -141.5 -58.5T80 -480q0 -83 58.5 -141.5T280 -680h160v80H280q-50 0 -85 35t-35 85q0 50 35 85t85 35h160v80ZM320 -440v-80h320v80H320Zm200 160v-80h160q50 0 85 -35t35 -85q0 -50 -35 -85t-85 -35H520v-80h160q83 0 141.5 58.5T880 -480q0 83 -58.5 141.5T680 -280H520Z",
+        )
+    }
+
+    /** Google Material Symbols: `lock` (outline, 24 px). */
     val Lock: ImageVector by lazy {
-        image("Lock") {
-            svgPath("M18 11H6C4.89543 11 4 11.8954 4 13V19C4 20.1046 4.89543 21 6 21H18C19.1046 21 20 20.1046 20 19V13C20 11.8954 19.1046 11 18 11Z", fill = true, stroke = true, width = 3f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M8 11V7C8 5.93913 8.42143 4.92172 9.17157 4.17157C9.92172 3.42143 10.9391 3 12 3C13.0609 3 14.0783 3.42143 14.8284 4.17157C15.5786 4.92172 16 5.93913 16 7V11", stroke = true, width = 3f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Lock",
+            d = "M240 -80q-33 0 -56.5 -23.5T160 -160v-400q0 -33 23.5 -56.5T240 -640h40v-80q0 -83 58.5 -141.5T480 -920q83 0 141.5 58.5T680 -720v80h40q33 0 56.5 23.5T800 -560v400q0 33 -23.5 56.5T720 -80H240Zm0 -80h480v-400H240v400Zm296.5 -143.5Q560 -327 560 -360t-23.5 -56.5Q513 -440 480 -440t-56.5 23.5Q400 -393 400 -360t23.5 56.5Q447 -280 480 -280t56.5 -23.5ZM360 -640h240v-80q0 -50 -35 -85t-85 -35q-50 0 -85 35t-35 85v80ZM240 -160v-400 400Z",
+        )
     }
 
+    /** Google Material Symbols: `mail` (outline, 24 px). */
     val Mail: ImageVector by lazy {
-        image("Mail") {
-            svgPath("M19.9997 2.75C21.7947 2.75 23.2497 4.20507 23.2497 6V18C23.2497 19.7949 21.7947 21.25 19.9997 21.25H3.99974C2.20494 21.2499 0.749745 19.7948 0.749745 18V6C0.749745 4.20516 2.20494 2.75014 3.99974 2.75H19.9997ZM23.0242 6.2832C22.6283 5.71781 21.8485 5.57989 21.2829 5.97559L11.9997 12.4736L2.71654 5.97559C2.15101 5.58001 1.37114 5.71776 0.975331 6.2832C0.57975 6.84868 0.717635 7.62856 1.28295 8.02441L11.2829 15.0244C11.7132 15.3255 12.2862 15.3254 12.7165 15.0244L22.7165 8.02441C23.282 7.62857 23.4199 6.84875 23.0242 6.2832Z", fill = true)
-        }
+        material(
+            name = "Mail",
+            d = "M160 -160q-33 0 -56.5 -23.5T80 -240v-480q0 -33 23.5 -56.5T160 -800h640q33 0 56.5 23.5T880 -720v480q0 33 -23.5 56.5T800 -160H160Zm320 -280L160 -640v400h640v-400L480 -440Zm0 -80 320 -200H160l320 200ZM160 -640v-80 480 -400Z",
+        )
     }
 
+    /** Google Material Symbols: `location_on` (outline, 24 px). */
     val MapPin: ImageVector by lazy {
-        image("MapPin") {
-            svgPath("M12 -0.200195C14.7052 -0.200195 17.3 0.874238 19.2129 2.78711C21.1258 4.69998 22.2002 7.29479 22.2002 10C22.2002 13.9823 19.6688 17.5248 17.3711 19.9502C16.1977 21.1888 15.028 22.1951 14.1533 22.8916C13.7151 23.2405 13.3483 23.5138 13.0889 23.7012C12.9592 23.7948 12.8562 23.8671 12.7842 23.917C12.7481 23.9419 12.7202 23.962 12.7002 23.9756C12.6904 23.9822 12.6825 23.9874 12.6768 23.9912C12.6739 23.9931 12.6707 23.9949 12.6689 23.9961L12.667 23.9971L12.666 23.998C12.3135 24.2331 11.8672 24.263 11.4912 24.0869L11.334 23.998L11.333 23.9971L11.3311 23.9961C11.3293 23.9949 11.3261 23.9931 11.3232 23.9912C11.3175 23.9874 11.3096 23.9822 11.2998 23.9756C11.2798 23.962 11.2519 23.9419 11.2158 23.917C11.1438 23.8671 11.0408 23.7948 10.9111 23.7012C10.6517 23.5138 10.2849 23.2405 9.84668 22.8916C8.97204 22.1951 7.80232 21.1888 6.62891 19.9502C4.33117 17.5248 1.7998 13.9823 1.7998 10C1.7998 7.29479 2.87424 4.69998 4.78711 2.78711C6.69998 0.874238 9.29479 -0.200195 12 -0.200195ZM12 7C10.3431 7 9 8.34315 9 10C9 11.6569 10.3431 13 12 13C13.6569 13 15 11.6569 15 10C15 8.34315 13.6569 7 12 7Z", fill = true)
-        }
+        material(
+            name = "MapPin",
+            d = "M536.5 -503.5Q560 -527 560 -560t-23.5 -56.5Q513 -640 480 -640t-56.5 23.5Q400 -593 400 -560t23.5 56.5Q447 -480 480 -480t56.5 -23.5ZM480 -186q122 -112 181 -203.5T720 -552q0 -109 -69.5 -178.5T480 -800q-101 0 -170.5 69.5T240 -552q0 71 59 162.5T480 -186Zm0 106Q319 -217 239.5 -334.5T160 -552q0 -150 96.5 -239T480 -880q127 0 223.5 89T800 -552q0 100 -79.5 217.5T480 -80Zm0 -480Z",
+        )
     }
 
+    /** Google Material Symbols: `menu` (outline, 24 px). */
     val Menu: ImageVector by lazy {
-        image("Menu") {
-            svgPath("M4,6L20,6", stroke = true, width = 3f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M4,12L20,12", stroke = true, width = 3f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M4,18L20,18", stroke = true, width = 3f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Menu",
+            d = "M120 -240v-80h720v80H120Zm0 -200v-80h720v80H120Zm0 -200v-80h720v80H120Z",
+        )
     }
 
+    /** Google Material Symbols: `mic` (outline, 24 px). */
     val Mic: ImageVector by lazy {
-        image("Mic") {
-            svgPath("M15 4C15 2.34315 13.6569 1 12 1C10.3431 1 9 2.34315 9 4V9C9 10.6569 10.3431 12 12 12C13.6569 12 15 10.6569 15 9V4Z", fill = true, stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M5 10C5 11.8565 5.7375 13.637 7.05025 14.9497C8.36301 16.2625 10.1435 17 12 17C13.8565 17 15.637 16.2625 16.9497 14.9497C18.2625 13.637 19 11.8565 19 10", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M12 19V22", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Mic",
+            d = "M395 -435q-35 -35 -35 -85v-240q0 -50 35 -85t85 -35q50 0 85 35t35 85v240q0 50 -35 85t-85 35q-50 0 -85 -35Zm85 -205Zm-40 520v-123q-104 -14 -172 -93t-68 -184h80q0 83 58.5 141.5T480 -320q83 0 141.5 -58.5T680 -520h80q0 105 -68 184t-172 93v123h-80Zm68.5 -371.5Q520 -503 520 -520v-240q0 -17 -11.5 -28.5T480 -800q-17 0 -28.5 11.5T440 -760v240q0 17 11.5 28.5T480 -480q17 0 28.5 -11.5Z",
+        )
     }
 
+    /** Google Material Symbols: `remove` (outline, 24 px). */
     val Minus: ImageVector by lazy {
-        image("Minus") {
-            svgPath("M5,12L19,12", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Minus",
+            d = "M200 -440v-80h560v80H200Z",
+        )
     }
 
+    /** Google Material Symbols: `monitor` (outline, 24 px). */
     val Monitor: ImageVector by lazy {
-        image("Monitor") {
-            svgPath("M20 3H4C2.89543 3 2 3.89543 2 5V15C2 16.1046 2.89543 17 4 17H20C21.1046 17 22 16.1046 22 15V5C22 3.89543 21.1046 3 20 3Z", fill = true, stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M8 21H16", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M12 17V21", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Monitor",
+            d = "M240 -120v-80l40 -40H160q-33 0 -56.5 -23.5T80 -320v-440q0 -33 23.5 -56.5T160 -840h640q33 0 56.5 23.5T880 -760v440q0 33 -23.5 56.5T800 -240H680l40 40v80H240Zm-80 -200h640v-440H160v440Zm0 0v-440 440Z",
+        )
     }
 
+    /** Google Material Symbols: `dark_mode` (outline, 24 px). */
     val Moon: ImageVector by lazy {
-        image("Moon") {
-            svgPath("M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Moon",
+            d = "M480 -120q-150 0 -255 -105T120 -480q0 -150 105 -255t255 -105q14 0 27.5 1t26.5 3q-41 29 -65.5 75.5T444 -660q0 90 63 153t153 63q55 0 101 -24.5t75 -65.5q2 13 3 26.5t1 27.5q0 150 -105 255T480 -120Zm0 -80q88 0 158 -48.5T740 -375q-20 5 -40 8t-40 3q-123 0 -209.5 -86.5T364 -660q0 -20 3 -40t8 -40q-78 32 -126.5 102T200 -480q0 116 82 198t198 82Zm-10 -270Z",
+        )
     }
 
+    /** Google Material Symbols: `music_note` (outline, 24 px). */
     val Music: ImageVector by lazy {
-        image("Music") {
-            svgPath("M9 18V5L21 3V16", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M6 21C7.65685 21 9 19.6569 9 18C9 16.3431 7.65685 15 6 15C4.34315 15 3 16.3431 3 18C3 19.6569 4.34315 21 6 21Z", fill = true, stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M18 19C19.6569 19 21 17.6569 21 16C21 14.3431 19.6569 13 18 13C16.3431 13 15 14.3431 15 16C15 17.6569 16.3431 19 18 19Z", fill = true, stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Music",
+            d = "M287 -167q-47 -47 -47 -113t47 -113q47 -47 113 -47 23 0 42.5 5.5T480 -418v-422h240v160H560v400q0 66 -47 113t-113 47q-66 0 -113 -47Z",
+        )
     }
 
+    /** Google Material Symbols: `pause` (outline, 24 px). */
     val Pause: ImageVector by lazy {
-        image("Pause") {
-            svgPath("M9 4H7C6.44772 4 6 4.44772 6 5V19C6 19.5523 6.44772 20 7 20H9C9.55228 20 10 19.5523 10 19V5C10 4.44772 9.55228 4 9 4Z", fill = true, stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M17 4H15C14.4477 4 14 4.44772 14 5V19C14 19.5523 14.4477 20 15 20H17C17.5523 20 18 19.5523 18 19V5C18 4.44772 17.5523 4 17 4Z", fill = true, stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Pause",
+            d = "M520 -200v-560h240v560H520Zm-320 0v-560h240v560H200Zm400 -80h80v-400h-80v400Zm-320 0h80v-400h-80v400Zm0 -400v400 -400Zm320 0v400 -400Z",
+        )
     }
 
+    /** Google Material Symbols: `call` (outline, 24 px). */
     val Phone: ImageVector by lazy {
-        image("Phone") {
-            svgPath("M22 16.92V19.92C22.0011 20.1985 21.9441 20.4742 21.8325 20.7293C21.7209 20.9845 21.5573 21.2136 21.3521 21.4019C21.1469 21.5901 20.9046 21.7335 20.6407 21.8227C20.3769 21.9119 20.0974 21.9451 19.82 21.92C16.7428 21.5856 13.787 20.5341 11.19 18.85C8.77383 17.3147 6.72534 15.2662 5.19 12.85C3.49998 10.2412 2.44824 7.27099 2.12 4.18C2.09501 3.90347 2.12787 3.62476 2.2165 3.36162C2.30513 3.09849 2.44757 2.85669 2.63477 2.65162C2.82196 2.44655 3.0498 2.28271 3.30379 2.17052C3.55778 2.05833 3.83234 2.00026 4.11 2H7.11C7.59531 1.99522 8.06579 2.16708 8.43376 2.48353C8.80173 2.79999 9.04208 3.23945 9.11 3.72C9.24 4.68 9.47 5.62 9.81 6.53C9.94454 6.88792 9.97366 7.27691 9.89391 7.65088C9.81415 8.02485 9.62886 8.36811 9.36 8.64L8.09 9.91C9.51356 12.4135 11.5865 14.4864 14.09 15.91L15.36 14.64C15.6319 14.3711 15.9752 14.1858 16.3491 14.1061C16.7231 14.0263 17.1121 14.0555 17.47 14.19C18.38 14.53 19.32 14.76 20.28 14.89C20.7658 14.9585 21.2094 15.2032 21.5265 15.5775C21.8437 15.9518 22.0122 16.4296 22 16.92Z", fill = true, stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Phone",
+            d = "M798 -120q-125 0 -247 -54.5T329 -329Q229 -429 174.5 -551T120 -798q0 -18 12 -30t30 -12h162q14 0 25 9.5t13 22.5l26 140q2 16 -1 27t-11 19l-97 98q20 37 47.5 71.5T387 -386q31 31 65 57.5t72 48.5l94 -94q9 -9 23.5 -13.5T670 -390l138 28q14 4 23 14.5t9 23.5v162q0 18 -12 30t-30 12ZM241 -600l66 -66 -17 -94h-89q5 41 14 81t26 79Zm358 358q39 17 79.5 27t81.5 13v-88l-94 -19 -67 67ZM241 -600Zm358 358Z",
+        )
     }
 
+    /** Google Material Symbols: `play_arrow` (outline, 24 px). */
     val Play: ImageVector by lazy {
-        image("Play") {
-            svgPath("M6 3L20 12L6 21V3Z", fill = true, stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Play",
+            d = "M320 -200v-560l440 280 -440 280Zm80 -280Zm0 134 210 -134 -210 -134v268Z",
+        )
     }
 
+    /** Google Material Symbols: `add` (outline, 24 px). */
     val Plus: ImageVector by lazy {
-        image("Plus") {
-            svgPath("M12,5L12,19", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M5,12L19,12", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Plus",
+            d = "M440 -440H200v-80h240v-240h80v240h240v80H520v240h-80v-240Z",
+        )
     }
 
-    val Python: ImageVector by lazy {
-        image("Python") {
-            svgPath("M11.914 0C5.82 0 6.2 2.656 6.2 2.656L6.207 5.408H12.021V6.234H3.9C3.9 6.234 0 5.789 0 11.969C0 18.149 3.403 17.929 3.403 17.929H5.433V15.062C5.433 15.062 5.324 11.659 8.783 11.659H14.548C14.548 11.659 17.788 11.711 17.788 8.527V3.135C17.788 3.135 18.293 0 11.914 0ZM8.69 1.887C8.96848 1.887 9.23555 1.99762 9.43246 2.19454C9.62937 2.39145 9.74 2.65852 9.74 2.937C9.74 3.21548 9.62937 3.48255 9.43246 3.67946C9.23555 3.87638 8.96848 3.987 8.69 3.987C8.41152 3.987 8.14445 3.87638 7.94754 3.67946C7.75062 3.48255 7.64 3.21548 7.64 2.937C7.64 2.65852 7.75062 2.39145 7.94754 2.19454C8.14445 1.99762 8.41152 1.887 8.69 1.887Z", fill = true)
-            svgPath("M12.086 24C18.18 24 17.8 21.344 17.8 21.344L17.793 18.592H11.979V17.766H20.1C20.1 17.766 24 18.211 24 12.031C24 5.851 20.597 6.071 20.597 6.071H18.567V8.938C18.567 8.938 18.676 12.341 15.217 12.341H9.452C9.452 12.341 6.212 12.289 6.212 15.473V20.865C6.212 20.865 5.707 24 12.086 24ZM15.31 22.113C15.0315 22.113 14.7645 22.0024 14.5675 21.8055C14.3706 21.6085 14.26 21.3415 14.26 21.063C14.26 20.7845 14.3706 20.5175 14.5675 20.3205C14.7645 20.1236 15.0315 20.013 15.31 20.013C15.5885 20.013 15.8555 20.1236 16.0525 20.3205C16.2494 20.5175 16.36 20.7845 16.36 21.063C16.36 21.3415 16.2494 21.6085 16.0525 21.8055C15.8555 22.0024 15.5885 22.113 15.31 22.113Z", fill = true)
-        }
-    }
-
+    /** Google Material Symbols: `refresh` (outline, 24 px). */
     val Refresh: ImageVector by lazy {
-        image("Refresh") {
-            svgPath("M1,4L1,10L7,10", stroke = true, width = 3f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M3.51 15a9 9 0 1 0 2.13-9.36L1 10", stroke = true, width = 3f, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Refresh",
+            d = "M480 -160q-134 0 -227 -93t-93 -227q0 -134 93 -227t227 -93q69 0 132 28.5T720 -690v-110h80v280H520v-80h168q-32 -56 -87.5 -88T480 -720q-100 0 -170 70t-70 170q0 100 70 170t170 70q77 0 139 -44t87 -116h84q-28 106 -114 173t-196 67Z",
+        )
     }
 
+    /** Google Material Symbols: `search` (outline, 24 px). */
     val Search: ImageVector by lazy {
-        image("Search") {
-            svgPath("M4,11a7,7 0 1 0 14,0a7,7 0 1 0 -14,0Z", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M16.5,16.5L21,21", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Search",
+            d = "M784 -120 532 -372q-30 24 -69 38t-83 14q-109 0 -184.5 -75.5T120 -580q0 -109 75.5 -184.5T380 -840q109 0 184.5 75.5T640 -580q0 44 -14 83t-38 69l252 252 -56 56ZM380 -400q75 0 127.5 -52.5T560 -580q0 -75 -52.5 -127.5T380 -760q-75 0 -127.5 52.5T200 -580q0 75 52.5 127.5T380 -400Z",
+        )
     }
 
+    /** Google Material Symbols: `send` (outline, 24 px). */
     val Send: ImageVector by lazy {
-        image("Send") {
-            svgPath("M22 2L15 22L11 13L2 9L22 2Z", fill = true, stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M22 2L11 13", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Send",
+            d = "M120 -160v-640l760 320 -760 320Zm80 -120 474 -200 -474 -200v140l240 60 -240 60v140Zm0 0v-400 400Z",
+        )
     }
 
+    /** Google Material Symbols: `settings` (filled, 24 px). */
     val Settings: ImageVector by lazy {
-        image("Settings") {
-            svgPath("M12 -0.25C12.862 -0.25 13.6884 0.0926554 14.2979 0.702148C14.9073 1.31164 15.25 2.13805 15.25 3V3.08496L15.2549 3.14258C15.2635 3.20011 15.284 3.2558 15.3164 3.30469C15.3487 3.35336 15.391 3.39449 15.4404 3.4248L15.4922 3.45117L15.5049 3.45605C15.5779 3.48828 15.6588 3.49855 15.7373 3.48438C15.8159 3.47012 15.8892 3.43186 15.9463 3.37598L15.9961 3.32617C16.6058 2.71649 17.4327 2.37404 18.2949 2.37402C18.7218 2.37402 19.1447 2.45776 19.5391 2.62109C19.9335 2.78447 20.2919 3.0243 20.5938 3.32617C20.8956 3.62806 21.1354 3.98641 21.2988 4.38086C21.4622 4.77528 21.5459 5.19809 21.5459 5.625C21.5459 6.05191 21.4622 6.47472 21.2988 6.86914C21.1354 7.26359 20.8956 7.62194 20.5938 7.92383L20.5439 7.97363L20.5049 8.01953C20.4701 8.06772 20.4462 8.12365 20.4355 8.18262C20.4214 8.26114 20.4317 8.34203 20.4639 8.41504C20.4907 8.47594 20.5106 8.53945 20.5273 8.60352C20.5525 8.63426 20.5827 8.66141 20.6162 8.68359C20.6812 8.7265 20.7571 8.74968 20.835 8.75H21C21.862 8.75 22.6884 9.09266 23.2979 9.70215C23.9073 10.3116 24.25 11.138 24.25 12C24.25 12.862 23.9073 13.6884 23.2979 14.2979C22.6884 14.9073 21.862 15.25 21 15.25H20.915L20.8574 15.2549C20.7999 15.2635 20.7442 15.284 20.6953 15.3164C20.6304 15.3594 20.5795 15.4206 20.5488 15.4922L20.5439 15.5049C20.5117 15.5779 20.5015 15.6588 20.5156 15.7373C20.5299 15.8159 20.5681 15.8892 20.624 15.9463L20.6738 15.9961C20.9757 16.298 21.2155 16.6563 21.3789 17.0508C21.5423 17.4452 21.626 17.868 21.626 18.2949C21.626 18.7218 21.5422 19.1447 21.3789 19.5391C21.2155 19.9335 20.9757 20.2919 20.6738 20.5938C20.3719 20.8956 20.0136 21.1354 19.6191 21.2988C19.2247 21.4622 18.8019 21.5459 18.375 21.5459C17.9481 21.5459 17.5253 21.4622 17.1309 21.2988C16.7364 21.1354 16.3781 20.8956 16.0762 20.5938L16.0264 20.5439L15.9805 20.5049C15.9323 20.4701 15.8763 20.4462 15.8174 20.4355C15.7389 20.4214 15.658 20.4317 15.585 20.4639L15.5723 20.4688C15.5006 20.4995 15.4395 20.5512 15.3965 20.6162C15.3536 20.6812 15.3304 20.7571 15.3301 20.835V21C15.3301 21.8619 14.9874 22.6884 14.3779 23.2979C13.7685 23.9073 12.942 24.25 12.0801 24.25C11.2181 24.25 10.3917 23.9073 9.78223 23.2979C9.17273 22.6884 8.83008 21.862 8.83008 21V20.9395L8.82422 20.8799C8.81395 20.821 8.79091 20.7648 8.75586 20.7158C8.70917 20.6505 8.64368 20.6009 8.56836 20.5732C8.54368 20.5642 8.51917 20.5546 8.49512 20.5439C8.4221 20.5117 8.34123 20.5015 8.2627 20.5156C8.18405 20.5299 8.11084 20.5681 8.05371 20.624L8.00391 20.6738C7.39422 21.2835 6.5673 21.626 5.70508 21.626C4.84285 21.626 4.01595 21.2835 3.40625 20.6738C2.79655 20.0641 2.4541 19.2372 2.4541 18.375C2.4541 17.5128 2.79655 16.6859 3.40625 16.0762L3.46094 16.0195C3.51386 15.9633 3.55066 15.8935 3.56445 15.8174C3.57864 15.7389 3.56833 15.658 3.53613 15.585L3.53125 15.5723C3.50057 15.5007 3.44963 15.4395 3.38477 15.3965C3.33586 15.3641 3.28021 15.3426 3.22266 15.334L3.16504 15.3301H3C2.13806 15.3301 1.31164 14.9874 0.702148 14.3779C0.0926739 13.7685 -0.249979 12.942 -0.25 12.0801C-0.25 11.2181 0.0926798 10.3917 0.702148 9.78223C1.31164 9.17273 2.13805 8.83008 3 8.83008H3.06055C3.14079 8.8282 3.2189 8.80255 3.28418 8.75586C3.34946 8.70917 3.39905 8.64368 3.42676 8.56836C3.43584 8.54368 3.44544 8.51917 3.45605 8.49512C3.48828 8.4221 3.49855 8.34123 3.48438 8.2627C3.47012 8.18405 3.43186 8.11084 3.37598 8.05371L3.32617 8.00391C3.02428 7.70201 2.78448 7.34366 2.62109 6.94922C2.45773 6.55481 2.37403 6.13198 2.37402 5.70508C2.37402 5.2782 2.45776 4.85533 2.62109 4.46094C2.78447 4.06651 3.0243 3.70814 3.32617 3.40625C3.62807 3.10436 3.98642 2.86456 4.38086 2.70117C4.77528 2.53781 5.19808 2.4541 5.625 2.4541C6.05192 2.4541 6.47472 2.53781 6.86914 2.70117C7.26358 2.86456 7.62193 3.10436 7.92383 3.40625L7.97363 3.45605C8.03077 3.51194 8.10398 3.55019 8.18262 3.56445C8.26114 3.57864 8.34203 3.56833 8.41504 3.53613C8.47601 3.50922 8.53937 3.48848 8.60352 3.47168C8.63397 3.44663 8.66156 3.41797 8.68359 3.38477C8.72576 3.32109 8.74876 3.24622 8.75 3.16992V3C8.75 2.13805 9.09266 1.31164 9.70215 0.702148C10.3116 0.0926554 11.138 -0.25 12 -0.25ZM12 7.75C9.65279 7.75 7.75 9.65279 7.75 12C7.75 14.3472 9.65279 16.25 12 16.25C14.3472 16.25 16.25 14.3472 16.25 12C16.25 9.65279 14.3472 7.75 12 7.75Z", fill = true)
-        }
+        material(
+            name = "Settings",
+            d = "m370 -80 -16 -128q-13 -5-24.5 -12T307 -235l-119 50L78 -375l103 -78q-1 -7-1 -13.5v-27q0 -6.5 1 -13.5L78 -585l110 -190 119 50q11 -8 23 -15t24 -12l16 -128h220l16 128q13 5 24.5 12t22.5 15l119 -50 110 190 -103 78q1 7 1 13.5v27q0 6.5 -2 13.5l103 78 -110 190 -118 -50q-11 8 -23 15t-24 12L590 -80H370Zm112 -260q58 0 99 -41t41 -99q0 -58 -41 -99t-99 -41q-59 0 -99.5 41T342 -480q0 58 40.5 99t99.5 41Z",
+        )
     }
 
+    /** Google Material Symbols: `settings` (outline, 24 px). */
+    val SettingsOutline: ImageVector by lazy {
+        material(
+            name = "SettingsOutline",
+            d = "m370 -80 -16 -128q-13 -5-24.5 -12T307 -235l-119 50L78 -375l103 -78q-1 -7-1 -13.5v-27q0 -6.5 1 -13.5L78 -585l110 -190 119 50q11 -8 23 -15t24 -12l16 -128h220l16 128q13 5 24.5 12t22.5 15l119 -50 110 190 -103 78q1 7 1 13.5v27q0 6.5 -2 13.5l103 78 -110 190 -118 -50q-11 8 -23 15t-24 12L590 -80H370Zm70 -80h79l14 -106q31 -8 57.5 -23.5T639 -327l99 41 39 -68 -86 -65q5 -14 7 -29.5t2 -31.5q0 -16 -2-31.5t-7 -29.5l86 -65 -39 -68 -99 42q-22 -23 -48.5 -38.5T533 -694l-13 -106h-79l-14 106q-31 8 -57.5 23.5T321 -633l-99 -41 -39 68 86 64q-5 15 -7 30t-2 32q0 16 2 31t7 30l-86 65 39 68 99 -42q22 23 48.5 38.5T427 -266l13 106Zm42 -180q58 0 99 -41t41 -99q0 -58 -41 -99t-99 -41q-59 0 -99.5 41T342 -480q0 58 40.5 99t99.5 41Zm-2 -140Z",
+        )
+    }
+
+    /** Google Material Symbols: `share` (outline, 24 px). */
     val Share: ImageVector by lazy {
-        image("Share") {
-            svgPath("M18 8C19.6569 8 21 6.65685 21 5C21 3.34315 19.6569 2 18 2C16.3431 2 15 3.34315 15 5C15 6.65685 16.3431 8 18 8Z", fill = true, stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M6 15C7.65685 15 9 13.6569 9 12C9 10.3431 7.65685 9 6 9C4.34315 9 3 10.3431 3 12C3 13.6569 4.34315 15 6 15Z", fill = true, stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M18 22C19.6569 22 21 20.6569 21 19C21 17.3431 19.6569 16 18 16C16.3431 16 15 17.3431 15 19C15 20.6569 16.3431 22 18 22Z", fill = true, stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M8.59 10.49L15.42 6.51", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M8.59 13.51L15.42 17.49", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Share",
+            d = "M680 -80q-50 0 -85 -35t-35 -85q0 -6 3 -28L282 -392q-16 15 -37 23.5t-45 8.5q-50 0 -85 -35t-35 -85q0 -50 35 -85t85 -35q24 0 45 8.5t37 23.5l281 -164q-2 -7-2.5 -13.5T560 -760q0 -50 35 -85t85 -35q50 0 85 35t35 85q0 50 -35 85t-85 35q-24 0 -45 -8.5T598 -672L317 -508q2 7 2.5 13.5t.5 14.5q0 8-.5 14.5T317 -452l281 164q16 -15 37 -23.5t45 -8.5q50 0 85 35t35 85q0 50 -35 85t-85 35Zm0 -80q17 0 28.5 -11.5T720 -200q0 -17 -11.5 -28.5T680 -240q-17 0 -28.5 11.5T640 -200q0 17 11.5 28.5T680 -160ZM200 -440q17 0 28.5 -11.5T240 -480q0 -17 -11.5 -28.5T200 -520q-17 0 -28.5 11.5T160 -480q0 17 11.5 28.5T200 -440Zm508.5 -291.5Q720 -743 720 -760t-11.5 -28.5Q697 -800 680 -800t-28.5 11.5Q640 -777 640 -760t11.5 28.5Q663 -720 680 -720t28.5 -11.5ZM680 -200ZM200 -480Zm480 -280Z",
+        )
     }
 
+    /** Google Material Symbols: `smartphone` (outline, 24 px). */
     val Smartphone: ImageVector by lazy {
-        image("Smartphone") {
-            svgPath("M17 -0.25C18.7949 -0.25 20.25 1.20507 20.25 3V21C20.25 22.7949 18.7949 24.25 17 24.25H7C5.20507 24.25 3.75 22.7949 3.75 21V3C3.75 1.20507 5.20507 -0.25 7 -0.25H17ZM12 16.75C11.3096 16.75 10.75 17.3096 10.75 18V18.0098C10.75 18.7001 11.3096 19.2598 12 19.2598C12.6904 19.2598 13.25 18.7001 13.25 18.0098V18C13.25 17.3096 12.6904 16.75 12 16.75Z", fill = true)
-        }
+        material(
+            name = "Smartphone",
+            d = "M280 -40q-33 0 -56.5 -23.5T200 -120v-720q0 -33 23.5 -56.5T280 -920h400q33 0 56.5 23.5T760 -840v124q18 7 29 22t11 34v80q0 19 -11 34t-29 22v404q0 33 -23.5 56.5T680 -40H280Zm0 -80h400v-720H280v720Zm0 0v-720 720Zm228.5 -611.5Q520 -743 520 -760t-11.5 -28.5Q497 -800 480 -800t-28.5 11.5Q440 -777 440 -760t11.5 28.5Q463 -720 480 -720t28.5 -11.5Z",
+        )
     }
 
-    val StrelaLogo: ImageVector by lazy {
-        image("StrelaLogo") {
-            svgPath("M0.7,12a11.3,11.3 0 1 0 22.6,0a11.3,11.3 0 1 0 -22.6,0Z", stroke = true, width = 1.4f)
-            svgPath("M8.7,12a3.3,3.3 0 1 0 6.6,0a3.3,3.3 0 1 0 -6.6,0Z", stroke = true, width = 1.4f)
-            svgPath("M11.2,12a0.8,0.8 0 1 0 1.6,0a0.8,0.8 0 1 0 -1.6,0Z", fill = true, stroke = true, width = 1.4f)
-            svgPath("M14.75 4.48486C17.8137 5.60623 20 8.54796 20 12C20 16.4183 16.4183 20 12 20C7.58172 20 4 16.4183 4 12C4 8.54796 6.18636 5.60623 9.25 4.48486V5.99854C6.97788 7.04142 5.3999 9.33642 5.3999 12C5.3999 15.6451 8.3549 18.6001 12 18.6001C15.6451 18.6001 18.6001 15.6451 18.6001 12C18.6001 9.33642 17.0221 7.04142 14.75 5.99854V4.48486Z", fill = true)
-            svgPath("M13.9773 3.78977L13.0398 3.89204C13.0132 3.79735 12.9668 3.70834 12.9006 3.625C12.8361 3.54167 12.749 3.47443 12.6392 3.4233C12.5293 3.37216 12.3949 3.34659 12.2358 3.34659C12.0218 3.34659 11.8418 3.39299 11.696 3.48579C11.5521 3.5786 11.4811 3.69886 11.483 3.84659C11.4811 3.97348 11.5274 4.0767 11.6222 4.15625C11.7188 4.23579 11.8778 4.30114 12.0994 4.35227L12.8438 4.51136C13.2567 4.60038 13.5634 4.74148 13.7642 4.93466C13.9668 5.12784 14.0691 5.38068 14.071 5.69318C14.0691 5.9678 13.9886 6.21023 13.8295 6.42045C13.6723 6.62879 13.4536 6.79167 13.1733 6.90909C12.893 7.02651 12.571 7.08523 12.2074 7.08523C11.6733 7.08523 11.2434 6.97348 10.9176 6.75C10.5919 6.52462 10.3977 6.21117 10.3352 5.80966L11.3381 5.71307C11.3835 5.91004 11.4801 6.05871 11.6278 6.15909C11.7756 6.25947 11.9678 6.30966 12.2045 6.30966C12.4489 6.30966 12.6449 6.25947 12.7926 6.15909C12.9422 6.05871 13.017 5.93466 13.017 5.78693C13.017 5.66193 12.9688 5.55871 12.8722 5.47727C12.7775 5.39583 12.6297 5.33333 12.429 5.28977L11.6847 5.13352C11.2661 5.0464 10.9564 4.89962 10.7557 4.69318C10.5549 4.48485 10.4555 4.22159 10.4574 3.90341C10.4555 3.63447 10.5284 3.40152 10.6761 3.20455C10.8258 3.00568 11.0331 2.85227 11.2983 2.74432C11.5653 2.63447 11.8731 2.57955 12.2216 2.57955C12.7329 2.57955 13.1354 2.68845 13.429 2.90625C13.7244 3.12405 13.9072 3.41856 13.9773 3.78977Z", fill = true)
-        }
-    }
-
+    /** Google Material Symbols: `light_mode` (outline, 24 px). */
     val Sun: ImageVector by lazy {
-        image("Sun") {
-            svgPath("M8,12a4,4 0 1 0 8,0a4,4 0 1 0 -8,0Z", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M12 2v2", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M12 20v2", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("m4.93 4.93 1.41 1.41", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("m17.66 17.66 1.41 1.41", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M2 12h2", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M20 12h2", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("m6.34 17.66-1.41 1.41", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("m19.07 4.93-1.41 1.41", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Sun",
+            d = "M565 -395q35 -35 35 -85t-35 -85q-35 -35 -85 -35t-85 35q-35 35 -35 85t35 85q35 35 85 35t85 -35Zm-226.5 56.5Q280 -397 280 -480t58.5 -141.5Q397 -680 480 -680t141.5 58.5Q680 -563 680 -480t-58.5 141.5Q563 -280 480 -280t-141.5 -58.5ZM200 -440H40v-80h160v80Zm720 0H760v-80h160v80ZM440 -760v-160h80v160h-80Zm0 720v-160h80v160h-80ZM256 -650l-101 -97 57 -59 96 100 -52 56Zm492 496 -97 -101 53 -55 101 97 -57 59Zm-98 -550 97 -101 59 57 -100 96 -56 -52ZM154 -212l101 -97 55 53 -97 101 -59 -57Zm326 -268Z",
+        )
     }
 
-    val SXvpnLogo: ImageVector by lazy {
-        image("SXvpnLogo") {
-            svgPath("M1.21875 0H22.7812C23.4562 0 24 0.54375 24 1.21875V10.5938C24 15.75 20.25 19.5 12 24C3.75 19.5 0 15.75 0 10.5938V1.21875C0 0.54375 0.54375 0 1.21875 0Z", fill = true)
-            svgPath("M14.2393 7.67401C14.1882 7.15838 13.9688 6.75781 13.581 6.4723C13.1932 6.18679 12.6669 6.04403 12.0021 6.04403C11.5504 6.04403 11.169 6.10795 10.858 6.2358C10.5469 6.35937 10.3082 6.53196 10.142 6.75355C9.98011 6.97514 9.89915 7.22656 9.89915 7.50781C9.89063 7.74219 9.93963 7.94673 10.0462 8.12145C10.157 8.29616 10.3082 8.44744 10.5 8.57528C10.6918 8.69886 10.9134 8.80753 11.1648 8.90128C11.4162 8.99077 11.6847 9.06747 11.9702 9.13139L13.1463 9.41264C13.7173 9.54048 14.2415 9.71094 14.7188 9.92401C15.196 10.1371 15.6094 10.3991 15.9588 10.7102C16.3082 11.0213 16.5788 11.3878 16.7706 11.8097C16.9666 12.2315 17.0668 12.7152 17.071 13.2607C17.0668 14.0618 16.8622 14.7564 16.4574 15.3445C16.0568 15.9283 15.4773 16.3821 14.7188 16.706C13.9645 17.0256 13.0547 17.1854 11.9893 17.1854C10.9325 17.1854 10.0121 17.0234 9.22798 16.6996C8.44815 16.3757 7.83878 15.8963 7.39986 15.2614C6.9652 14.6222 6.73722 13.8317 6.71591 12.8899H9.39418C9.42401 13.3288 9.54972 13.6953 9.77131 13.9893C9.99716 14.2791 10.2976 14.4986 10.6726 14.6477C11.0518 14.7926 11.4801 14.8651 11.9574 14.8651C12.4261 14.8651 12.8331 14.7969 13.1783 14.6605C13.5277 14.5241 13.7983 14.3345 13.9901 14.0916C14.1818 13.8487 14.2777 13.5696 14.2777 13.2543C14.2777 12.9602 14.1903 12.7131 14.0156 12.5128C13.8452 12.3125 13.5938 12.142 13.2614 12.0014C12.9332 11.8608 12.5305 11.733 12.0533 11.6179L10.6278 11.2599C9.52415 10.9915 8.6527 10.5717 8.01349 10.0007C7.37429 9.42969 7.05682 8.66051 7.06108 7.69318C7.05682 6.90057 7.26776 6.2081 7.69389 5.61577C8.12429 5.02344 8.71449 4.56108 9.46449 4.22869C10.2145 3.89631 11.0668 3.73011 12.0213 3.73011C12.9929 3.73011 13.8409 3.89631 14.5653 4.22869C15.294 4.56108 15.8608 5.02344 16.2656 5.61577C16.6705 6.2081 16.8793 6.89418 16.892 7.67401H14.2393Z", fill = true)
-        }
-    }
-
+    /** Google Material Symbols: `sell` (outline, 24 px). */
     val Tag: ImageVector by lazy {
-        image("Tag") {
-            svgPath("M12 0.75C12.3315 0.75 12.6494 0.881791 12.8838 1.11621L21.4766 9.70898C22.0818 10.3179 22.4219 11.1415 22.4219 12C22.4219 12.8585 22.0818 13.6821 21.4766 14.291L21.4736 14.2939L14.3037 21.4629C14.002 21.7649 13.6444 22.0054 13.25 22.1689C12.8555 22.3325 12.432 22.417 12.0049 22.417C11.5779 22.417 11.1552 22.3324 10.7607 22.1689C10.3668 22.0056 10.0086 21.7663 9.70703 21.4648L1.11621 12.8848C0.881492 12.6503 0.75 12.3318 0.75 12V2C0.75 1.30964 1.30964 0.75 2 0.75H12ZM7 4.75C5.75736 4.75 4.75 5.75736 4.75 7C4.75 8.24264 5.75736 9.25 7 9.25C8.24264 9.25 9.25 8.24264 9.25 7C9.25 5.75736 8.24264 4.75 7 4.75Z", fill = true)
-        }
+        material(
+            name = "Tag",
+            d = "M856 -390 570 -104q-12 12 -27 18t-30 6q-15 0 -30 -6t-27 -18L103 -457q-11 -11 -17 -25.5T80 -513v-287q0 -33 23.5 -56.5T160 -880h287q16 0 31 6.5t26 17.5l352 353q12 12 17.5 27t5.5 30q0 15 -5.5 29.5T856 -390ZM513 -160l286 -286 -353 -354H160v286l353 354ZM260 -640q25 0 42.5 -17.5T320 -700q0 -25 -17.5 -42.5T260 -760q-25 0 -42.5 17.5T200 -700q0 25 17.5 42.5T260 -640Zm220 160Z",
+        )
     }
 
+    /** Google Material Symbols: `terminal` (outline, 24 px). */
     val Terminal: ImageVector by lazy {
-        image("Terminal") {
-            svgPath("M4,17L10,11L4,5", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M12,19L20,19", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Terminal",
+            d = "M160 -160q-33 0 -56.5 -23.5T80 -240v-480q0 -33 23.5 -56.5T160 -800h640q33 0 56.5 23.5T880 -720v480q0 33 -23.5 56.5T800 -160H160Zm0 -80h640v-400H160v400Zm140 -40 -56 -56 103 -104 -104 -104 57 -56 160 160 -160 160Zm180 0v-80h240v80H480Z",
+        )
     }
 
+    /** Google Material Symbols: `delete` (outline, 24 px). */
     val Trash: ImageVector by lazy {
-        image("Trash") {
-            svgPath("M3,6L5,6L21,6", fill = true, stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6", fill = true, stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M10 11v6", fill = true, stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M14 11v6", fill = true, stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2", fill = true, stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Trash",
+            d = "M280 -120q-33 0 -56.5 -23.5T200 -200v-520h-40v-80h200v-40h240v40h200v80h-40v520q0 33 -23.5 56.5T680 -120H280Zm400 -600H280v520h400v-520ZM360 -280h80v-360h-80v360Zm160 0h80v-360h-80v360ZM280 -720v520 -520Z",
+        )
     }
 
+    /** Google Material Symbols: `upload` (outline, 24 px). */
     val Upload: ImageVector by lazy {
-        image("Upload") {
-            svgPath("M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M17,8L12,3L7,8", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M12,3L12,15", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Upload",
+            d = "M440 -320v-326L336 -542l-56 -58 200 -200 200 200 -56 58 -104 -104v326h-80ZM240 -160q-33 0 -56.5 -23.5T160 -240v-120h80v120h480v-120h80v120q0 33 -23.5 56.5T720 -160H240Z",
+        )
     }
 
+    /** Google Material Symbols: `person` (outline, 24 px). */
     val User: ImageVector by lazy {
-        image("User") {
-            svgPath("M12 12C14.2091 12 16 10.2091 16 8C16 5.79086 14.2091 4 12 4C9.79086 4 8 5.79086 8 8C8 10.2091 9.79086 12 12 12Z", fill = true, stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M4 21V20C4 18.4087 4.63214 16.8826 5.75736 15.7574C6.88258 14.6321 8.4087 14 10 14H14C15.5913 14 17.1174 14.6321 18.2426 15.7574C19.3679 16.8826 20 18.4087 20 20V21", fill = true, stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "User",
+            d = "M367 -527q-47 -47 -47 -113t47 -113q47 -47 113 -47t113 47q47 47 47 113t-47 113q-47 47 -113 47t-113 -47ZM160 -160v-112q0 -34 17.5 -62.5T224 -378q62 -31 126 -46.5T480 -440q66 0 130 15.5T736 -378q29 15 46.5 43.5T800 -272v112H160Zm80 -80h480v-32q0 -11 -5.5 -20T700 -306q-54 -27 -109 -40.5T480 -360q-56 0 -111 13.5T260 -306q-9 5 -14.5 14t-5.5 20v32Zm296.5 -343.5Q560 -607 560 -640t-23.5 -56.5Q513 -720 480 -720t-56.5 23.5Q400 -673 400 -640t23.5 56.5Q447 -560 480 -560t56.5 -23.5ZM480 -640Zm0 400Z",
+        )
     }
 
+    /** Google Material Symbols: `videocam` (outline, 24 px). */
     val Video: ImageVector by lazy {
-        image("Video") {
-            svgPath("M14 5H3C1.89543 5 1 5.89543 1 7V17C1 18.1046 1.89543 19 3 19H14C15.1046 19 16 18.1046 16 17V7C16 5.89543 15.1046 5 14 5Z", fill = true, stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M16 10L23 7V17L16 14V10Z", fill = true, stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Video",
+            d = "M160 -160q-33 0 -56.5 -23.5T80 -240v-480q0 -33 23.5 -56.5T160 -800h480q33 0 56.5 23.5T720 -720v180l160 -160v440L720 -420v180q0 33 -23.5 56.5T640 -160H160Zm0 -80h480v-480H160v480Zm0 0v-480 480Z",
+        )
     }
 
+    /** Google Material Symbols: `volume_up` (outline, 24 px). */
     val Volume: ImageVector by lazy {
-        image("Volume") {
-            svgPath("M11 5L6 9H2V15H6L11 19V5Z", fill = true, stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M15.54 8.46C16.4774 9.39764 17.0039 10.6692 17.0039 11.995C17.0039 13.3208 16.4774 14.5924 15.54 15.53", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M19.07 4.93C20.9447 6.80528 21.9979 9.34836 21.9979 12C21.9979 14.6516 20.9447 17.1947 19.07 19.07", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Volume",
+            d = "M560 -131v-82q90 -26 145 -100t55 -168q0 -94 -55 -168T560 -749v-82q124 28 202 125.5T840 -481q0 127 -78 224.5T560 -131ZM120 -360v-240h160l200 -200v640L280 -360H120Zm440 40v-322q47 22 73.5 66t26.5 96q0 51 -26.5 94.5T560 -320ZM400 -606l-86 86H200v80h114l86 86v-252ZM300 -480Z",
+        )
     }
 
+    /** Google Material Symbols: `wifi` (outline, 24 px). */
     val Wifi: ImageVector by lazy {
-        image("Wifi") {
-            svgPath("M5 12.55a11 11 0 0 1 14.08 0", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M1.42 9a16 16 0 0 1 21.16 0", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M8.53 16.11a6 6 0 0 1 6.95 0", stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-            svgPath("M11,20a1,1 0 1 0 2,0a1,1 0 1 0 -2,0Z", fill = true, stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Wifi",
+            d = "M409 -149q-29 -29 -29 -71t29 -71q29 -29 71 -29t71 29q29 29 29 71t-29 71q-29 29 -71 29t-71 -29ZM254 -346l-84 -86q59 -59 138.5 -93.5T480 -560q92 0 171.5 35T790 -430l-84 84q-44 -44 -102 -69t-124 -25q-66 0 -124 25t-102 69ZM84 -516 0 -600q92 -94 215 -147t265 -53q142 0 265 53t215 147l-84 84q-77 -77 -178.5 -120.5T480 -680q-116 0 -217.5 43.5T84 -516Z",
+        )
     }
 
+    /** Google Material Symbols: `bolt` (outline, 24 px). */
     val Zap: ImageVector by lazy {
-        image("Zap") {
-            svgPath("M13 2L3 14H12L11 22L21 10H12L13 2Z", fill = true, stroke = true, cap = StrokeCap.Round, join = StrokeJoin.Round)
-        }
+        material(
+            name = "Zap",
+            d = "m422 -232 207 -248H469l29 -227 -185 267h139l-30 208ZM320 -80l40 -280H160l360 -520h80l-40 320h240L400 -80h-80Zm151 -390Z",
+        )
     }
 }
 
-private fun image(name: String, block: ImageVector.Builder.() -> Unit): ImageVector =
+/**
+ * Собирает ImageVector из компонента одной иконки Google Material Symbols.
+ * Google хранит иконки в координатах 0..960 по x и -960..0 по y, поэтому путь
+ * обёрнут в группу со сдвигом по y на 960. Вырезы (отверстия) в иконках
+ * получаются направлением обхода контуров, отдельная функция чётности не нужна.
+ */
+private fun material(
+    name: String,
+    d: String
+): ImageVector =
     ImageVector.Builder(
         name = name,
         defaultWidth = 24.dp,
         defaultHeight = 24.dp,
-        viewportWidth = 24f,
-        viewportHeight = 24f
-    ).apply(block).build()
-
-private fun ImageVector.Builder.svgPath(
-    d: String,
-    fill: Boolean = false,
-    stroke: Boolean = false,
-    width: Float = 2.5f,
-    cap: StrokeCap = StrokeCap.Round,
-    join: StrokeJoin = StrokeJoin.Round,
-    evenOdd: Boolean = false
-) {
-    addPath(
-        pathData = PathParser().parsePathString(d).toNodes(),
-        pathFillType = if (evenOdd) PathFillType.EvenOdd else PathFillType.NonZero,
-        fill = if (fill) SolidColor(Color.Black) else null,
-        stroke = if (stroke) SolidColor(Color.Black) else null,
-        strokeLineWidth = if (stroke) width else 0f,
-        strokeLineCap = cap,
-        strokeLineJoin = join
-    )
-}
+        viewportWidth = 960f,
+        viewportHeight = 960f
+    ).apply {
+        addGroup(translationY = 960f)
+        addPath(
+            pathData = PathParser().parsePathString(d).toNodes(),
+            fill = SolidColor(Color.Black)
+        )
+        clearGroup()
+    }.build()

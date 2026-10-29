@@ -3,6 +3,7 @@ package com.strela.onebox.log
 import android.content.Context
 import android.util.Log
 import java.io.File
+import java.io.RandomAccessFile
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -57,6 +58,31 @@ object AppLog {
             }
         }
         append("── журнал очищен пользователем ──")
+    }
+
+    /**
+     * Хвост журнала для консоли (последние [limitBytes]), с разрыва первой
+     * обрубленной строки. Весь файл, если он меньше лимита; "" — файла нет.
+     */
+    fun tail(limitBytes: Long = 256L * 1024): String {
+        val target = logFile ?: return ""
+        synchronized(lock) {
+            return try {
+                val length = target.length()
+                if (length <= limitBytes) {
+                    target.readText()
+                } else {
+                    RandomAccessFile(target, "r").use { raf ->
+                        raf.seek(length - limitBytes)
+                        val bytes = ByteArray(limitBytes.toInt())
+                        raf.readFully(bytes)
+                        String(bytes, Charsets.UTF_8).substringAfter('\n', "")
+                    }
+                }
+            } catch (_: Exception) {
+                ""
+            }
+        }
     }
 
     private fun log(level: Int, message: String, throwable: Throwable?) {

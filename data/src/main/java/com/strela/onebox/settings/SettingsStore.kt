@@ -1,8 +1,8 @@
 package com.strela.onebox.settings
 
-import android.content.ComponentName
 import android.content.Context
-import android.content.pm.PackageManager
+import com.strela.onebox.api.PingMethod
+import com.strela.onebox.api.PingOptions
 import com.strela.onebox.i18n.AppLanguage
 import com.strela.onebox.i18n.OneBoxStrings
 import com.strela.onebox.i18n.stringsFor
@@ -22,29 +22,27 @@ enum class ThemeMode(val key: String) {
     }
 }
 
-/** Варианты иконки приложения. */
-enum class AppIcon(val key: String) {
-    DEFAULT("default"),
-    ALT1("alt1"),
-    ALT2("alt2");
-
-    companion object {
-        fun fromKey(key: String?): AppIcon = entries.firstOrNull { it.key == key } ?: DEFAULT
-    }
-}
-
 /**
- * Настройки приложения (язык, тема, иконка и параметры подключения) в SharedPreferences.
- * Значения доступны как StateFlow — Compose перерисовывается при изменении.
+ * Настройки приложения (язык, тема, размер текста и параметры подключения)
+ * в SharedPreferences. Значения доступны как StateFlow — Compose перерисовывается
+ * при изменении. Иконка приложения одна — стандартная, вариантов больше нет.
  */
 object SettingsStore {
 
+    /** Множители размера текста: мелкий, обычный, крупный, очень крупный. */
+    const val FONT_SCALE_SMALL = 0.85f
+    const val FONT_SCALE_NORMAL = 1f
+    const val FONT_SCALE_LARGE = 1.15f
+    const val FONT_SCALE_HUGE = 1.3f
     private const val PREFS = "settings"
     private const val KEY_LANGUAGE = "language"
     private const val KEY_THEME = "theme"
-    private const val KEY_APP_ICON = "app_icon"
+    private const val KEY_FONT_SCALE = "font_scale"
     private const val KEY_BLOCK_ADS = "block_ads"
     private const val KEY_AUTO_CONNECT = "auto_connect"
+    private const val KEY_PING_METHOD = "ping_method"
+    private const val KEY_PING_TIMEOUT = "ping_timeout"
+    private const val KEY_PING_URL = "ping_url"
 
     private val _language = MutableStateFlow(AppLanguage.RU)
     val language: StateFlow<AppLanguage> = _language.asStateFlow()
@@ -52,8 +50,9 @@ object SettingsStore {
     private val _theme = MutableStateFlow(ThemeMode.SYSTEM)
     val theme: StateFlow<ThemeMode> = _theme.asStateFlow()
 
-    private val _appIcon = MutableStateFlow(AppIcon.DEFAULT)
-    val appIcon: StateFlow<AppIcon> = _appIcon.asStateFlow()
+    /** Множитель размера текста для всей типографики (1f — обычный). */
+    private val _fontScale = MutableStateFlow(FONT_SCALE_NORMAL)
+    val fontScale: StateFlow<Float> = _fontScale.asStateFlow()
 
     private val _blockAds = MutableStateFlow(true)
     val blockAds: StateFlow<Boolean> = _blockAds.asStateFlow()
@@ -61,21 +60,32 @@ object SettingsStore {
     private val _autoConnect = MutableStateFlow(false)
     val autoConnect: StateFlow<Boolean> = _autoConnect.asStateFlow()
 
+    private val _pingOptions = MutableStateFlow(PingOptions())
+    val pingOptions: StateFlow<PingOptions> = _pingOptions.asStateFlow()
+
     /** Инициализация: читает настройки из prefs. Идемпотентна. */
     fun init(context: Context) {
         val prefs = context.applicationContext
             .getSharedPreferences(PREFS, Context.MODE_PRIVATE)
         _language.value = AppLanguage.fromCode(prefs.getString(KEY_LANGUAGE, null))
         _theme.value = ThemeMode.fromKey(prefs.getString(KEY_THEME, null))
-        _appIcon.value = AppIcon.fromKey(prefs.getString(KEY_APP_ICON, null))
+        _fontScale.value = prefs.getFloat(KEY_FONT_SCALE, FONT_SCALE_NORMAL)
+            .coerceIn(FONT_SCALE_SMALL, FONT_SCALE_HUGE)
         _blockAds.value = prefs.getBoolean(KEY_BLOCK_ADS, true)
         _autoConnect.value = prefs.getBoolean(KEY_AUTO_CONNECT, false)
+        _pingOptions.value = PingOptions(
+            method = PingMethod.fromKey(prefs.getString(KEY_PING_METHOD, null)),
+            timeoutMs = prefs.getLong(KEY_PING_TIMEOUT, PingOptions.DEFAULT_TIMEOUT_MS)
+                .coerceIn(100L, 30_000L),
+            testUrl = prefs.getString(KEY_PING_URL, null)
+                ?.takeIf { it.isNotBlank() }
+                ?: PingOptions.DEFAULT_TEST_URL,
+        )
         AppLog.i(
             "SettingsStore: язык=${_language.value.code}, тема=${_theme.value.key}, " +
-                "иконка=${_appIcon.value.key}, блокировка рекламы=${_blockAds.value}, автоподключение=${_autoConnect.value}"
+                "масштаб текста=${_fontScale.value}, блокировка рекламы=${_blockAds.value}, " +
+                "автоподключение=${_autoConnect.value}"
         )
-        // Применяем сохранённую иконку при старте
-        applyAppIcon(context, _appIcon.value)
     }
 
     fun setLanguage(context: Context, language: AppLanguage) {
@@ -92,6 +102,14 @@ object SettingsStore {
         AppLog.i("SettingsStore: выбрана тема ${theme.key}")
     }
 
+    fun setFontScale(context: Context, scale: Float) {
+        val value = scale.coerceIn(FONT_SCALE_SMALL, FONT_SCALE_HUGE)
+        if (_fontScale.value == value) return
+        _fontScale.value = value
+        prefs(context).edit().putFloat(KEY_FONT_SCALE, value).apply()
+        AppLog.i("SettingsStore: выбран масштаб текста=$value")
+    }
+
     fun setBlockAds(context: Context, enabled: Boolean) {
         if (_blockAds.value == enabled) return
         _blockAds.value = enabled
@@ -106,25 +124,46 @@ object SettingsStore {
         AppLog.i("SettingsStore: автоподключение ${if (enabled) "включено" else "выключено"}")
     }
 
-    fun setAppIcon(context: Context, icon: AppIcon) {
-        if (_appIcon.value == icon) return
-        _appIcon.value = icon
-        prefs(context).edit().putString(KEY_APP_ICON, icon.key).apply()
-        AppLog.i("SettingsStore: выбрана иконка ${icon.key}")
-        applyAppIcon(context, icon)
+    fun setPingMethod(context: Context, method: PingMethod) {
+        if (_pingOptions.value.method == method) return
+        _pingOptions.value = _pingOptions.value.copy(method = method)
+        prefs(context).edit().putString(KEY_PING_METHOD, method.key).apply()
+        AppLog.i("SettingsStore: метод пинга=${method.key}")
     }
 
-    /** Возвращает все настройки к значениям по умолчанию. */
+    fun setPingTimeout(context: Context, timeoutMs: Long) {
+        val value = timeoutMs.coerceIn(100L, 30_000L)
+        if (_pingOptions.value.timeoutMs == value) return
+        _pingOptions.value = _pingOptions.value.copy(timeoutMs = value)
+        prefs(context).edit().putLong(KEY_PING_TIMEOUT, value).apply()
+        AppLog.i("SettingsStore: тайм-аут пинга=$value мс")
+    }
+
+    fun setPingTestUrl(context: Context, url: String) {
+        val value = url.trim().takeIf { it.isNotBlank() } ?: PingOptions.DEFAULT_TEST_URL
+        if (_pingOptions.value.testUrl == value) return
+        _pingOptions.value = _pingOptions.value.copy(testUrl = value)
+        prefs(context).edit().putString(KEY_PING_URL, value).apply()
+        AppLog.d("SettingsStore: URL-тест пинга=$value")
+    }
+
+    /**
+     * Возвращает настройки к значениям по умолчанию. Стираются ВСЕ ключи
+     * prefs (включая устаревшие вроде снятой с поддержки иконки-варианта) —
+     * подписки и JSON-конфиг сбрасывает вызывающий код (см. SettingsTab).
+     */
     fun reset(context: Context) {
         _theme.value = ThemeMode.SYSTEM
         _language.value = AppLanguage.RU
-        _appIcon.value = AppIcon.DEFAULT
+        _fontScale.value = FONT_SCALE_NORMAL
         _blockAds.value = true
         _autoConnect.value = false
+        _pingOptions.value = PingOptions()
         prefs(context).edit()
+            .clear()
             .putString(KEY_THEME, _theme.value.key)
             .putString(KEY_LANGUAGE, _language.value.code)
-            .putString(KEY_APP_ICON, _appIcon.value.key)
+            .putFloat(KEY_FONT_SCALE, _fontScale.value)
             .putBoolean(KEY_BLOCK_ADS, _blockAds.value)
             .putBoolean(KEY_AUTO_CONNECT, _autoConnect.value)
             .apply()
@@ -133,26 +172,6 @@ object SettingsStore {
 
     /** Тексты для текущего языка — для мест вне Compose (сервис, хранилище профилей). */
     fun strings(): OneBoxStrings = stringsFor(_language.value)
-
-    /** Применяет выбранную иконку через activity-alias. */
-    private fun applyAppIcon(context: Context, icon: AppIcon) {
-        val pm = context.packageManager
-        val packageName = context.packageName
-        val aliases = mapOf(
-            AppIcon.DEFAULT to "$packageName.icon.default",
-            AppIcon.ALT1 to "$packageName.icon.alt1",
-            AppIcon.ALT2 to "$packageName.icon.alt2",
-        )
-        aliases.forEach { (key, alias) ->
-            val state = if (key == icon) PackageManager.COMPONENT_ENABLED_STATE_ENABLED
-            else PackageManager.COMPONENT_ENABLED_STATE_DISABLED
-            pm.setComponentEnabledSetting(
-                ComponentName(packageName, alias),
-                state,
-                PackageManager.DONT_KILL_APP
-            )
-        }
-    }
 
     private fun prefs(context: Context) =
         context.applicationContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)

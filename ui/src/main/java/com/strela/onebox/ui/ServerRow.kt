@@ -126,7 +126,7 @@ private fun PingControl(ping: PingState?, onPing: () -> Unit) {
     val colors = OneBoxTheme.colorScheme
     val s = strings
 
-    val label: String
+    val label: String?
     val color: Color
     val inProgress: Boolean
     when (ping) {
@@ -149,7 +149,8 @@ private fun PingControl(ping: PingState?, onPing: () -> Unit) {
         }
 
         null -> {
-            label = s.ping
+            // Пока пинга нет — только молния, без подписи
+            label = null
             color = colors.onSurfaceVariantSummary
             inProgress = false
         }
@@ -162,7 +163,10 @@ private fun PingControl(ping: PingState?, onPing: () -> Unit) {
         color = colors.surfaceContainerHigh,
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 11.dp, vertical = 8.dp),
+            modifier = Modifier.padding(
+                horizontal = if (label == null) 10.dp else 11.dp,
+                vertical = 8.dp,
+            ),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(6.dp),
         ) {
@@ -183,11 +187,13 @@ private fun PingControl(ping: PingState?, onPing: () -> Unit) {
                     tint = color,
                 )
             }
-            Text(
-                text = label,
-                style = OneBoxTheme.textStyles.footnote2,
-                color = color,
-            )
+            if (label != null) {
+                Text(
+                    text = label,
+                    style = OneBoxTheme.textStyles.footnote2,
+                    color = color,
+                )
+            }
         }
     }
 }
