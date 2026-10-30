@@ -24,6 +24,10 @@ object AppLog {
     private val lock = Any()
     private val timeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US)
 
+    /** Шаблон строки журнала: «дата время I/Тег: сообщение». */
+    private val entryRegex =
+        Regex("""^(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}) ([EIWD])/[A-Za-z0-9_]+:(?: (.*))?$""")
+
     @Volatile
     private var logFile: File? = null
 
@@ -85,6 +89,33 @@ object AppLog {
         }
     }
 
+    /**
+     * Хвост журнала, разобранный на записи (для подсветки в консоли).
+     * Строки стектрейса (без префикса уровня) приклеиваются к предыдущей записи,
+     * служебные маркеры («── сессия начата ──») идут отдельными записями
+     * с severity = null.
+     */
+    fun tailEntries(limitBytes: Long = 256L * 1024): List<LogEntry> {
+        val raw = tail(limitBytes)
+        if (raw.isBlank()) return emptyList()
+        val entries = ArrayList<LogEntry>()
+        for (line in raw.lines()) {
+            val match = entryRegex.matchEntire(line)
+            if (match != null) {
+                entries += LogEntry(severity = match.groupValues[2].single(), text = line)
+            } else if (line.isNotBlank()) {
+                val last = entries.lastOrNull()
+                if (last != null && last.severity != null) {
+                    // продолжение предыдущей записи — многострочный стектрейс
+                    entries[entries.lastIndex] = last.copy(text = last.text + "\n" + line)
+                } else {
+                    entries += LogEntry(severity = null, text = line)
+                }
+            }
+        }
+        return entries
+    }
+
     private fun log(level: Int, message: String, throwable: Throwable?) {
         // logcat — как обычно (фильтруются по тегу OneBox)
         when (level) {
@@ -129,3 +160,9 @@ object AppLog {
         target.renameTo(backup)
     }
 }
+
+/** Одна строка журнала в консоли: уровень (null — служебная строка) и исходный текст. */
+data class LogEntry(
+    val severity: Char?,
+    val text: String,
+)

@@ -44,9 +44,13 @@ android {
             if (keystorePropertiesFile.exists()) {
                 signingConfig = signingConfigs.getByName("release")
             }
+            // Экспериментальный packageScope («постепенное внедрение R8») ломал
+            // class merging: IllegalAccessError «Class kotlin.text.f extended by
+            // class av0 is inaccessible» (и раньше — kotlin.sequences.d / sv0).
+            // По документации packageScope не рекомендован, если R8 уже
+            // используется: оптимизируем всё приложение целиком.
             optimization {
                 enable = true
-                packageScope = setOf("androidx.**", "kotlin.**", "kotlinx.**")
             }
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
