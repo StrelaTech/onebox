@@ -1,0 +1,129 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout репозитория
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Установить Android SDK и NDK
+        uses: android-actions/setup-android@v4
+        with:
+          sdk-version: "37.0"
+          build-tools-version: "36.0.0"
+          ndk-version: "29.0.14206865"
+
+      - name: Установить Go
+        uses: actions/setup-go@v7
+        with:
+          go-version: "1.27.1"
+          cache: true
+          cache-dependency-path: xray/go.sum
+
+      - name: Установить JDK 25
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "25"
+          cache: gradle
+
+      - name: Собрать xray.aar (gomobile bind)
+        run: ./scripts/build-xray-aar.sh
+        env:
+          ANDROID_HOME: ${{ env.ANDROID_SDK_ROOT }}
+          ANDROID_SDK_ROOT: ${{ env.ANDROID_SDK_ROOT }}
+          ANDROID_NDK_HOME: ${{ env.ANDROID_NDK_HOME }}
+
+      - name: Получить версию из build.gradle.kts
+        id: version
+        run: |
+          VERSION_NAME=$(grep 'versionName = ' app/build.gradle.kts | sed -E 's/.*versionName = "([^"]+)".*/\1/')
+          echo "version=$VERSION_NAME" >> $GITHUB_OUTPUT
+
+      - name: Подготовить keystore для подписи релиза
+        id: keystore
+        env:
+          RELEASE_KEYSTORE_B64: ${{ secrets.RELEASE_KEYSTORE_B64 }}
+          RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
+        run: |
+          if [ -n "$RELEASE_KEYSTORE_B64" ]; then
+            echo "$RELEASE_KEYSTORE_B64" | base64 -d > onebox-release.jks
+            cat > keystore.properties <<EOF
+            storeFile=onebox-release.jks
+            storePassword=$RELEASE_STORE_PASSWORD
+            keyAlias=$RELEASE_KEY_ALIAS
+            keyPassword=$RELEASE_KEY_PASSWORD
+            EOF
+            echo "signed=true" >> $GITHUB_OUTPUT
+          else
+            echo "ПРЕДУПРЕЖДЕНИЕ: секреты подписи не заданы (RELEASE_KEYSTORE_B64 и т.д.).
+            Релиз будет собран без подписи — не подходит для публикации в магазин."
+            echo "signed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Собрать подписанный релиз (APK по архитектурам)
+        run: ./gradlew assembleRelease --no-daemon
+
+      - name: Подготовить файлы релиза и контрольные суммы
+        id: release-files
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          mkdir -p dist
+
+          # Копируем раздельные APK по архитектурам (splits.abi в build.gradle.kts)
+          for apk in app/build/outputs/apk/release/app-release-*.apk; do
+            [ -f "$apk" ] || continue
+            arch=$(basename "$apk" | sed -E 's/app-release-(.+)\.apk/\1/')
+            cp "$apk" "dist/OneBox-${VERSION}-${arch}.apk"
+          done
+
+          # Fallback: если splits не сработал, берём единственный универсальный APK
+          if [ -z "$(ls dist/*.apk 2>/dev/null)" ]; then
+            cp app/build/outputs/apk/release/app-release.apk "dist/OneBox-${VERSION}.apk"
+          fi
+
+          cp app/build/outputs/mapping/release/mapping.txt "dist/mapping-${VERSION}.txt"
+
+          cd dist
+          sha256sum *.apk "mapping-${VERSION}.txt" > "SHA256SUMS.txt"
+          echo "mapping=dist/mapping-${VERSION}.txt" >> $GITHUB_OUTPUT
+          echo "checksums=dist/SHA256SUMS.txt" >> $GITHUB_OUTPUT
+
+      - name: Загрузить артефакты релиза
+        uses: actions/upload-artifact@v7
+        with:
+          name: release-artifacts
+          path: dist/
+          retention-days: 30
+
+      - name: Опубликовать GitHub Release
+        uses: softprops/action-gh-release@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: OneBox ${{ steps.version.outputs.version }}
+          body: |
+            Сборка из тега `${{ github.ref_name }}`.
+            Версия: `${{ steps.version.outputs.version }}`
+
+            APK по архитектурам: `armeabi-v7a`, `arm64-v8a`, `x86`, `x86_64`.
+          files: |
+            dist/OneBox-${{ steps.version.outputs.version }}*.apk
+            dist/mapping-${{ steps.version.outputs.version }}.txt
+            dist/SHA256SUMS.txt
+          draft: false
+          prerelease: false
+          generate_release_notes: true

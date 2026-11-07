@@ -168,8 +168,7 @@ app
 
 Готовые файлы:
 
-- `app/build/outputs/apk/release/app-release.apk`
-- `app/build/outputs/bundle/release/app-release.aab`
+- `app/build/outputs/apk/release/app-release-<архитектура>.apk` (armeabi-v7a, arm64-v8a, x86, x86_64 — раздельные APK через `splits.abi`)
 - `app/build/outputs/mapping/release/mapping.txt`
 
 > **Почему `xray.aar` не лежит в `engines/xray`?** `engines/xray` — это библиотечный Android-модуль, а AGP не разрешает библиотеке подключать локальный `.aar`. Поэтому AAR публикуется в `local-maven/` и подключается как обычная зависимость `xray:xray:1.0.0@aar`. Каталог `local-maven/` не хранится в Git.
@@ -192,8 +191,8 @@ keyPassword=...
 Релизы собираются локально:
 
 1. Обновите `versionName` и `versionCode` в [`app/build.gradle.kts`](app/build.gradle.kts).
-2. Соберите `assembleRelease` и `bundleRelease`.
-3. Скопируйте артефакты в `dist/` под именами `OneBox-<версия>.apk` и `OneBox-<версия>.aab`.
+2. Соберите `assembleRelease` (создаст раздельные APK по архитектурам через `splits.abi`).
+3. Скопируйте артефакты в `dist/` под именами `OneBox-<версия>-<архитектура>.apk`.
 4. Сохраните `mapping.txt` как `dist/mapping-<версия>.txt` — он нужен для разбора обфусцированных крашей.
 5. Снимите контрольные суммы и приложите файлы к GitHub Release:
 
@@ -247,6 +246,47 @@ git push <remote> main --tags
 | Тесты падают на Java 25 | Проверьте, что Gradle toolchain 21 установлен; модули настраивают его автоматически |
 | Release без подписи | Создайте `keystore.properties` (см. раздел «Подпись релиза») |
 | Подписка не импортируется | Поддерживается только `https://`; проверьте формат ссылки и доступность сервера |
+
+## 🚀 CI/CD (GitHub Actions)
+
+Проект использует два workflow в `.github/workflows/`:
+
+| Workflow | Триггер | Назначение |
+|----------|---------|------------|
+| `ci.yml` | push в `main`, pull_request в `main` | Сборка `xray.aar` (gomobile), unit-тесты, lint, `assembleDebug`, загрузка APK |
+| `release.yml` | push тега `v*` | Сборка подписанного `assembleRelease` + `bundleRelease`, контрольные суммы, GitHub Release |
+
+### Секреты релиза
+
+Для подписанного релиза (публикация в магазин) настройте в **Settings → Secrets and variables → Actions** репозитория:
+
+| Секрет | Источник | Описание |
+|--------|----------|----------|
+| `RELEASE_KEYSTORE_B64` | `base64 -w0 onebox-release.jks` | Base64-кодированный файл keystore |
+| `RELEASE_STORE_PASSWORD` | `keystore.properties` | `storePassword` |
+| `RELEASE_KEY_ALIAS` | `keystore.properties` | `keyAlias` |
+| `RELEASE_KEY_PASSWORD` | `keystore.properties` | `keyPassword` |
+
+Сам `onebox-release.jks` и `keystore.properties` **не хранятся в Git** (см. `.gitignore`).  
+Если секреты не заданы, `release.yml` соберёт APK/AAB **без подписи** — подходит только для тестирования.
+
+### Как выпустить релиз
+
+1. Обновите `versionName` и `versionCode` в `app/build.gradle.kts` (версия должна расти).
+2. Запушите тег:
+
+```bash
+git tag -a v26.1.2 -m "OneBox 26.1.2"
+git push origin v26.1.2
+```
+
+3. `release.yml` соберёт артефакты, создаст `SHA256SUMS.txt` и опубликует GitHub Release с файлами:
+   - `dist/OneBox-<версия>-armeabi-v7a.apk`
+   - `dist/OneBox-<версия>-arm64-v8a.apk`
+   - `dist/OneBox-<версия>-x86.apk`
+   - `dist/OneBox-<версия>-x86_64.apk`
+   - `dist/mapping-<версия>.txt`
+   - `dist/SHA256SUMS.txt`
 
 ## 📄 Лицензия
 

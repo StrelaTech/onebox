@@ -70,6 +70,16 @@ android {
         // несжатых ассетов, а GeoAssets сверяет размер при распаковке
         noCompress += "dat"
     }
+    // Раздельные APK по архитектурах вместо одного универсального (fat APK).
+    // В release сборке появится по одному APK на armeabi-v7a, arm64-v8a, x86, x86_64.
+    splits {
+        abi {
+            enable = true
+            reset()
+            include("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
+            universalApk = false
+        }
+    }
 }
 
 dependencies {
