@@ -16,11 +16,24 @@ jobs:
           fetch-depth: 0
 
       - name: Установить Android SDK и NDK
+        id: android
         uses: android-actions/setup-android@v4
         with:
           sdk-version: "37.0"
           build-tools-version: "36.0.0"
           ndk-version: "29.0.14206865"
+
+      - name: Экспортировать ANDROID_NDK_HOME
+        run: |
+          NDK_DIR="${{ steps.android.outputs.ndk-dir }}"
+          if [ -z "$NDK_DIR" ]; then
+            NDK_DIR="$(ls -d "$ANDROID_HOME"/ndk/* 2>/dev/null | sort -V | tail -1)"
+          fi
+          if [ -z "$NDK_DIR" ]; then
+            echo "NDK не найден в $ANDROID_HOME/ndk"; exit 1
+          fi
+          echo "ANDROID_NDK_HOME=$NDK_DIR" >> $GITHUB_ENV
+          echo "Using NDK: $NDK_DIR"
 
       - name: Установить Go
         uses: actions/setup-go@v7
