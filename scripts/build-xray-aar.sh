@@ -21,8 +21,19 @@ export PATH="$HOME/go/bin:$PATH"
 
 # Найти установленный NDK
 if [ -z "${ANDROID_NDK_HOME:-}" ]; then
-    NDK_DIR="$(ls -d "$ANDROID_HOME"/ndk/* 2>/dev/null | sort -V | tail -1)"
-    [ -n "$NDK_DIR" ] || { echo "NDK не найден в $ANDROID_HOME/ndk"; exit 1; }
+    NDK_DIR=""
+    for sdk in "$ANDROID_HOME" "$ANDROID_SDK_ROOT" "$HOME/Android/Sdk" "/usr/local/lib/android/sdk"; do
+        [ -z "$sdk" ] && continue
+        if [ -d "$sdk/ndk" ]; then
+            NDK_DIR="$(ls -d "$sdk/ndk"/* 2>/dev/null | sort -V | tail -1)"
+            [ -n "$NDK_DIR" ] && break
+        fi
+        if [ -d "$sdk/ndk-bundle" ]; then
+            NDK_DIR="$sdk/ndk-bundle"
+            break
+        fi
+    done
+    [ -n "$NDK_DIR" ] || { echo "NDK не найден. Проверьте ANDROID_HOME=$ANDROID_HOME, ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"; exit 1; }
     export ANDROID_NDK_HOME="$NDK_DIR"
 fi
 echo "Using NDK: $ANDROID_NDK_HOME"
