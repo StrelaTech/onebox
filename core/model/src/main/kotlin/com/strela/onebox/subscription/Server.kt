@@ -31,6 +31,13 @@ data class Server(
     val path: String = "",
     val host: String = "",
     val serviceName: String = "",
+    /**
+     * Hysteria2: пароль обфускации QUIC-трафика (masquerade).
+     * Пусто — обфускации нет.
+     */
+    val obfsPassword: String = "",
+    /** TLS: разрешить самоподписанные сертификаты (hy2://?insecure=1). */
+    val allowInsecure: Boolean = false,
     /** Исходная ссылка — для отображения и повторного шаринга */
     val rawUrl: String = "",
     /**
@@ -41,7 +48,7 @@ data class Server(
     val json: String = ""
 ) {
     enum class Protocol {
-        VLESS, VMESS, TROJAN, SHADOWSOCKS, SOCKS, UNKNOWN;
+        VLESS, VMESS, TROJAN, SHADOWSOCKS, SOCKS, HYSTERIA2, UNKNOWN;
 
         val displayName: String
             get() = when (this) {
@@ -50,6 +57,7 @@ data class Server(
                 TROJAN -> "Trojan"
                 SHADOWSOCKS -> "Shadowsocks"
                 SOCKS -> "SOCKS"
+                HYSTERIA2 -> "Hysteria2"
                 UNKNOWN -> "?"
             }
     }

@@ -3,6 +3,7 @@ package com.strela.onebox.subscription
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -195,6 +196,35 @@ class XrayConfigParserTest {
         assertEquals(Server.Protocol.SOCKS, server.protocol)
         assertEquals("login", server.credential)
         assertEquals("secret", server.extra)
+    }
+
+    @Test
+    fun `hysteria2 config разбирается в сервер`() {
+        val json = """
+            {
+              "outbounds": [ {
+                "protocol": "hysteria",
+                "settings": { "version": 2, "address": "hy.example.io", "port": 443 },
+                "streamSettings": {
+                  "network": "hysteria",
+                  "security": "tls",
+                  "hysteriaSettings": { "version": 2, "auth": "hy-pass" },
+                  "tlsSettings": { "serverName": "hy.example.io", "allowInsecure": true }
+                }
+              } ]
+            }
+        """.trimIndent()
+
+        val server = XrayConfigParser.parse(json, "Hysteria")!!
+
+        assertEquals(Server.Protocol.HYSTERIA2, server.protocol)
+        assertEquals("hy.example.io", server.address)
+        assertEquals(443, server.port)
+        assertEquals("hy-pass", server.credential)
+        assertEquals("hy.example.io", server.sni)
+        assertTrue(server.allowInsecure)
+        // исходный конфиг сохраняется целиком
+        assertEquals(json, server.json)
     }
 
     @Test

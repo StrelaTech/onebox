@@ -7,7 +7,8 @@ import java.util.UUID
 /**
  * Разбор ссылок серверов в [Server].
  *
- * Поддерживаются схемы: vless://, vmess://, trojan://, ss://, socks://.
+ * Поддерживаются схемы: vless://, vmess://, trojan://, ss://, socks://,
+ * hy2:// и hysteria2:// (Hysteria2).
  * VMess бывает двух видов: base64-json (v2rayN) и стандартный vmess://<base64>.
  * Shadowsocks — как SIP002 (ss://base64(method:pass)@host:port), так и legacy.
  */
@@ -32,6 +33,7 @@ object LinkParser {
             "trojan" -> parseTrojan(normalized)
             "ss" -> parseShadowsocks(normalized)
             "socks", "socks5" -> parseSocks(normalized)
+            "hy2", "hysteria2" -> parseHysteria2(normalized)
             else -> throw ParseException("неизвестная схема: $scheme")
         }
     }
@@ -215,6 +217,37 @@ object LinkParser {
             port = port,
             credential = userInfo.substringBefore(":"),
             extra = userInfo.substringAfter(":", ""),
+            rawUrl = url
+        )
+    }
+
+    // ── Hysteria2 ──────────────────────────────────────────────────────────
+    // hy2://password@host:port?sni=...&insecure=1&obfs=salamander&obfs-password=...#name
+    // (нормы 官方-клиента sing-box/v2rayN; схема hysteria2:// — синоним)
+    private fun parseHysteria2(url: String): Server {
+        val uri = Uri.parse(url)
+        val password = uri.userInfo ?: throw ParseException("hysteria2: нет пароля")
+        val host = uri.host ?: throw ParseException("hysteria2: нет адреса")
+        val port = uri.port.takeIf { it > 0 } ?: throw ParseException("hysteria2: нет порта")
+        val q = uri.queryParameters()
+        val obfs = q["obfs-password"].orEmpty()
+        if (obfs.isNotEmpty() && !q["obfs"].equals("salamander", ignoreCase = true)) {
+            // Транспорт ядра умеет только salamander — другую обфускацию не подключить
+            throw ParseException("hysteria2: неизвестная обфускация: ${q["obfs"]}")
+        }
+
+        return Server(
+            id = newId(),
+            name = fragmentName(uri, host, port),
+            protocol = Server.Protocol.HYSTERIA2,
+            address = host,
+            port = port,
+            credential = password,
+            sni = q["sni"].orEmpty(),
+            obfsPassword = obfs,
+            allowInsecure = q["insecure"] == "1" || q["insecure"].equals("true", ignoreCase = true),
+            network = "hysteria",
+            security = "tls",
             rawUrl = url
         )
     }

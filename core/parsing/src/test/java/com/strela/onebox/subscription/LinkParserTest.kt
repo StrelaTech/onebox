@@ -96,6 +96,46 @@ class LinkParserTest {
         assertEquals("Берлин", server.name)
     }
 
+    // ── Hysteria2 ──────────────────────────────────────────────────────────
+
+    @Test
+    fun `hysteria2 URI разбирается`() {
+        val server = LinkParser.parse(
+            "hy2://my-secret@hy.example.com:8443" +
+                "?sni=hy.example.com&insecure=1&obfs=salamander&obfs-password=obfs-pass#Hysteria%20Test"
+        )
+
+        assertEquals(Server.Protocol.HYSTERIA2, server.protocol)
+        assertEquals("hy.example.com", server.address)
+        assertEquals(8443, server.port)
+        assertEquals("my-secret", server.credential)
+        assertEquals("hy.example.com", server.sni)
+        assertTrue(server.allowInsecure)
+        assertEquals("obfs-pass", server.obfsPassword)
+        assertEquals("Hysteria Test", server.name)
+    }
+
+    @Test
+    fun `hysteria2 полная схема — синоним hy2`() {
+        val server = LinkParser.parse("hysteria2://pass@hy.example.com:443#H2")
+
+        assertEquals(Server.Protocol.HYSTERIA2, server.protocol)
+        assertEquals("pass", server.credential)
+        assertTrue(!server.allowInsecure)
+        assertEquals("H2", server.name)
+    }
+
+    @Test
+    fun `hysteria2 без пароля отклоняется`() {
+        assertTrue(runCatching { LinkParser.parse("hy2://hy.example.com:443") }.isFailure)
+    }
+
+    @Test
+    fun `hysteria2 с неизвестной обфускацией отклоняется`() {
+        val url = "hy2://pass@hy.example.com:443?obfs=magic&obfs-password=x"
+        assertTrue(runCatching { LinkParser.parse(url) }.isFailure)
+    }
+
     @Test
     fun `vless без порта отклоняется`() {
         assertTrue(runCatching { LinkParser.parse("vless://uuid@example.com") }.isFailure)

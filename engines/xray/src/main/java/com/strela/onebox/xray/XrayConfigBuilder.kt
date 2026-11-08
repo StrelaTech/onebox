@@ -43,6 +43,7 @@ object XrayConfigBuilder {
             Server.Protocol.TROJAN -> trojan(server)
             Server.Protocol.SHADOWSOCKS -> shadowsocks(server)
             Server.Protocol.SOCKS -> socks(server)
+            Server.Protocol.HYSTERIA2 -> hysteria(server)
             Server.Protocol.UNKNOWN -> JSONObject().put("protocol", "freedom")
         }
         main.put("tag", "proxy")
@@ -170,6 +171,43 @@ object XrayConfigBuilder {
                     }))
                 }
             }))
+        })
+    }
+
+    /**
+     * Hysteria2: ядро называет исходящий протокол "hysteria" (version=2).
+     * Пароль лежит не в settings, а на транспорте — hysteriaSettings.auth;
+     * TLS обязателен (QUIC), SNI/allowInsecure — как у обычного https-клиента.
+     */
+    private fun hysteria(p: Server): JSONObject = JSONObject().apply {
+        put("protocol", "hysteria")
+        put("settings", JSONObject().apply {
+            put("version", 2)
+            put("address", p.address)
+            put("port", p.port)
+        })
+        put("streamSettings", JSONObject().apply {
+            put("network", "hysteria")
+            put("security", "tls")
+            put("hysteriaSettings", JSONObject().apply {
+                put("version", 2)
+                if (p.credential.isNotEmpty()) put("auth", p.credential)
+            })
+            // Обфускация QUIC-трафика (hy2://?obfs=salamander) в ядре
+            // реализована как finalmask-маска поверх UDP.
+            if (p.obfsPassword.isNotEmpty()) {
+                put("finalmask", JSONObject().put("udp", JSONArray().put(JSONObject().apply {
+                    put("type", "salamander")
+                    put("settings", JSONObject().put("password", p.obfsPassword))
+                })))
+            }
+            put("tlsSettings", JSONObject().apply {
+                if (p.sni.isNotEmpty()) put("serverName", p.sni)
+                if (p.allowInsecure) put("allowInsecure", true)
+                if (p.alpn.isNotEmpty()) {
+                    put("alpn", JSONArray(p.alpn.split(",").map { it.trim() }))
+                }
+            })
         })
     }
 

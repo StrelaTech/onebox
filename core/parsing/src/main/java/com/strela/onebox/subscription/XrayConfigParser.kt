@@ -13,14 +13,14 @@ import java.util.UUID
  * Исходный конфиг при этом сохраняется в [Server.json] как есть — при сборке
  * конфига ядра он отдаётся обратно без изменений (см. [ConfigBuilder]).
  *
- * Поддерживаемые outbound-протоколы: vless, vmess, trojan, shadowsocks, socks.
+ * Supported outbound protocols: vless, vmess, trojan, shadowsocks, socks, hysteria.
  * streamSettings читается целиком (ws/grpc/httpupgrade/splithttp/tcp-обфускация,
  * tls/reality); dns, routing и inbounds остаются только внутри снапшота.
  */
 object XrayConfigParser {
 
     /** Проксирующие протоколы outbound'ов, которые приложение умеет подключать. */
-    private val PROXY_PROTOCOLS = setOf("vless", "vmess", "trojan", "shadowsocks", "socks")
+    private val PROXY_PROTOCOLS = setOf("vless", "vmess", "trojan", "shadowsocks", "socks", "hysteria")
 
     /**
      * Сервер из JSON-конфига xray; [name] — название конфига (remarks).
@@ -52,6 +52,7 @@ object XrayConfigParser {
             path = pathOf(stream),
             host = hostOf(stream),
             serviceName = stream.optJSONObject("grpcSettings")?.optString("serviceName").orEmpty(),
+            allowInsecure = stream.optJSONObject("tlsSettings")?.optBoolean("allowInsecure", false) ?: false,
             rawUrl = "",
             json = json,
         )
@@ -115,6 +116,18 @@ object XrayConfigParser {
                 )
             }
 
+            // hysteria (второй версии): settings = { version, address, port },
+            // пароль лежит в streamSettings.hysteriaSettings.auth
+            "hysteria" -> if (settings.optInt("version", 0) == 2 || settings.optString("version") == "2") {
+                Endpoint(
+                    address = settings.optString("address"),
+                    port = settings.optInt("port", -1),
+                    credential = proxy.optJSONObject("streamSettings")
+                        ?.optJSONObject("hysteriaSettings")?.optString("auth").orEmpty(),
+                    extra = "",
+                )
+            } else null
+
             else -> null
         } ?: return null
 
@@ -131,6 +144,7 @@ object XrayConfigParser {
             "TROJAN" -> Server.Protocol.TROJAN
             "SHADOWSOCKS" -> Server.Protocol.SHADOWSOCKS
             "SOCKS" -> Server.Protocol.SOCKS
+            "HYSTERIA" -> Server.Protocol.HYSTERIA2
             else -> Server.Protocol.UNKNOWN
         }
 

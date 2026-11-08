@@ -84,6 +84,57 @@ class XrayConfigBuilderTest {
         assertEquals("8.8.8.8", servers.getString(1))
     }
 
+    @Test
+    fun `hysteria2 outbound собирается с auth на транспорте`() {
+        val server = Server(
+            id = "2",
+            name = "hy",
+            protocol = Server.Protocol.HYSTERIA2,
+            address = "hy.example.com",
+            port = 8443,
+            credential = "hy-pass",
+            sni = "hy.example.com",
+            obfsPassword = "obfs-pass",
+            allowInsecure = true,
+        )
+
+        val config = JSONObject(XrayConfigBuilder.build(server))
+        val proxy = config.getJSONArray("outbounds").getJSONObject(0)
+
+        assertEquals("hysteria", proxy.getString("protocol"))
+        val settings = proxy.getJSONObject("settings")
+        assertEquals(2, settings.getInt("version"))
+        assertEquals("hy.example.com", settings.getString("address"))
+        assertEquals(8443, settings.getInt("port"))
+
+        val stream = proxy.getJSONObject("streamSettings")
+        assertEquals("hysteria", stream.getString("network"))
+        assertEquals("hy-pass", stream.getJSONObject("hysteriaSettings").getString("auth"))
+        val tls = stream.getJSONObject("tlsSettings")
+        assertEquals("hy.example.com", tls.getString("serverName"))
+        assertTrue(tls.getBoolean("allowInsecure"))
+        // obfs=salamander — finalmask-маска поверх UDP
+        val mask = stream.getJSONObject("finalmask").getJSONArray("udp").getJSONObject(0)
+        assertEquals("salamander", mask.getString("type"))
+        assertEquals("obfs-pass", mask.getJSONObject("settings").getString("password"))
+    }
+
+    @Test
+    fun `hysteria2 без обфускации не содержит finalmask`() {
+        val server = Server(
+            id = "3",
+            name = "hy",
+            protocol = Server.Protocol.HYSTERIA2,
+            address = "hy.example.com",
+            port = 443,
+            credential = "pass",
+        )
+        val stream = JSONObject(XrayConfigBuilder.build(server))
+            .getJSONArray("outbounds").getJSONObject(0).getJSONObject("streamSettings")
+
+        assertFalse(stream.has("finalmask"))
+    }
+
     private fun rules(config: JSONObject) =
         (0 until config.getJSONObject("routing").getJSONArray("rules").length())
             .map { config.getJSONObject("routing").getJSONArray("rules").getJSONObject(it) }
