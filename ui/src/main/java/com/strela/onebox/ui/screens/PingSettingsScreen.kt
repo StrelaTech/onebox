@@ -95,7 +95,6 @@ fun PingSettingsScreen(
                 DropdownRow(
                     icon = OneBoxIcons.Send,
                     title = s.pingMethod,
-                    subtitle = s.methodHint(options.method),
                     selectedLabel = s.methodLabel(options.method),
                     options = listOf(
                         s.pingMethodGet to {
@@ -149,13 +148,6 @@ private fun OneBoxStrings.methodLabel(method: PingMethod): String = when (method
     PingMethod.PROXY_HEAD -> pingMethodHead
     PingMethod.TCP -> pingMethodTcp
     PingMethod.ICMP -> pingMethodIcmp
-}
-
-private fun OneBoxStrings.methodHint(method: PingMethod): String = when (method) {
-    PingMethod.PROXY_GET -> pingMethodHintGet
-    PingMethod.PROXY_HEAD -> pingMethodHintHead
-    PingMethod.TCP -> pingMethodHintTcp
-    PingMethod.ICMP -> pingMethodHintIcmp
 }
 
 /** Метка тайм-аута: пресет («5 с») или произвольное сохранённое значение («2500 мс»). */

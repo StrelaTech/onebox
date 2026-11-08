@@ -143,13 +143,13 @@ data class OneBoxTextStyles(
 private fun defaultOneBoxTextStyles(scale: Float = 1f): OneBoxTextStyles {
     val sp = { size: Int -> (size * scale).sp }
     return OneBoxTextStyles(
-        headline1 = TextStyle(fontSize = sp(20), lineHeight = sp(26), fontWeight = FontWeight.SemiBold),
-        headline2 = TextStyle(fontSize = sp(16), lineHeight = sp(21), fontWeight = FontWeight.SemiBold),
-        body1 = TextStyle(fontSize = sp(15), lineHeight = sp(20), fontWeight = FontWeight.Normal),
-        body2 = TextStyle(fontSize = sp(14), lineHeight = sp(19), fontWeight = FontWeight.Normal),
-        footnote1 = TextStyle(fontSize = sp(13), lineHeight = sp(17), fontWeight = FontWeight.Medium),
-        footnote2 = TextStyle(fontSize = sp(12), lineHeight = sp(16), fontWeight = FontWeight.Normal),
-        button = TextStyle(fontSize = sp(15), lineHeight = sp(20), fontWeight = FontWeight.SemiBold),
+        headline1 = TextStyle(fontSize = sp(17), lineHeight = sp(22), fontWeight = FontWeight.SemiBold),
+        headline2 = TextStyle(fontSize = sp(14), lineHeight = sp(18), fontWeight = FontWeight.SemiBold),
+        body1 = TextStyle(fontSize = sp(13), lineHeight = sp(17), fontWeight = FontWeight.Normal),
+        body2 = TextStyle(fontSize = sp(12), lineHeight = sp(16), fontWeight = FontWeight.Normal),
+        footnote1 = TextStyle(fontSize = sp(11), lineHeight = sp(14), fontWeight = FontWeight.Medium),
+        footnote2 = TextStyle(fontSize = sp(10), lineHeight = sp(13), fontWeight = FontWeight.Normal),
+        button = TextStyle(fontSize = sp(13), lineHeight = sp(17), fontWeight = FontWeight.SemiBold),
     )
 }
 
