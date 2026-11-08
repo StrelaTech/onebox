@@ -26,5 +26,8 @@ dependencies {
     // SettingsStore.strings() отдаёт OneBoxStrings из :core-i18n.
     implementation(project(":core-i18n"))
     implementation(project(":core-log"))
+    // Динамическое уведомление: статус и пинги приходят как StateFlow.
+    implementation(libs.kotlinx.coroutines.core)
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
     implementation(libs.androidx.core.ktx)
 }

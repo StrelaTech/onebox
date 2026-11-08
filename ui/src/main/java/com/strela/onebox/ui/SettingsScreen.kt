@@ -32,10 +32,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.strela.onebox.api.ConnectionMode
 import com.strela.onebox.i18n.AppLanguage
 import com.strela.onebox.log.AppLog
 import com.strela.onebox.subscription.SubscriptionStore
-import com.strela.onebox.settings.ConnectionMode
 import com.strela.onebox.settings.SettingsStore
 import com.strela.onebox.settings.ThemeMode
 import com.strela.onebox.api.VpnConnector

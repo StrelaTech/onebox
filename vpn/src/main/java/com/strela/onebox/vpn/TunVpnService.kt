@@ -10,10 +10,21 @@ import android.content.pm.ServiceInfo
 import android.net.VpnService
 import android.os.Build
 import android.os.ParcelFileDescriptor
+import com.strela.onebox.api.ConnectionMode
+import com.strela.onebox.api.PingState
 import com.strela.onebox.api.VpnConnector
+import com.strela.onebox.api.VpnStatus
 import com.strela.onebox.vpn.R
 import com.strela.onebox.log.AppLog
 import com.strela.onebox.settings.SettingsStore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.launch
 
 /**
  * VPN-сервис: поднимает tun-интерфейс и отдаёт его fd активному ядру через
@@ -28,6 +39,10 @@ class TunVpnService : VpnService() {
     private var tunPfd: ParcelFileDescriptor? = null
     private var tunFd = -1
     private var fdDetached = false
+
+    /** Живёт, пока поднят foreground: обновляет уведомление по статусу/пингу/серверу. */
+    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private var notificationJob: Job? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         // Инициализация процесса (лог, хранилища, ядра) гарантирована
@@ -54,6 +69,7 @@ class TunVpnService : VpnService() {
     private fun shutdown() {
         AppLog.i("shutdown: жёсткое отключение туннеля")
         stopForeground(STOP_FOREGROUND_REMOVE)
+        notificationJob?.cancel()
         Thread {
             val stopped = VpnConnector.stopBlocking()
             if (!stopped) AppLog.w("shutdown: ядро не остановилось за таймаут")
@@ -84,11 +100,25 @@ class TunVpnService : VpnService() {
     private fun connect() {
         AppLog.i("connect: поднимаю foreground-уведомление")
         startInForeground()
+        startNotificationUpdates()
 
         // Если ядро уже поднято — гасим всё и выходим (без блокировки главного потока)
         if (VpnConnector.isRunning) {
             AppLog.w("connect: ядро уже запущено, останавливаю")
             shutdown()
+            return
+        }
+
+        val mode = VpnConnector.connectionMode() ?: ConnectionMode.TUN
+
+        // Режим Proxy — туннель не поднимается вовсе: ядро держит только
+        // локальный socks-порт, пользователь направляет на него трафик сам.
+        if (mode == ConnectionMode.PROXY) {
+            AppLog.i("connect: режим Proxy — без establish()")
+            VpnConnector.startProxy { message ->
+                AppLog.e("connect: ядро не стартовало (Proxy): $message")
+                stopVpn()
+            }
             return
         }
 
@@ -188,8 +218,74 @@ class TunVpnService : VpnService() {
         }
     }
 
+    /**
+     * Обновляемое уведомление (п.13 ТЗ): имя сервера, пинг и режим подключения.
+     * Статус ядра, пинги и активный профиль приходят из прослойки; каждое
+     * изменение перерисовывает уведомление одного и того же id.
+     */
+    private fun startNotificationUpdates() {
+        notificationJob?.cancel()
+        notificationJob = serviceScope.launch {
+            val statusFlow = VpnConnector.status
+            val pingsFlow = VpnConnector.pings
+            combine(statusFlow, pingsFlow) { status, pings -> status to pings }
+                .collectLatest { (status, pings) ->
+                    if (status is VpnStatus.Stopped) return@collectLatest
+                    val strings = SettingsStore.strings()
+                    val profile = VpnConnector.activeProfile()
+                    val serverName = profile?.server?.name
+                        ?: profile?.let { strings.configMode }
+                        ?: "OneBox"
+
+                    val title = when (status) {
+                        is VpnStatus.Starting -> strings.notificationConnectingTitle
+                        is VpnStatus.Running -> strings.notificationRunning
+                        is VpnStatus.Error -> "OneBox · ${strings.statusErrorShort}"
+                        VpnStatus.Stopped -> return@collectLatest
+                    }
+
+                    val pingText = when (val state = pings[profile?.server?.id]) {
+                        is PingState.Ok -> strings.notificationPing(strings.pingMs(state.millis))
+                        else -> strings.notificationPingNa
+                    }
+                    val mode = when (VpnConnector.connectionMode()) {
+                        ConnectionMode.TUN -> strings.notificationModeTun
+                        ConnectionMode.PROXY -> strings.notificationModeProxy
+                        ConnectionMode.TUN_PLUS_PROXY -> strings.notificationModeTunProxy
+                        null -> strings.notificationModeTun
+                    }
+
+                    updateNotification(
+                        id = NOTIFICATION_ID,
+                        title = title,
+                        text = "${strings.notificationServer(serverName)} · $pingText · $mode",
+                    )
+                }
+        }
+    }
+
+    private suspend fun updateNotification(id: Int, title: String, text: String) {
+        val manager = getSystemService(NotificationManager::class.java)
+        val launchIntent = packageManager.getLaunchIntentForPackage(packageName)
+        val contentIntent = launchIntent?.let {
+            PendingIntent.getActivity(this, 0, it, PendingIntent.FLAG_IMMUTABLE)
+        }
+        val builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            Notification.Builder(this, CHANNEL_ID)
+        } else {
+            @Suppress("DEPRECATION")
+            Notification.Builder(this)
+        }
+            .setSmallIcon(R.drawable.ic_stat_vpn)
+            .setContentTitle(title)
+            .setContentText(text)
+        if (contentIntent != null) builder.setContentIntent(contentIntent)
+        runCatching { manager.notify(id, builder.build()) }
+    }
+
     private fun stopVpn() {
         AppLog.i("stopVpn: закрываю tun и гашу сервис")
+        notificationJob?.cancel()
         // Собственно fd всегда закрывается раньше через forceCloseTun()/
         // closeDetachedTun() — здесь остаётся страховка: закрыть валидный,
         // ещё не отданный ядру дескриптор (startTun упал до detach и т.п.).
@@ -219,6 +315,8 @@ class TunVpnService : VpnService() {
 
     override fun onDestroy() {
         AppLog.i("onDestroy: гашу ядро (короткий таймаут — главный поток не блокируем)")
+        notificationJob?.cancel()
+        serviceScope.cancel()
         // последний рубеж: даже если shutdown() не успел, остановка уходит в
         // stopExecutor и доделается в фоне; здесь ждём недолго, иначе зависшее
         // ядро заблокирует главный поток (ANR) и не даст сервису умереть

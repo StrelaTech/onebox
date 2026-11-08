@@ -32,6 +32,9 @@ interface ProfileSource {
     /** Настройки пинга серверов (метод, тайм-аут, URL-тест). */
     fun pingOptions(): PingOptions
 
+    /** Режим подключения: TUN, локальный Proxy или TUN + Proxy. */
+    fun connectionMode(): ConnectionMode
+
     /** Пользовательский «сырой» конфиг (JSON-режим); null — не сохранён. */
     fun userConfig(): String?
 

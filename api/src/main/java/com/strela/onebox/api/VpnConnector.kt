@@ -157,6 +157,15 @@ object VpnConnector {
     /** Запуск ядра поверх tun-fd — зовёт только VpnService (:engine). */
     fun startTun(fd: Int, onFailure: (String) -> Unit = {}) = core.startTun(fd, onFailure)
 
+    /** Запуск ядра в режиме Proxy (без туннеля) — зовёт только VpnService (:engine). */
+    fun startProxy(onFailure: (String) -> Unit = {}) = core.startProxy(onFailure)
+
+    /** Активный профиль (сервер/JSON-конфиг) — для уведомления VPN-сервиса. */
+    fun activeProfile(): ProfileSelection? = profiles?.activeProfile()
+
+    /** Текущий режим подключения (TUN / Proxy / TUN + Proxy); null до инициализации. */
+    fun connectionMode(): ConnectionMode? = profiles?.connectionMode()
+
     /**
      * Остановка ядра с таймаутом (блокирует поток не дольше [timeoutMs]).
      * true — успело, false — остановка зависла, туннель рвать принудительно.
@@ -211,6 +220,11 @@ private object IdleCore : VpnCore {
     }
 
     override fun stopBlocking(timeoutMs: Long): Boolean = true
+
+    override fun startProxy(onFailure: (String) -> Unit) {
+        AppLog.e("VpnConnector: ядро не инициализировано, Proxy-режим недоступен")
+        onFailure("ядро не инициализировано")
+    }
 
     override fun onVpnRevoked() = Unit
 

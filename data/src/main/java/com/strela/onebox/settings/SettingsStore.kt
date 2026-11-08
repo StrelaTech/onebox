@@ -1,6 +1,7 @@
 package com.strela.onebox.settings
 
 import android.content.Context
+import com.strela.onebox.api.ConnectionMode
 import com.strela.onebox.api.PingMethod
 import com.strela.onebox.api.PingOptions
 import com.strela.onebox.i18n.AppLanguage
@@ -23,18 +24,9 @@ enum class ThemeMode(val key: String) {
 }
 
 /**
- * Режим подключения: VPN-туннель (tun), локальный системный прокси (socks)
- * или оба сразу — трафик идёт в туннель и дублируется на прокси-порт.
+ * Режим подключения трафика (TUN / Proxy / TUN + Proxy) — в :api, см.
+ * com.strela.onebox.api.ConnectionMode; хранится в этих prefs.
  */
-enum class ConnectionMode(val key: String) {
-    TUN("tun"),
-    PROXY("proxy"),
-    TUN_PLUS_PROXY("tun+proxy");
-
-    companion object {
-        fun fromKey(key: String?): ConnectionMode = entries.firstOrNull { it.key == key } ?: TUN
-    }
-}
 
 /**
  * Настройки приложения (язык, тема, размер текста и параметры подключения)

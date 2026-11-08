@@ -1,6 +1,7 @@
 package com.strela.onebox.xray
 
 import android.content.Context
+import com.strela.onebox.api.ConnectionMode
 import com.strela.onebox.api.ProfileSource
 import com.strela.onebox.api.PingMethod
 import com.strela.onebox.api.PingOptions
@@ -281,23 +282,78 @@ object XrayEngine : VpnCore {
     }
 
     /**
+     * Запуск ядра без туннеля (режим Proxy): локальный socks-инбаунд на
+     * 127.0.0.1:10808, трафик пользователь направляет на порт сам (системный
+     * прокси, SOCKS-клиенты и пр.).
+     */
+    override fun startProxy(onFailure: (String) -> Unit) {
+        if (_status.value is VpnStatus.Starting || _status.value is VpnStatus.Running) {
+            AppLog.w("startProxy: ядро уже запущено")
+            onFailure("ядро уже запущено")
+            return
+        }
+        val cfg = buildInboundConfig(config, listOf(socksInbound()))
+        AppLog.i("startProxy: socks 127.0.0.1:10808")
+        _status.value = VpnStatus.Starting
+        Thread {
+            try {
+                GeoAssets.ensure(appContext)
+                synchronized(nativeLock) {
+                    Xray.setQuiet()
+                    Xray.startInstance(cfg)
+                }
+                AppLog.i("startProxy: ядро запущено")
+                _status.value = VpnStatus.Running
+            } catch (e: Exception) {
+                AppLog.e("startProxy: ошибка ядра", e)
+                val message = e.message ?: "unknown error"
+                _status.value = VpnStatus.Error(message)
+                onFailure(message)
+            }
+        }.start()
+    }
+
+    /**
      * Собирает конфиг для VPN-режима: из пользовательского конфига берётся всё,
      * кроме inbound'ов — вместо них подставляется tun-инбаунд (fd берётся из env).
      */
     private fun buildTunConfig(base: String): String {
-        val obj = try {
-            JSONObject(base)
-        } catch (_: Exception) {
-            JSONObject()
-        }
-        val tunInbound = JSONObject().apply {
+        val inbound = JSONObject().apply {
             put("protocol", "tun")
             put("settings", JSONObject().apply {
                 put("name", "onebox0")
                 put("MTU", 1500)
             })
         }
-        obj.put("inbounds", JSONArray().put(tunInbound))
+        // TUN + Proxy: туннель обслуживает трафик устройства и заодно
+        // держится локальный socks-порт для непроксируемых приложений.
+        val extra = if (profiles.connectionMode() == ConnectionMode.TUN_PLUS_PROXY) {
+            listOf(socksInbound())
+        } else emptyList()
+        return buildInboundConfig(base, listOf(inbound) + extra)
+    }
+
+    /** Локальный socks-инбаунд — маршрутов данных он сам себе не рисует. */
+    private fun socksInbound(): JSONObject = JSONObject().apply {
+        put("listen", "127.0.0.1")
+        put("port", 10808)
+        put("protocol", "socks")
+        put("settings", JSONObject().put("udp", true))
+    }
+
+    /**
+     * Подменяет inbound'ы конфига: всё, кроме inbound'ов (outbounds, DNS,
+     * routing провайдерского снапшота) сохраняется без изменений.
+     */
+    private fun buildInboundConfig(base: String, inbounds: List<JSONObject>): String {
+        val obj = try {
+            JSONObject(base)
+        } catch (_: Exception) {
+            JSONObject()
+        }
+        val array = JSONArray()
+        inbounds.forEach { array.put(it) }
+        obj.put("inbounds", array)
         // чтобы DNS-запросы из tun не зацикливались — форсируем внешние DNS, если их нет
         if (!obj.has("dns")) {
             obj.put("dns", JSONObject().apply {
