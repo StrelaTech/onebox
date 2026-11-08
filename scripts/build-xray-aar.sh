@@ -22,7 +22,7 @@ export PATH="$HOME/go/bin:$PATH"
 # Найти установленный NDK
 if [ -z "${ANDROID_NDK_HOME:-}" ]; then
     NDK_DIR=""
-    for sdk in "$ANDROID_HOME" "$ANDROID_SDK_ROOT" "$HOME/Android/Sdk" "/usr/local/lib/android/sdk"; do
+    for sdk in "$ANDROID_HOME" "${ANDROID_SDK_ROOT:-}" "$HOME/Android/Sdk" "/usr/local/lib/android/sdk"; do
         [ -z "$sdk" ] && continue
         if [ -d "$sdk/ndk" ]; then
             NDK_DIR="$(ls -d "$sdk/ndk"/* 2>/dev/null | sort -V | tail -1)"

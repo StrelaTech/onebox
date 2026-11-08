@@ -26,6 +26,8 @@ android {
 dependencies {
     // Прослойка: UI общается с ядрами только через VpnConnector (:api).
     api(project(":api"))
+    // Дизайн-кит (кнопки, поля, диалоги, карточки, типографика, тема).
+    api(project(":kit"))
     // Модели и тексты у публичных сигнатур composables.
     api(project(":core-model"))
     api(project(":core-i18n"))
