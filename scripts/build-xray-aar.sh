@@ -19,7 +19,12 @@ JDK_DIR="$(ls -d "$HOME"/.local/opt/jdk-21* 2>/dev/null | head -1)"
 [ -n "$JDK_DIR" ] && export PATH="$JDK_DIR/bin:$PATH"
 export PATH="$HOME/go/bin:$PATH"
 
-# Найти установленный NDK
+if ! command -v javac >/dev/null 2>&1; then
+    echo "javac не найден. Убедитесь, что JAVA_HOME указывает на JDK (не JRE)." >&2
+    exit 1
+fi
+
+# Найти установленный NDK (или поставить через sdkmanager, если не установлен)
 if [ -z "${ANDROID_NDK_HOME:-}" ]; then
     NDK_DIR=""
     for sdk in "$ANDROID_HOME" "${ANDROID_SDK_ROOT:-}" "$HOME/Android/Sdk" "/usr/local/lib/android/sdk"; do
@@ -33,10 +38,26 @@ if [ -z "${ANDROID_NDK_HOME:-}" ]; then
             break
         fi
     done
+    if [ -z "$NDK_DIR" ] && [ -n "${ANDROID_HOME:-}" ] && [ -x "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" ]; then
+        echo "NDK не найден, устанавливаю ndk;29.0.14206865 через sdkmanager..."
+        yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "ndk;29.0.14206865" >/dev/null 2>&1 || true
+        NDK_DIR="$(ls -d "$ANDROID_HOME/ndk"/* 2>/dev/null | sort -V | tail -1)"
+        [ -z "$NDK_DIR" ] && NDK_DIR="$ANDROID_HOME/ndk-bundle"
+    fi
     [ -n "$NDK_DIR" ] || { echo "NDK не найден. Проверьте ANDROID_HOME=$ANDROID_HOME, ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"; exit 1; }
     export ANDROID_NDK_HOME="$NDK_DIR"
 fi
 echo "Using NDK: $ANDROID_NDK_HOME"
+
+# Убедиться, что платформа android-$ANDROID_API установлена (требуется gomobile bind)
+ANDROID_API="${ANDROID_API:-24}"
+if [ -d "${ANDROID_HOME}/platforms" ] && [ ! -d "${ANDROID_HOME}/platforms/android-${ANDROID_API}" ]; then
+    if [ -x "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" ]; then
+        echo "Platform android-${ANDROID_API} не найдена, устанавливаю platforms;android-${ANDROID_API} через sdkmanager..."
+        yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "platforms;android-${ANDROID_API}" >/dev/null 2>&1 || true
+    fi
+fi
+echo "Using ANDROID_API=$ANDROID_API"
 
 cd "$XRAY_DIR"
 
@@ -48,12 +69,13 @@ if ! command -v gomobile >/dev/null 2>&1; then
     export PATH="$(go env GOBIN):$PATH"
 fi
 command -v gomobile >/dev/null 2>&1 || export PATH="$(go env GOPATH)/bin:$PATH"
+echo "Using gomobile: $(command -v gomobile)"
 gomobile init
 
 mkdir -p "$XRAY_DIR/build"
 gomobile bind \
     -target=android \
-    -androidapi 24 \
+    -androidapi "$ANDROID_API" \
     -trimpath \
     "-ldflags=-s -w" \
     -o "$XRAY_DIR/build/xray.aar" \
