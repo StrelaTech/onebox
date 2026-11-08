@@ -71,11 +71,6 @@ android {
     buildFeatures {
         compose = true
     }
-    androidResources {
-        // geoip.dat/geosite.dat не сжимаем: openFd работает только для
-        // несжатых ассетов, а GeoAssets сверяет размер при распаковке
-        noCompress += "dat"
-    }
 }
 
 dependencies {
