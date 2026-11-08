@@ -1,5 +1,6 @@
 package com.strela.onebox.ui
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -43,8 +44,24 @@ private fun MainTab.title(): String = when (this) {
 }
 
 /**
+ * Подэкраны, которые открываются поверх вкладок: системная «Назад»
+ * возвращает на предыдущий экран (первое нажатие — подэкран из стека,
+ * затем обычная навигация по вкладкам).
+ */
+private enum class Overlay {
+    LOGS,
+    PING,
+    APPEARANCE,
+    CONNECTION,
+    DIAGNOSTICS,
+    ABOUT,
+    LICENSES,
+}
+
+/**
  * Оболочка приложения: шапка, нижняя навигация и переключение вкладок.
- * Поверх вкладок открывается консоль логов (см. [LogsConsoleScreen]).
+ * Поверх вкладок живёт стек подэкранов — так системная «Назад» всегда
+ * возвращает на предыдущий экран.
  * Содержимое вкладок живёт в ui/screens.
  */
 @Composable
@@ -55,9 +72,14 @@ fun OneBoxApp(
 ) {
     val context = LocalContext.current
     var tab by rememberSaveable { mutableStateOf(MainTab.MAIN) }
-    var showLogsConsole by rememberSaveable { mutableStateOf(false) }
-    var showPingSettings by rememberSaveable { mutableStateOf(false) }
+    // Стек подэкранов: последняя запись — активный экран
+    val overlays = composableStack()
     val status by VpnConnector.status.collectAsState()
+
+    // Системная «Назад»: сначала закрываем подэкраны, потом работаем по стеку вкладок
+    BackHandler(enabled = overlays.isNotEmpty()) {
+        popOverlay(overlays)
+    }
 
     Scaffold(
         topBar = {
@@ -114,28 +136,69 @@ fun OneBoxApp(
 
                 MainTab.SETTINGS -> SettingsTab(
                     context = context,
-                    onOpenPing = { showPingSettings = true },
-                    onOpenLogs = { showLogsConsole = true },
-                    onShareLogs = onShareLogs,
+                    onOpenAppearance = { overlays += Overlay.APPEARANCE },
+                    onOpenConnection = { overlays += Overlay.CONNECTION },
+                    onOpenDiagnostics = { overlays += Overlay.DIAGNOSTICS },
+                    onOpenAbout = { overlays += Overlay.ABOUT },
                     modifier = Modifier.fillMaxSize(),
                 )
             }
         }
     }
 
-    // Экран настроек пинга открывается поверх всего, как консоль логов
-    if (showPingSettings) {
-        PingSettingsScreen(
-            onClose = { showPingSettings = false },
-            modifier = Modifier.fillMaxSize(),
-        )
-    }
+    overlays.forEach { overlay ->
+        Box(modifier = Modifier.fillMaxSize()) {
+            when (overlay) {
+                Overlay.LOGS -> LogsConsoleScreen(
+                    onClose = { popOverlay(overlays) },
+                    modifier = Modifier.fillMaxSize(),
+                )
 
-    // Консоль логов открывается поверх всего, включая нижнюю навигацию
-    if (showLogsConsole) {
-        LogsConsoleScreen(
-            onClose = { showLogsConsole = false },
-            modifier = Modifier.fillMaxSize(),
-        )
+                Overlay.PING -> PingSettingsScreen(
+                    onClose = { popOverlay(overlays) },
+                    modifier = Modifier.fillMaxSize(),
+                )
+
+                Overlay.APPEARANCE -> AppearanceSettingsScreen(
+                    onClose = { popOverlay(overlays) },
+                    modifier = Modifier.fillMaxSize(),
+                )
+
+                Overlay.CONNECTION -> ConnectionSettingsScreen(
+                    onClose = { popOverlay(overlays) },
+                    onOpenPing = { overlays += Overlay.PING },
+                    modifier = Modifier.fillMaxSize(),
+                )
+
+                Overlay.DIAGNOSTICS -> DiagnosticsSettingsScreen(
+                    onClose = { popOverlay(overlays) },
+                    onOpenLogs = { overlays += Overlay.LOGS },
+                    onShareLogs = onShareLogs,
+                    modifier = Modifier.fillMaxSize(),
+                )
+
+                Overlay.ABOUT -> AboutSettingsScreen(
+                    onClose = { popOverlay(overlays) },
+                    onOpenLicenses = { overlays += Overlay.LICENSES },
+                    modifier = Modifier.fillMaxSize(),
+                )
+
+                Overlay.LICENSES -> LicensesScreen(
+                    onClose = { popOverlay(overlays) },
+                    modifier = Modifier.fillMaxSize(),
+                )
+            }
+        }
     }
+}
+
+/**
+ * Стек подэкранов как список-состояние: push — добавить, pop — оставить
+ * все элементы, кроме последнего.
+ */
+private fun composableStack(): androidx.compose.runtime.snapshots.SnapshotStateList<Overlay> =
+    androidx.compose.runtime.mutableStateListOf()
+
+private fun popOverlay(stack: androidx.compose.runtime.snapshots.SnapshotStateList<Overlay>) {
+    if (stack.isNotEmpty()) stack.removeAt(stack.lastIndex)
 }

@@ -23,6 +23,20 @@ enum class ThemeMode(val key: String) {
 }
 
 /**
+ * Режим подключения: VPN-туннель (tun), локальный системный прокси (socks)
+ * или оба сразу — трафик идёт в туннель и дублируется на прокси-порт.
+ */
+enum class ConnectionMode(val key: String) {
+    TUN("tun"),
+    PROXY("proxy"),
+    TUN_PLUS_PROXY("tun+proxy");
+
+    companion object {
+        fun fromKey(key: String?): ConnectionMode = entries.firstOrNull { it.key == key } ?: TUN
+    }
+}
+
+/**
  * Настройки приложения (язык, тема, размер текста и параметры подключения)
  * в SharedPreferences. Значения доступны как StateFlow — Compose перерисовывается
  * при изменении. Иконка приложения одна — стандартная, вариантов больше нет.
@@ -40,6 +54,7 @@ object SettingsStore {
     private const val KEY_FONT_SCALE = "font_scale"
     private const val KEY_BLOCK_ADS = "block_ads"
     private const val KEY_AUTO_CONNECT = "auto_connect"
+    private const val KEY_CONNECTION_MODE = "connection_mode"
     private const val KEY_PING_METHOD = "ping_method"
     private const val KEY_PING_TIMEOUT = "ping_timeout"
     private const val KEY_PING_URL = "ping_url"
@@ -60,6 +75,9 @@ object SettingsStore {
     private val _autoConnect = MutableStateFlow(false)
     val autoConnect: StateFlow<Boolean> = _autoConnect.asStateFlow()
 
+    private val _connectionMode = MutableStateFlow(ConnectionMode.TUN)
+    val connectionMode: StateFlow<ConnectionMode> = _connectionMode.asStateFlow()
+
     private val _pingOptions = MutableStateFlow(PingOptions())
     val pingOptions: StateFlow<PingOptions> = _pingOptions.asStateFlow()
 
@@ -73,6 +91,7 @@ object SettingsStore {
             .coerceIn(FONT_SCALE_SMALL, FONT_SCALE_HUGE)
         _blockAds.value = prefs.getBoolean(KEY_BLOCK_ADS, true)
         _autoConnect.value = prefs.getBoolean(KEY_AUTO_CONNECT, false)
+        _connectionMode.value = ConnectionMode.fromKey(prefs.getString(KEY_CONNECTION_MODE, null))
         _pingOptions.value = PingOptions(
             method = PingMethod.fromKey(prefs.getString(KEY_PING_METHOD, null)),
             timeoutMs = prefs.getLong(KEY_PING_TIMEOUT, PingOptions.DEFAULT_TIMEOUT_MS)
@@ -124,6 +143,13 @@ object SettingsStore {
         AppLog.i("SettingsStore: автоподключение ${if (enabled) "включено" else "выключено"}")
     }
 
+    fun setConnectionMode(context: Context, mode: ConnectionMode) {
+        if (_connectionMode.value == mode) return
+        _connectionMode.value = mode
+        prefs(context).edit().putString(KEY_CONNECTION_MODE, mode.key).apply()
+        AppLog.i("SettingsStore: режим подключения=${mode.key}")
+    }
+
     fun setPingMethod(context: Context, method: PingMethod) {
         if (_pingOptions.value.method == method) return
         _pingOptions.value = _pingOptions.value.copy(method = method)
@@ -158,6 +184,7 @@ object SettingsStore {
         _fontScale.value = FONT_SCALE_NORMAL
         _blockAds.value = true
         _autoConnect.value = false
+        _connectionMode.value = ConnectionMode.TUN
         _pingOptions.value = PingOptions()
         prefs(context).edit()
             .clear()
@@ -166,6 +193,7 @@ object SettingsStore {
             .putFloat(KEY_FONT_SCALE, _fontScale.value)
             .putBoolean(KEY_BLOCK_ADS, _blockAds.value)
             .putBoolean(KEY_AUTO_CONNECT, _autoConnect.value)
+            .putString(KEY_CONNECTION_MODE, _connectionMode.value.key)
             .apply()
         AppLog.i("SettingsStore: настройки сброшены к значениям по умолчанию")
     }

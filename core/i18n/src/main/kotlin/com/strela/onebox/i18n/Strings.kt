@@ -52,6 +52,19 @@ data class OneBoxStrings(
     // Настройки
     val settingsHint: String,
     val appearance: String,
+    val appearanceHint: String,
+    val connectionHint: String,
+    val diagnosticsHint: String,
+    val aboutHint: String,
+    // Экран подключения: режим
+    val connectionMode: String,
+    val connectionModeHint: String,
+    val modeTun: String,
+    val modeTunHint: String,
+    val modeProxy: String,
+    val modeProxyHint: String,
+    val modeTunPlusProxy: String,
+    val modeTunPlusProxyHint: String,
     val themeTitle: String,
     val themeDark: String,
     val themeLight: String,
@@ -87,6 +100,14 @@ data class OneBoxStrings(
     val clearLogsHint: String,
     val logsCleared: String,
     val about: String,
+    val aboutDescription: String,
+    val githubProject: String,
+    val githubProjectHint: String,
+    val telegramChannel: String,
+    val telegramChannelHint: String,
+    val licensesTitle: String,
+    val licensesHint: String,
+    val licensesDescription: String,
     val appVersion: String,
     val coreVersion: String,
     val activeSubscription: String,
@@ -165,6 +186,15 @@ data class OneBoxStrings(
     val defaultSubscriptionName: (Int) -> String,
     val close: String,
     val vpnActiveNotification: String,
+    // Уведомление VPN-сервиса
+    val notificationConnectingTitle: String,
+    val notificationRunning: String,
+    val notificationServer: (String) -> String,
+    val notificationPing: (String) -> String,
+    val notificationPingNa: String,
+    val notificationModeTun: String,
+    val notificationModeProxy: String,
+    val notificationModeTunProxy: String,
     val vpnChannelName: String
 )
 
@@ -199,6 +229,18 @@ val RuStrings = OneBoxStrings(
 
     settingsHint = "Изменения применяются сразу",
     appearance = "Внешний вид",
+    appearanceHint = "Тема, размер текста и язык",
+    connectionHint = "Режим трафика, реклама, автозапуск",
+    diagnosticsHint = "Пинг и журнал приложения",
+    aboutHint = "Версия, исходный код и связи",
+    connectionMode = "Режим подключения",
+    connectionModeHint = "Применяется при следующем подключении",
+    modeTun = "TUN",
+    modeTunHint = "Весь трафик через VPN-туннель",
+    modeProxy = "Proxy",
+    modeProxyHint = "Локальный прокси-порт, без туннеля",
+    modeTunPlusProxy = "TUN + Proxy",
+    modeTunPlusProxyHint = "Туннель плюс локальный прокси-порт",
     themeTitle = "Тема оформления",
     themeDark = "Тёмная",
     themeLight = "Светлая",
@@ -234,6 +276,21 @@ val RuStrings = OneBoxStrings(
     logsNoMatches = "Совпадений не найдено",
     logsJumpToEnd = "К концу журнала",
     about = "О приложении",
+    aboutDescription = "Открытый VPN-клиент на ядре xray: VLESS, VMess, Trojan, Shadowsocks, SOCKS и Hysteria2.",
+    githubProject = "GitHub",
+    githubProjectHint = "github.com/StrelaTech/onebox",
+    telegramChannel = "Telegram",
+    telegramChannelHint = "t.me/StrelaTech",
+    licensesTitle = "Лицензии open-source",
+    licensesHint = "Код и библиотеки проекта",
+    licensesDescription = """
+        OneBox — открытый исходный код (лицензия проекта в репозитории).
+
+        xray-core (github.com/xtls/xray-core) — лицензия MIT: ядро VPN-подключений.
+        quic-go (github.com/quic-go/quic-go) — лицензия MIT: транспорт HTTP/3 в Hysteria2.
+        gomobile (github.com/golang/go / golang.org/x/mobile) — лицензия BSD-3: Go на Android.
+        Jetpack Compose, AndroidX, Kotlin (Google, JetBrains) — лицензия Apache 2.0.
+    """.trimIndent(),
     appVersion = "Версия приложения",
     coreVersion = "Ядро xray",
     activeSubscription = "Активная подписка",
@@ -306,6 +363,14 @@ val RuStrings = OneBoxStrings(
     defaultSubscriptionName = { number -> "Подписка $number" },
     close = "Закрыть",
     vpnActiveNotification = "VPN активен",
+    notificationConnectingTitle = "Подключение…",
+    notificationRunning = "Подключено",
+    notificationServer = { name -> "Сервер: $name" },
+    notificationPing = { ms -> "Пинг: $ms" },
+    notificationPingNa = "Пинг: —",
+    notificationModeTun = "TUN-режим",
+    notificationModeProxy = "Proxy-режим",
+    notificationModeTunProxy = "TUN + Proxy",
     vpnChannelName = "OneBox VPN"
 )
 
@@ -340,6 +405,18 @@ val EnStrings = OneBoxStrings(
 
     settingsHint = "Changes apply immediately",
     appearance = "Appearance",
+    appearanceHint = "Theme, text size, and language",
+    connectionHint = "Traffic mode, ads, auto-start",
+    diagnosticsHint = "Ping and app log",
+    aboutHint = "Version, source code, and links",
+    connectionMode = "Connection mode",
+    connectionModeHint = "Applied on the next connection",
+    modeTun = "TUN",
+    modeTunHint = "All traffic through the VPN tunnel",
+    modeProxy = "Proxy",
+    modeProxyHint = "Local proxy port, no tunnel",
+    modeTunPlusProxy = "TUN + Proxy",
+    modeTunPlusProxyHint = "Tunnel plus a local proxy port",
     themeTitle = "Theme",
     themeDark = "Dark",
     themeLight = "Light",
@@ -375,6 +452,21 @@ val EnStrings = OneBoxStrings(
     logsNoMatches = "No matching entries",
     logsJumpToEnd = "Jump to end of log",
     about = "About",
+    aboutDescription = "Open-source VPN client on the xray core: VLESS, VMess, Trojan, Shadowsocks, SOCKS, and Hysteria2.",
+    githubProject = "GitHub",
+    githubProjectHint = "github.com/StrelaTech/onebox",
+    telegramChannel = "Telegram",
+    telegramChannelHint = "t.me/StrelaTech",
+    licensesTitle = "Open-source licenses",
+    licensesHint = "Project code and libraries",
+    licensesDescription = """
+        OneBox is open source (the project license lives in the repository).
+
+        xray-core (github.com/xtls/xray-core) — MIT: the VPN core.
+        quic-go (github.com/quic-go/quic-go) — MIT: HTTP/3 transport in Hysteria2.
+        gomobile (github.com/golang/go / golang.org/x/mobile) — BSD-3: Go on Android.
+        Jetpack Compose, AndroidX, Kotlin (Google, JetBrains) — Apache 2.0.
+    """.trimIndent(),
     appVersion = "App version",
     coreVersion = "xray core",
     activeSubscription = "Active subscription",
@@ -447,6 +539,14 @@ val EnStrings = OneBoxStrings(
     defaultSubscriptionName = { number -> "Subscription $number" },
     close = "Close",
     vpnActiveNotification = "VPN is on",
+    notificationConnectingTitle = "Connecting…",
+    notificationRunning = "Connected",
+    notificationServer = { name -> "Server: $name" },
+    notificationPing = { ms -> "Ping: $ms" },
+    notificationPingNa = "Ping: —",
+    notificationModeTun = "TUN mode",
+    notificationModeProxy = "Proxy mode",
+    notificationModeTunProxy = "TUN + Proxy",
     vpnChannelName = "OneBox VPN"
 )
 

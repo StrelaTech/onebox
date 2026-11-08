@@ -12,7 +12,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.strela.onebox.subscription.Server
@@ -95,13 +94,6 @@ fun ServerRow(
                         overflow = TextOverflow.Ellipsis,
                     )
                 }
-                Text(
-                    text = server.endpoint,
-                    style = OneBoxTheme.textStyles.footnote2.copy(fontFamily = FontFamily.Monospace),
-                    color = colors.onSurfaceContainerVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
             }
 
             PingControl(ping = ping, onPing = onPing)
