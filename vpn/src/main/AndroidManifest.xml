@@ -4,6 +4,11 @@
     <!-- Правила нужны самому сервису: foreground с systemExempted-типом. -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SYSTEM_EXEMPTED" />
+    <!-- systemExempted на Android 14+ требует ещё и разрешение на точные
+         будильники. USE_EXACT_ALARM выдаётся автоматически (в отличие от
+         SCHEDULE_EXACT_ALARM), поэтому startForeground не упадёт с
+         SecurityException. -->
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
 
     <application>
         <service
