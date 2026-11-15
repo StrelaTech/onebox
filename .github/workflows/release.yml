@@ -111,20 +111,25 @@ jobs:
           RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
           RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
         run: |
-          if [ -n "$RELEASE_KEYSTORE_B64" ]; then
-            echo "$RELEASE_KEYSTORE_B64" | base64 -d > onebox-release.jks
-            cat > keystore.properties <<EOF
-            storeFile=onebox-release.jks
-            storePassword=$RELEASE_STORE_PASSWORD
-            keyAlias=$RELEASE_KEY_ALIAS
-            keyPassword=$RELEASE_KEY_PASSWORD
-            EOF
-            echo "signed=true" >> $GITHUB_OUTPUT
+          SIGNED=false
+          if [ -n "${RELEASE_KEYSTORE_B64:-}" ]; then
+            if printf '%s' "$RELEASE_KEYSTORE_B64" | base64 -d > onebox-release.jks 2>/dev/null && [ -s onebox-release.jks ]; then
+              {
+                echo "storeFile=onebox-release.jks"
+                echo "storePassword=$RELEASE_STORE_PASSWORD"
+                echo "keyAlias=$RELEASE_KEY_ALIAS"
+                echo "keyPassword=$RELEASE_KEY_PASSWORD"
+              } > keystore.properties
+              SIGNED=true
+            else
+              echo "ПРЕДУПРЕЖДЕНИЕ: не удалось декодировать RELEASE_KEYSTORE_B64."
+              echo "Релиз будет собран без подписи — не подходит для публикации в магазин."
+            fi
           else
-            echo "ПРЕДУПРЕЖДЕНИЕ: секреты подписи не заданы (RELEASE_KEYSTORE_B64 и т.д.).
-            Релиз будет собран без подписи — не подходит для публикации в магазин."
-            echo "signed=false" >> $GITHUB_OUTPUT
+            echo "ПРЕДУПРЕЖДЕНИЕ: секреты подписи не заданы (RELEASE_KEYSTORE_B64 и т.д.)."
+            echo "Релиз будет собран без подписи — не подходит для публикации в магазин."
           fi
+          echo "signed=$SIGNED" >> "$GITHUB_OUTPUT"
 
       - name: Собрать подписанный релиз (APK по архитектурам)
         run: ./gradlew assembleRelease --no-daemon
