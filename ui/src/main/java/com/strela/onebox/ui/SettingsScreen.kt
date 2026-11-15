@@ -40,18 +40,18 @@ import com.strela.onebox.settings.SettingsStore
 import com.strela.onebox.settings.ThemeMode
 import com.strela.onebox.api.VpnConnector
 import com.strela.onebox.ui.OneBoxTheme
-import com.strela.onebox.ui.design.Card
-import com.strela.onebox.ui.design.HorizontalDivider
-import com.strela.onebox.ui.design.Icon
-import com.strela.onebox.ui.design.IconButton
-import com.strela.onebox.ui.design.SmallTopAppBar
-import com.strela.onebox.ui.design.Surface
-import com.strela.onebox.ui.design.Switch
-import com.strela.onebox.ui.design.Text
-import com.strela.onebox.ui.design.icons.OneBoxIcons
-import com.strela.onebox.ui.kit.DropdownRow
-import com.strela.onebox.ui.kit.IconTile
-import com.strela.onebox.ui.kit.SectionTitle
+import com.strela.sui.design.Card
+import com.strela.sui.design.HorizontalDivider
+import com.strela.sui.design.Icon
+import com.strela.sui.design.IconButton
+import com.strela.sui.design.SmallTopAppBar
+import com.strela.sui.design.Surface
+import com.strela.sui.design.Switch
+import com.strela.sui.design.Text
+import com.strela.sui.design.icons.SuiIcons
+import com.strela.sui.kit.DropdownRow
+import com.strela.sui.kit.IconTile
+import com.strela.sui.kit.SectionTitle
 import kotlinx.coroutines.delay
 
 /**
@@ -76,25 +76,25 @@ fun SettingsScreen(
         SectionCard(
             title = s.appearance,
             subtitle = s.appearanceHint,
-            icon = OneBoxIcons.Sun,
+            icon = SuiIcons.Sun,
             onClick = onOpenAppearance,
         )
         SectionCard(
             title = s.connection,
             subtitle = s.connectionHint,
-            icon = OneBoxIcons.Zap,
+            icon = SuiIcons.Zap,
             onClick = onOpenConnection,
         )
         SectionCard(
             title = s.diagnostics,
             subtitle = s.diagnosticsHint,
-            icon = OneBoxIcons.Terminal,
+            icon = SuiIcons.Terminal,
             onClick = onOpenDiagnostics,
         )
         SectionCard(
             title = s.about,
             subtitle = s.aboutHint,
-            icon = OneBoxIcons.Info,
+            icon = SuiIcons.Info,
             onClick = onOpenAbout,
         )
         Spacer(Modifier.height(24.dp))
@@ -145,7 +145,7 @@ private fun SectionCard(
                 )
             }
             Icon(
-                imageVector = OneBoxIcons.ArrowRight,
+                imageVector = SuiIcons.ArrowRight,
                 contentDescription = null,
                 modifier = Modifier.size(18.dp),
                 tint = colors.onSurfaceContainerVariant,
@@ -175,7 +175,7 @@ fun AppearanceSettingsScreen(
             ThemeMode.SYSTEM to strings.themeSystemShort,
         )
         DropdownRow(
-            icon = OneBoxIcons.Sun,
+            icon = SuiIcons.Sun,
             title = strings.themeTitle,
             subtitle = strings.settingsHint,
             selectedLabel = themeOptions.firstOrNull { it.first == theme }?.second
@@ -197,7 +197,7 @@ fun AppearanceSettingsScreen(
             SettingsStore.FONT_SCALE_HUGE to strings.textSizeHuge,
         )
         DropdownRow(
-            icon = OneBoxIcons.FormatSize,
+            icon = SuiIcons.FormatSize,
             title = strings.textSize,
             subtitle = strings.textSizeHint,
             selectedLabel = textSizeOptions.firstOrNull { it.first == fontScale }?.second
@@ -217,7 +217,7 @@ fun AppearanceSettingsScreen(
             AppLanguage.EN to strings.languageEnglish,
         )
         DropdownRow(
-            icon = OneBoxIcons.Chat,
+            icon = SuiIcons.Chat,
             title = strings.language,
             selectedLabel = languageOptions.firstOrNull { it.first == language }?.second
                 ?: strings.languageRussian,
@@ -253,7 +253,7 @@ fun ConnectionSettingsScreen(
             ConnectionMode.TUN_PLUS_PROXY to s.modeTunPlusProxy,
         )
         DropdownRow(
-            icon = OneBoxIcons.Zap,
+            icon = SuiIcons.Zap,
             title = s.connectionMode,
             subtitle = s.connectionModeHint,
             selectedLabel = modeOptions.firstOrNull { it.first == mode }?.second
@@ -268,7 +268,7 @@ fun ConnectionSettingsScreen(
         SettingsDivider(startIndent = 18.dp)
 
         ToggleRow(
-            icon = OneBoxIcons.Close,
+            icon = SuiIcons.Close,
             title = s.blockAds,
             subtitle = s.blockAdsHint,
             checked = blockAds,
@@ -276,7 +276,7 @@ fun ConnectionSettingsScreen(
         )
         SettingsDivider(startIndent = 58.dp)
         ToggleRow(
-            icon = OneBoxIcons.Refresh,
+            icon = SuiIcons.Refresh,
             title = s.autoConnect,
             subtitle = s.autoConnectHint,
             checked = autoConnect,
@@ -284,7 +284,7 @@ fun ConnectionSettingsScreen(
         )
         SettingsDivider(startIndent = 58.dp)
         ActionRow(
-            icon = OneBoxIcons.Wifi,
+            icon = SuiIcons.Wifi,
             title = s.settingsPing,
             subtitle = s.settingsPingHint,
             onClick = onOpenPing,
@@ -322,21 +322,21 @@ fun DiagnosticsSettingsScreen(
         )
         SettingsDivider(startIndent = 18.dp)
         ActionRow(
-            icon = OneBoxIcons.Eye,
+            icon = SuiIcons.Eye,
             title = s.viewLogs,
             subtitle = s.viewLogsHint,
             onClick = onOpenLogs,
         )
         SettingsDivider()
         ActionRow(
-            icon = OneBoxIcons.Upload,
+            icon = SuiIcons.Upload,
             title = s.importLogs,
             subtitle = s.importLogsHint,
             onClick = onShareLogs,
         )
         SettingsDivider()
         ActionRow(
-            icon = OneBoxIcons.Trash,
+            icon = SuiIcons.Trash,
             title = s.clearLogs,
             subtitle = s.clearLogsHint,
             tint = colors.error,
@@ -387,40 +387,40 @@ fun AboutSettingsScreen(
         )
         SettingsDivider(startIndent = 18.dp)
         InfoRow(
-            icon = OneBoxIcons.Info,
+            icon = SuiIcons.Info,
             title = s.appVersion,
             value = appVersion,
         )
         SettingsDivider()
         InfoRow(
-            icon = OneBoxIcons.Terminal,
+            icon = SuiIcons.Terminal,
             title = s.coreVersion,
             value = coreVersion,
         )
         SettingsDivider()
         LinkRow(
-            icon = OneBoxIcons.Zap,
+            icon = SuiIcons.Zap,
             title = s.githubProject,
             subtitle = s.githubProjectHint,
             url = "https://github.com/StrelaTech/onebox",
         )
         SettingsDivider(startIndent = 58.dp)
         LinkRow(
-            icon = OneBoxIcons.Chat,
+            icon = SuiIcons.Chat,
             title = s.telegramChannel,
             subtitle = s.telegramChannelHint,
             url = "https://t.me/StrelaTech",
         )
         SettingsDivider(startIndent = 58.dp)
         ActionRow(
-            icon = OneBoxIcons.File,
+            icon = SuiIcons.File,
             title = s.licensesTitle,
             subtitle = s.licensesHint,
             onClick = onOpenLicenses,
         )
         SettingsDivider(startIndent = 58.dp)
         ActionRow(
-            icon = OneBoxIcons.Refresh,
+            icon = SuiIcons.Refresh,
             title = s.resetSettings,
             subtitle = s.resetSettingsHint,
             tint = colors.error,
@@ -460,7 +460,7 @@ fun LicensesScreen(
                     },
                 ) {
                     Icon(
-                        imageVector = OneBoxIcons.ArrowLeft,
+                        imageVector = SuiIcons.ArrowLeft,
                         contentDescription = s.close,
                         modifier = Modifier.size(20.dp),
                     )
@@ -511,7 +511,7 @@ private fun SettingsScreenScaffold(
                     },
                 ) {
                     Icon(
-                        imageVector = OneBoxIcons.ArrowLeft,
+                        imageVector = SuiIcons.ArrowLeft,
                         contentDescription = s.close,
                         modifier = Modifier.size(20.dp),
                     )
@@ -545,7 +545,7 @@ private fun NoticeBar(notice: String?) {
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
-                imageVector = OneBoxIcons.Check,
+                imageVector = SuiIcons.Check,
                 contentDescription = null,
                 modifier = Modifier.size(14.dp),
                 tint = colors.primary,
@@ -677,7 +677,7 @@ private fun ActionRow(
             )
         }
         Icon(
-            imageVector = OneBoxIcons.ArrowRight,
+            imageVector = SuiIcons.ArrowRight,
             contentDescription = null,
             modifier = Modifier.size(18.dp),
             tint = colors.onSurfaceContainerVariant,
@@ -732,7 +732,7 @@ private fun LinkRow(
             )
         }
         Icon(
-            imageVector = OneBoxIcons.ArrowRight,
+            imageVector = SuiIcons.ArrowRight,
             contentDescription = null,
             modifier = Modifier.size(18.dp),
             tint = colors.onSurfaceContainerVariant,

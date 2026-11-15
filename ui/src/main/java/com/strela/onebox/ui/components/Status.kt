@@ -12,8 +12,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.strela.onebox.ui.OneBoxTheme
 import com.strela.onebox.api.VpnStatus
-import com.strela.onebox.ui.design.Surface
-import com.strela.onebox.ui.design.Text
+import com.strela.sui.design.Surface
+import com.strela.sui.design.Text
 import com.strela.onebox.ui.strings
 
 /**

@@ -29,12 +29,17 @@ dependencyResolutionManagement {
 
 rootProject.name = "OneBox"
 
+// Дизайн-кит вынесен в отдельный репозиторий StrelaTech/SUI. Подключаем его
+// как composite build: локальная копия SUI лежит рядом с OneBox, а Gradle
+// подменяет координаты com.strela.sui:kit на проект :kit из этой сборки.
+includeBuild("../SUI") {
+    dependencySubstitution {
+        substitute(module("com.strela.sui:kit")).using(project(":kit"))
+    }
+}
+
 // Приложение и оболочка UI.
 include(":app")
-
-// Дизайн-кит: кнопки, поля, диалоги, карточки, типографика — без
-// зависимости от домена (:api/:core-model/:data). Потребители: :ui, :app.
-include(":kit")
 
 include(":ui")
 

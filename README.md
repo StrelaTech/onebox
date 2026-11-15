@@ -117,7 +117,8 @@ app
 | Модуль | Тип | Назначение |
 |--------|-----|------------|
 | `:app` | application | Точка входа (`OneBoxApplication`, `MainActivity`), манифест, иконки, подпись релиза |
-| `:ui` | Android library | Compose-интерфейс: экраны, компоненты, тема, дизайн-кит |
+| `:ui` | Android library | Compose-интерфейс: экраны, компоненты, мост между SUI и `:core-i18n` |
+| SUI (`../SUI`) | KMP library | Внешний дизайн-кит StrelaTech/SUI (Compose Multiplatform + React), подключается composite build'ом как `com.strela.sui:kit` |
 | `:api` | Android library | Прослойка UI ↔ ядро: `VpnConnector`, SPI (`VpnCore`, `ProfileSource`, `VpnServiceBridge`), состояния (`VpnStatus`, `PingState`) |
 | `:core-model` | JVM library | Доменные модели `Server`, `Subscription`, `SubscriptionMeta` |
 | `:core-parsing` | Android library | Разбор ссылок, подписок, Base64 и JSON-конфигов |
@@ -154,6 +155,13 @@ app
 ```
 
 ### 2. Приложение
+
+Дизайн-кит вынесен в отдельный репозиторий. Рядом с OneBox должен лежать его
+клон, иначе Gradle не сможет подставить `com.strela.sui:kit`:
+
+```bash
+git clone https://github.com/StrelaTech/SUI.git ../SUI
+```
 
 ```bash
 # Отладочная сборка

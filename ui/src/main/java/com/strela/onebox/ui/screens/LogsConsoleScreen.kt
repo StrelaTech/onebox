@@ -33,14 +33,14 @@ import androidx.compose.ui.unit.dp
 import com.strela.onebox.log.AppLog
 import com.strela.onebox.log.LogEntry
 import com.strela.onebox.ui.OneBoxTheme
-import com.strela.onebox.ui.design.Card
-import com.strela.onebox.ui.design.Icon
-import com.strela.onebox.ui.design.IconButton
-import com.strela.onebox.ui.design.SmallTopAppBar
-import com.strela.onebox.ui.design.Surface
-import com.strela.onebox.ui.design.Text
-import com.strela.onebox.ui.design.TextField
-import com.strela.onebox.ui.design.icons.OneBoxIcons
+import com.strela.sui.design.Card
+import com.strela.sui.design.Icon
+import com.strela.sui.design.IconButton
+import com.strela.sui.design.SmallTopAppBar
+import com.strela.sui.design.Surface
+import com.strela.sui.design.Text
+import com.strela.sui.design.TextField
+import com.strela.sui.design.icons.SuiIcons
 import com.strela.onebox.ui.strings
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -128,7 +128,7 @@ fun LogsConsoleScreen(
                     },
                 ) {
                     Icon(
-                        imageVector = OneBoxIcons.Close,
+                        imageVector = SuiIcons.Close,
                         contentDescription = s.close,
                         modifier = Modifier.size(20.dp),
                     )
@@ -143,7 +143,7 @@ fun LogsConsoleScreen(
                     },
                 ) {
                     Icon(
-                        imageVector = OneBoxIcons.Trash,
+                        imageVector = SuiIcons.Trash,
                         contentDescription = s.clearLogs,
                         modifier = Modifier.size(20.dp),
                     )
@@ -156,7 +156,7 @@ fun LogsConsoleScreen(
             onValueChange = { query = it },
             placeholder = s.logsSearch,
             leadingIcon = {
-                Icon(imageVector = OneBoxIcons.Search, contentDescription = null, modifier = Modifier.size(20.dp))
+                Icon(imageVector = SuiIcons.Search, contentDescription = null, modifier = Modifier.size(20.dp))
             },
             trailingIcon = if (query.isNotEmpty()) {
                 {
@@ -167,7 +167,7 @@ fun LogsConsoleScreen(
                         },
                     ) {
                         Icon(
-                            imageVector = OneBoxIcons.Close,
+                            imageVector = SuiIcons.Close,
                             contentDescription = s.close,
                             modifier = Modifier.size(20.dp),
                         )
@@ -246,7 +246,7 @@ fun LogsConsoleScreen(
                     },
                 ) {
                     Icon(
-                        imageVector = OneBoxIcons.ArrowDown,
+                        imageVector = SuiIcons.ArrowDown,
                         contentDescription = s.logsJumpToEnd,
                         modifier = Modifier
                             .padding(10.dp)

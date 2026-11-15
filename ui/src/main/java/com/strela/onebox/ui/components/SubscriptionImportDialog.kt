@@ -27,14 +27,14 @@ import com.strela.onebox.subscription.Subscription
 import com.strela.onebox.subscription.SubscriptionImportReason
 import com.strela.onebox.subscription.SubscriptionImportResult
 import com.strela.onebox.subscription.SubscriptionUrl
-import com.strela.onebox.ui.design.icons.OneBoxIcons
-import com.strela.onebox.ui.design.Button
-import com.strela.onebox.ui.design.Icon
-import com.strela.onebox.ui.design.IconButton
-import com.strela.onebox.ui.design.InfiniteProgressIndicator
-import com.strela.onebox.ui.design.Text
-import com.strela.onebox.ui.design.TextField
-import com.strela.onebox.ui.design.OneBoxDialog
+import com.strela.sui.design.icons.SuiIcons
+import com.strela.sui.design.Button
+import com.strela.sui.design.Icon
+import com.strela.sui.design.IconButton
+import com.strela.sui.design.InfiniteProgressIndicator
+import com.strela.sui.design.Text
+import com.strela.sui.design.TextField
+import com.strela.sui.design.SuiDialog
 import com.strela.onebox.ui.OneBoxTheme
 import com.strela.onebox.ui.strings
 import kotlinx.coroutines.CancellationException
@@ -61,7 +61,7 @@ fun SubscriptionImportDialog(
     var loading by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf<StatusMessage?>(null) }
 
-    OneBoxDialog(
+    SuiDialog(
         title = s.subscriptionDialogTitle,
         onDismissRequest = {
             if (!loading) {
@@ -83,7 +83,7 @@ fun SubscriptionImportDialog(
                 enabled = !loading,
                 leadingIcon = {
                     Icon(
-                        imageVector = OneBoxIcons.Link,
+                        imageVector = SuiIcons.Link,
                         contentDescription = null,
                         modifier = Modifier.size(20.dp),
                         tint = colors.onSecondaryContainer,
@@ -97,7 +97,7 @@ fun SubscriptionImportDialog(
                         },
                     ) {
                         Icon(
-                            imageVector = OneBoxIcons.Clipboard,
+                            imageVector = SuiIcons.Clipboard,
                             contentDescription = s.pasteFromClipboard,
                             modifier = Modifier.size(20.dp),
                             tint = colors.onSecondaryContainer,

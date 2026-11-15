@@ -18,14 +18,14 @@ import com.strela.onebox.log.AppLog
 import com.strela.onebox.subscription.Server
 import com.strela.onebox.api.PingState
 import com.strela.onebox.ui.OneBoxTheme
-import com.strela.onebox.ui.design.CircularProgressIndicator
-import com.strela.onebox.ui.design.Icon
-import com.strela.onebox.ui.design.IconButton
-import com.strela.onebox.ui.design.Surface
-import com.strela.onebox.ui.design.Text
-import com.strela.onebox.ui.design.icons.OneBoxIcons
-import com.strela.onebox.ui.kit.Badge
-import com.strela.onebox.ui.kit.IconTile
+import com.strela.sui.design.CircularProgressIndicator
+import com.strela.sui.design.Icon
+import com.strela.sui.design.IconButton
+import com.strela.sui.design.Surface
+import com.strela.sui.design.Text
+import com.strela.sui.design.icons.SuiIcons
+import com.strela.sui.kit.Badge
+import com.strela.sui.kit.IconTile
 
 /**
  * Строка сервера: выбор, пинг и (опционально) удаление.
@@ -62,7 +62,7 @@ fun ServerRow(
             horizontalArrangement = Arrangement.spacedBy(11.dp),
         ) {
             IconTile(
-                icon = if (selected) OneBoxIcons.Check else OneBoxIcons.Globe,
+                icon = if (selected) SuiIcons.Check else SuiIcons.Globe,
                 tint = if (selected) colors.primary else colors.onSurfaceVariantSummary,
                 background = if (selected) colors.primaryContainer else colors.surfaceContainerHigh,
                 size = 42.dp,
@@ -116,7 +116,7 @@ fun ServerRow(
                     },
                 ) {
                     Icon(
-                        imageVector = OneBoxIcons.Trash,
+                        imageVector = SuiIcons.Trash,
                         contentDescription = s.deleteServer(server.name),
                         modifier = Modifier.size(20.dp),
                         tint = colors.onSurfaceContainerVariant,
@@ -185,9 +185,9 @@ private fun PingControl(ping: PingState?, onPing: () -> Unit) {
             } else {
                 Icon(
                     imageVector = if (ping is PingState.Failed) {
-                        OneBoxIcons.Close
+                        SuiIcons.Close
                     } else {
-                        OneBoxIcons.Zap
+                        SuiIcons.Zap
                     },
                     contentDescription = null,
                     modifier = Modifier.size(14.dp),

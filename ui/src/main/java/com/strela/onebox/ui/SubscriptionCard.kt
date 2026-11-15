@@ -23,15 +23,15 @@ import com.strela.onebox.subscription.Server
 import com.strela.onebox.api.PingState
 import com.strela.onebox.subscription.Subscription
 import com.strela.onebox.ui.OneBoxTheme
-import com.strela.onebox.ui.design.CircularProgressIndicator
-import com.strela.onebox.ui.design.Icon
-import com.strela.onebox.ui.design.IconButton
-import com.strela.onebox.ui.design.LinearProgressIndicator
-import com.strela.onebox.ui.design.Surface
-import com.strela.onebox.ui.design.Text
-import com.strela.onebox.ui.design.icons.OneBoxIcons
-import com.strela.onebox.ui.kit.Badge
-import com.strela.onebox.ui.kit.IconTile
+import com.strela.sui.design.CircularProgressIndicator
+import com.strela.sui.design.Icon
+import com.strela.sui.design.IconButton
+import com.strela.sui.design.LinearProgressIndicator
+import com.strela.sui.design.Surface
+import com.strela.sui.design.Text
+import com.strela.sui.design.icons.SuiIcons
+import com.strela.sui.kit.Badge
+import com.strela.sui.kit.IconTile
 
 /**
  * Карточка одной подписки, сверху вниз:
@@ -102,7 +102,7 @@ fun SubscriptionCard(
                         Badge(text = s.active, modifier = Modifier.padding(start = 7.dp))
                     }
                     Icon(
-                        imageVector = if (expanded) OneBoxIcons.ArrowUp else OneBoxIcons.ArrowDown,
+                        imageVector = if (expanded) SuiIcons.ArrowUp else SuiIcons.ArrowDown,
                         contentDescription = if (expanded) s.hideServers else s.showServers,
                         modifier = Modifier
                             .padding(start = 7.dp)
@@ -171,7 +171,7 @@ fun SubscriptionCard(
                                 )
                             } else {
                                 Icon(
-                                    imageVector = OneBoxIcons.Refresh,
+                                    imageVector = SuiIcons.Refresh,
                                     contentDescription = s.refreshSubscription,
                                     modifier = Modifier.size(20.dp),
                                     tint = colors.primary,
@@ -188,7 +188,7 @@ fun SubscriptionCard(
                             modifier = Modifier.padding(start = 2.dp),
                         ) {
                             Icon(
-                                imageVector = OneBoxIcons.Trash,
+                                imageVector = SuiIcons.Trash,
                                 contentDescription = s.deleteSubscription(subscription.title),
                                 modifier = Modifier.size(20.dp),
                                 tint = colors.onSurfaceContainerVariant,
@@ -297,7 +297,7 @@ private fun PingAllButton(
                 )
             } else {
                 Icon(
-                    imageVector = OneBoxIcons.Zap,
+                    imageVector = SuiIcons.Zap,
                     contentDescription = null,
                     modifier = Modifier.size(14.dp),
                     tint = colors.primary,

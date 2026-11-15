@@ -79,8 +79,8 @@ dependencies {
     implementation(project(":data"))
     implementation(project(":engine"))
     implementation(project(":ui"))
-    // OneBoxTheme используется напрямую в MainActivity.
-    implementation(project(":kit"))
+    // SUI-кит: тема и компоненты, вынесенные в StrelaTech/SUI.
+    implementation("com.strela.sui:kit")
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)

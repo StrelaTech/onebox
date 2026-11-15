@@ -38,18 +38,18 @@ import com.strela.onebox.ui.SubscriptionCard
 import com.strela.onebox.ui.components.statusColor
 import com.strela.onebox.ui.components.statusDescription
 import com.strela.onebox.ui.components.statusTitle
-import com.strela.onebox.ui.design.icons.OneBoxIcons
-import com.strela.onebox.ui.kit.IconTile
-import com.strela.onebox.ui.kit.SectionTitle
+import com.strela.sui.design.icons.SuiIcons
+import com.strela.sui.kit.IconTile
+import com.strela.sui.kit.SectionTitle
 import com.strela.onebox.ui.strings
 import com.strela.onebox.ui.strings
-import com.strela.onebox.ui.design.Button
-import com.strela.onebox.ui.design.Card
-import com.strela.onebox.ui.design.CircularProgressIndicator
-import com.strela.onebox.ui.design.Icon
-import com.strela.onebox.ui.design.IconButton
-import com.strela.onebox.ui.design.Surface
-import com.strela.onebox.ui.design.Text
+import com.strela.sui.design.Button
+import com.strela.sui.design.Card
+import com.strela.sui.design.CircularProgressIndicator
+import com.strela.sui.design.Icon
+import com.strela.sui.design.IconButton
+import com.strela.sui.design.Surface
+import com.strela.sui.design.Text
 
 /**
  * Экран «Подключение»: большая кнопка VPN + серверы активной подписки.
@@ -165,7 +165,7 @@ private fun ConnectHero(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         Icon(
-                            imageVector = OneBoxIcons.Alert,
+                            imageVector = SuiIcons.Alert,
                             contentDescription = null,
                             modifier = Modifier
                                 .padding(top = 1.dp)
@@ -211,10 +211,10 @@ private fun BigConnectButton(
         is VpnStatus.Stopped -> s.connect
     }
     val icon = when (status) {
-        is VpnStatus.Running -> OneBoxIcons.Pause
-        is VpnStatus.Starting -> OneBoxIcons.Refresh
-        is VpnStatus.Error -> OneBoxIcons.Refresh
-        is VpnStatus.Stopped -> OneBoxIcons.Play
+        is VpnStatus.Running -> SuiIcons.Pause
+        is VpnStatus.Starting -> SuiIcons.Refresh
+        is VpnStatus.Error -> SuiIcons.Refresh
+        is VpnStatus.Stopped -> SuiIcons.Play
     }
 
     Surface(
@@ -279,7 +279,7 @@ private fun SubscriptionServersSection(
     ) {
         SectionTitle(
             text = s.subscriptionServers,
-            icon = OneBoxIcons.Globe,
+            icon = SuiIcons.Globe,
             modifier = Modifier.weight(1f),
         )
         IconButton(
@@ -289,7 +289,7 @@ private fun SubscriptionServersSection(
             },
         ) {
             Icon(
-                imageVector = OneBoxIcons.Folder,
+                imageVector = SuiIcons.Folder,
                 contentDescription = s.chooseSubscription,
                 modifier = Modifier.size(22.dp),
                 tint = colors.primary,
@@ -309,7 +309,7 @@ private fun SubscriptionServersSection(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 IconTile(
-                    icon = if (hasSubscriptions) OneBoxIcons.Code else OneBoxIcons.Folder,
+                    icon = if (hasSubscriptions) SuiIcons.Code else SuiIcons.Folder,
                     tint = if (hasSubscriptions) colors.primary else colors.onSurfaceContainerVariant,
                     background = if (hasSubscriptions) colors.primaryContainer else colors.surfaceContainerHigh,
                     size = 56.dp,
@@ -338,7 +338,7 @@ private fun SubscriptionServersSection(
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     Icon(
-                        imageVector = if (hasSubscriptions) OneBoxIcons.Folder else OneBoxIcons.Plus,
+                        imageVector = if (hasSubscriptions) SuiIcons.Folder else SuiIcons.Plus,
                         contentDescription = null,
                         modifier = Modifier.size(19.dp),
                     )

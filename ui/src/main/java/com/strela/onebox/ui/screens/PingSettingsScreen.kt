@@ -31,16 +31,16 @@ import com.strela.onebox.i18n.OneBoxStrings
 import com.strela.onebox.log.AppLog
 import com.strela.onebox.settings.SettingsStore
 import com.strela.onebox.ui.OneBoxTheme
-import com.strela.onebox.ui.design.Card
-import com.strela.onebox.ui.design.Icon
-import com.strela.onebox.ui.design.IconButton
-import com.strela.onebox.ui.design.SmallTopAppBar
-import com.strela.onebox.ui.design.Text
-import com.strela.onebox.ui.design.TextField
-import com.strela.onebox.ui.design.icons.OneBoxIcons
-import com.strela.onebox.ui.kit.DropdownRow
-import com.strela.onebox.ui.kit.IconTile
-import com.strela.onebox.ui.kit.SectionTitle
+import com.strela.sui.design.Card
+import com.strela.sui.design.Icon
+import com.strela.sui.design.IconButton
+import com.strela.sui.design.SmallTopAppBar
+import com.strela.sui.design.Text
+import com.strela.sui.design.TextField
+import com.strela.sui.design.icons.SuiIcons
+import com.strela.sui.kit.DropdownRow
+import com.strela.sui.kit.IconTile
+import com.strela.sui.kit.SectionTitle
 import com.strela.onebox.ui.strings
 
 /** Пресеты URL-теста: подпись → адрес. */
@@ -83,7 +83,7 @@ fun PingSettingsScreen(
                     },
                 ) {
                     Icon(
-                        imageVector = OneBoxIcons.Close,
+                        imageVector = SuiIcons.Close,
                         contentDescription = s.close,
                         modifier = Modifier.size(20.dp),
                     )
@@ -97,9 +97,9 @@ fun PingSettingsScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 22.dp),
         ) {
-            PingSection(title = s.pingMethod, icon = OneBoxIcons.Send) {
+            PingSection(title = s.pingMethod, icon = SuiIcons.Send) {
                 DropdownRow(
-                    icon = OneBoxIcons.Send,
+                    icon = SuiIcons.Send,
                     title = s.pingMethod,
                     selectedLabel = s.methodLabel(options.method),
                     options = listOf(
@@ -123,9 +123,9 @@ fun PingSettingsScreen(
                 )
             }
 
-            PingSection(title = s.pingTimeout, icon = OneBoxIcons.Clock) {
+            PingSection(title = s.pingTimeout, icon = SuiIcons.Clock) {
                 DropdownRow(
-                    icon = OneBoxIcons.Clock,
+                    icon = SuiIcons.Clock,
                     title = s.pingTimeout,
                     subtitle = s.pingTimeoutHint,
                     selectedLabel = timeoutLabel(options.timeoutMs, s),
@@ -139,7 +139,7 @@ fun PingSettingsScreen(
                 )
             }
 
-            PingSection(title = s.pingUrlTest, icon = OneBoxIcons.Link) {
+            PingSection(title = s.pingUrlTest, icon = SuiIcons.Link) {
                 UrlTestRows(options, s)
                 Text(
                     text = s.pingUrlHint,
@@ -189,7 +189,7 @@ private fun UrlTestRows(
     var draft by remember { mutableStateOf(value.testUrl) }
 
     DropdownRow(
-        icon = OneBoxIcons.Link,
+        icon = SuiIcons.Link,
         title = s.pingUrlTest,
         subtitle = s.pingUrlTestHint,
         selectedLabel = if (editingCustom) {
@@ -221,7 +221,7 @@ private fun UrlTestRows(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             IconTile(
-                icon = OneBoxIcons.Edit,
+                icon = SuiIcons.Edit,
                 tint = colors.onSurfaceContainerVariant,
                 background = colors.surfaceContainerHigh,
                 size = 38.dp,

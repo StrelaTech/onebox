@@ -27,14 +27,14 @@ import com.strela.onebox.subscription.Subscription
 import com.strela.onebox.subscription.SubscriptionImportResult
 import com.strela.onebox.ui.OneBoxTheme
 import com.strela.onebox.ui.components.SubscriptionImportDialog
-import com.strela.onebox.ui.design.Button
-import com.strela.onebox.ui.design.Card
-import com.strela.onebox.ui.design.Icon
-import com.strela.onebox.ui.design.Text
-import com.strela.onebox.ui.design.icons.OneBoxIcons
-import com.strela.onebox.ui.kit.Badge
-import com.strela.onebox.ui.kit.IconTile
-import com.strela.onebox.ui.kit.SectionTitle
+import com.strela.sui.design.Button
+import com.strela.sui.design.Card
+import com.strela.sui.design.Icon
+import com.strela.sui.design.Text
+import com.strela.sui.design.icons.SuiIcons
+import com.strela.sui.kit.Badge
+import com.strela.sui.kit.IconTile
+import com.strela.sui.kit.SectionTitle
 
 /**
  * Экран «Серверы»: в начале страницы — все подписки со всеми их серверами,
@@ -82,7 +82,7 @@ fun ServersScreen(
             ) {
                 SectionTitle(
                     text = s.allSubscriptions,
-                    icon = OneBoxIcons.Folder,
+                    icon = SuiIcons.Folder,
                 )
                 Badge(
                     text = s.subscriptionsServersBadge(
@@ -125,7 +125,7 @@ fun ServersScreen(
             modifier = Modifier.fillMaxWidth(),
         ) {
             Icon(
-                imageVector = OneBoxIcons.Plus,
+                imageVector = SuiIcons.Plus,
                 contentDescription = null,
                 modifier = Modifier.size(19.dp),
             )
@@ -164,7 +164,7 @@ private fun EmptySubscriptions() {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             IconTile(
-                icon = OneBoxIcons.Folder,
+                icon = SuiIcons.Folder,
                 tint = colors.onSurfaceContainerVariant,
                 background = colors.surfaceContainerHigh,
                 size = 60.dp,

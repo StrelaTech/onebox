@@ -18,12 +18,12 @@ import androidx.compose.ui.unit.dp
 import com.strela.onebox.log.AppLog
 import com.strela.onebox.ui.components.StatusPill
 import com.strela.onebox.api.VpnConnector
-import com.strela.onebox.ui.design.NavigationBar
-import com.strela.onebox.ui.design.NavigationBarItem
-import com.strela.onebox.ui.design.Scaffold
-import com.strela.onebox.ui.design.SmallTopAppBar
-import com.strela.onebox.ui.design.Text
-import com.strela.onebox.ui.design.icons.OneBoxIcons
+import com.strela.sui.design.NavigationBar
+import com.strela.sui.design.NavigationBarItem
+import com.strela.sui.design.Scaffold
+import com.strela.sui.design.SmallTopAppBar
+import com.strela.sui.design.Text
+import com.strela.sui.design.icons.SuiIcons
 import com.strela.onebox.ui.screens.ConnectScreen
 import com.strela.onebox.ui.screens.LogsConsoleScreen
 import com.strela.onebox.ui.screens.PingSettingsScreen
@@ -32,9 +32,9 @@ import com.strela.onebox.ui.screens.SettingsTab
 
 /** Вкладки навигации: outline-иконка, пока не выбрана, filled — когда выбрана. */
 private enum class MainTab(val outline: ImageVector, val filled: ImageVector) {
-    MAIN(OneBoxIcons.HomeOutline, OneBoxIcons.Home),
-    SERVERS(OneBoxIcons.Globe, OneBoxIcons.GlobeFilled),
-    SETTINGS(OneBoxIcons.SettingsOutline, OneBoxIcons.Settings),
+    MAIN(SuiIcons.HomeOutline, SuiIcons.Home),
+    SERVERS(SuiIcons.Globe, SuiIcons.GlobeFilled),
+    SETTINGS(SuiIcons.SettingsOutline, SuiIcons.Settings),
 }
 
 @Composable
