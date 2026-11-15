@@ -71,7 +71,7 @@ jobs:
       # Сокращённый набор тестов: только быстрые тесты парсинга подписок.
       # Полный прогон и lint выполняются локально перед релизом.
       - name: Быстрые unit-тесты
-        run: ./gradlew :core-parsing:testReleaseUnitTest --no-daemon
+        run: ./gradlew :core-parsing:testDebugUnitTest --no-daemon
 
       - name: Подготовить keystore для подписи релиза
         id: keystore
