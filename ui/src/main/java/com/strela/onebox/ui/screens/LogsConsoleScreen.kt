@@ -121,7 +121,12 @@ fun LogsConsoleScreen(
         SmallTopAppBar(
             title = s.logsConsole,
             navigationIcon = {
-                IconButton(onClick = onClose) {
+                IconButton(
+                    onClick = {
+                        AppLog.i("Логи: консоль закрыта")
+                        onClose()
+                    },
+                ) {
                     Icon(
                         imageVector = OneBoxIcons.Close,
                         contentDescription = s.close,
@@ -132,6 +137,7 @@ fun LogsConsoleScreen(
             actions = {
                 IconButton(
                     onClick = {
+                        AppLog.i("Логи: очистка журнала из консоли")
                         AppLog.clear()
                         tail = AppLog.tailEntries(CONSOLE_TAIL_BYTES)
                     },
@@ -154,7 +160,12 @@ fun LogsConsoleScreen(
             },
             trailingIcon = if (query.isNotEmpty()) {
                 {
-                    IconButton(onClick = { query = "" }) {
+                    IconButton(
+                        onClick = {
+                            AppLog.d("Логи: сброс поиска")
+                            query = ""
+                        },
+                    ) {
                         Icon(
                             imageVector = OneBoxIcons.Close,
                             contentDescription = s.close,
@@ -179,18 +190,23 @@ fun LogsConsoleScreen(
             LevelChip(
                 label = s.logsFilterAll,
                 selected = severities == ALL_SEVERITIES,
-                onClick = { severities = ALL_SEVERITIES },
+                onClick = {
+                    AppLog.d("Логи: фильтр → все уровни")
+                    severities = ALL_SEVERITIES
+                },
             )
             FILTER_SEVERITIES.forEach { severity ->
                 LevelChip(
                     label = severity.toString(),
                     selected = severity in severities,
                     onClick = {
-                        severities = if (severity in severities) {
-                            severities - severity
-                        } else {
+                        val enabled = severity !in severities
+                        severities = if (enabled) {
                             severities + severity
+                        } else {
+                            severities - severity
                         }
+                        AppLog.d("Логи: уровень $severity ${if (enabled) "включён" else "выключен"}")
                     },
                 )
             }
@@ -222,6 +238,7 @@ fun LogsConsoleScreen(
                     shape = CircleShape,
                     color = colors.surfaceContainerHigh,
                     onClick = {
+                        AppLog.d("Логи: переход к последним записям")
                         autoFollow = true
                         scope.launch {
                             listState.scrollToItem(listState.layoutInfo.totalItemsCount - 1)

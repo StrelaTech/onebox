@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.strela.onebox.log.AppLog
 import com.strela.onebox.subscription.Server
 import com.strela.onebox.api.PingState
 import com.strela.onebox.ui.OneBoxTheme
@@ -44,7 +45,10 @@ fun ServerRow(
     val s = strings
 
     Surface(
-        onClick = onSelect,
+        onClick = {
+            AppLog.i("UI: выбран сервер «${server.name}»")
+            onSelect()
+        },
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(18.dp),
         color = if (selected) colors.secondaryContainer else colors.surfaceContainer,
@@ -96,10 +100,21 @@ fun ServerRow(
                 }
             }
 
-            PingControl(ping = ping, onPing = onPing)
+            PingControl(
+                ping = ping,
+                onPing = {
+                    AppLog.i("UI: пинг сервера «${server.name}»")
+                    onPing()
+                },
+            )
 
             if (onDelete != null) {
-                IconButton(onClick = onDelete) {
+                IconButton(
+                    onClick = {
+                        AppLog.i("UI: удаление сервера «${server.name}»")
+                        onDelete()
+                    },
+                ) {
                     Icon(
                         imageVector = OneBoxIcons.Trash,
                         contentDescription = s.deleteServer(server.name),

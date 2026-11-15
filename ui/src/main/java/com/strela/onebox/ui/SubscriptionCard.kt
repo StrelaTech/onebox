@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.strela.onebox.log.AppLog
 import com.strela.onebox.subscription.Server
 import com.strela.onebox.api.PingState
 import com.strela.onebox.subscription.Subscription
@@ -77,7 +78,13 @@ fun SubscriptionCard(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { expanded = !expanded },
+                    .clickable {
+                        expanded = !expanded
+                        AppLog.i(
+                            "UI: подписка «${subscription.title}» " +
+                                (if (expanded) "развёрнута" else "свёрнута")
+                        )
+                    },
             ) {
                 Row(
                     modifier = Modifier.padding(vertical = 2.dp),
@@ -142,12 +149,18 @@ fun SubscriptionCard(
                         PingAllButton(
                             inProgress = pingingAll,
                             modifier = Modifier.padding(start = 8.dp),
-                            onClick = onPingAll,
+                            onClick = {
+                                AppLog.i("UI: пинг всех серверов подписки «${subscription.title}»")
+                                onPingAll()
+                            },
                         )
                     }
                     if (onRefresh != null && subscription.url != null) {
                         IconButton(
-                            onClick = onRefresh,
+                            onClick = {
+                                AppLog.i("UI: обновление подписки «${subscription.title}»")
+                                onRefresh()
+                            },
                             enabled = !refreshing,
                             modifier = Modifier.padding(start = 2.dp),
                         ) {
@@ -168,7 +181,10 @@ fun SubscriptionCard(
                     }
                     if (onDeleteSubscription != null) {
                         IconButton(
-                            onClick = onDeleteSubscription,
+                            onClick = {
+                                AppLog.i("UI: удаление подписки «${subscription.title}»")
+                                onDeleteSubscription()
+                            },
                             modifier = Modifier.padding(start = 2.dp),
                         ) {
                             Icon(
@@ -237,7 +253,12 @@ fun SubscriptionCard(
                                 ping = pings[server.id],
                                 onSelect = { onSelectServer(server) },
                                 onPing = { onPing(server) },
-                                onDelete = onDeleteServer?.let { remove -> { remove(server) } },
+                                onDelete = onDeleteServer?.let { remove ->
+                                    {
+                                        AppLog.i("UI: удаление сервера «${server.name}» из «${subscription.title}»")
+                                        remove(server)
+                                    }
+                                },
                             )
                         }
                     }

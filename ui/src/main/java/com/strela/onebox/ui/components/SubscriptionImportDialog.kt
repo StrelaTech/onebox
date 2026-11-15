@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.strela.onebox.i18n.OneBoxStrings
+import com.strela.onebox.log.AppLog
 import com.strela.onebox.subscription.ImportDetector
 import com.strela.onebox.subscription.Subscription
 import com.strela.onebox.subscription.SubscriptionImportReason
@@ -62,7 +63,12 @@ fun SubscriptionImportDialog(
 
     OneBoxDialog(
         title = s.subscriptionDialogTitle,
-        onDismissRequest = { if (!loading) onDismiss() },
+        onDismissRequest = {
+            if (!loading) {
+                AppLog.i("Подписка: диалог импорта закрыт")
+                onDismiss()
+            }
+        },
     ) {
         Column {
             TextField(
@@ -84,7 +90,12 @@ fun SubscriptionImportDialog(
                     )
                 },
                 trailingIcon = {
-                    IconButton(onClick = { pasteFromClipboard(context) { text = it; message = null } }) {
+                    IconButton(
+                        onClick = {
+                            AppLog.i("Подписка: вставка из буфера обмена")
+                            pasteFromClipboard(context) { text = it; message = null }
+                        },
+                    ) {
                         Icon(
                             imageVector = OneBoxIcons.Clipboard,
                             contentDescription = s.pasteFromClipboard,
@@ -129,6 +140,7 @@ fun SubscriptionImportDialog(
             ) {
                 Button(
                     onClick = {
+                        AppLog.i("Подписка: нажата кнопка импорта")
                         scope.launch {
                             loading = true
                             message = null

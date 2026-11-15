@@ -115,7 +115,10 @@ private fun SectionCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable(onClick = onClick)
+                .clickable {
+                    AppLog.i("Настройки: открыт раздел «$title»")
+                    onClick()
+                }
                 .padding(horizontal = 18.dp, vertical = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(14.dp),
@@ -178,7 +181,10 @@ fun AppearanceSettingsScreen(
             selectedLabel = themeOptions.firstOrNull { it.first == theme }?.second
                 ?: strings.themeSystemShort,
             options = themeOptions.map { (mode, label) ->
-                label to { SettingsStore.setTheme(context, mode) }
+                label to {
+                    AppLog.i("Настройки: тема → $label")
+                    SettingsStore.setTheme(context, mode)
+                }
             },
         )
 
@@ -197,7 +203,10 @@ fun AppearanceSettingsScreen(
             selectedLabel = textSizeOptions.firstOrNull { it.first == fontScale }?.second
                 ?: strings.textSizeNormal,
             options = textSizeOptions.map { (scale, label) ->
-                label to { SettingsStore.setFontScale(context, scale) }
+                label to {
+                    AppLog.i("Настройки: размер текста → $label")
+                    SettingsStore.setFontScale(context, scale)
+                }
             },
         )
 
@@ -213,7 +222,10 @@ fun AppearanceSettingsScreen(
             selectedLabel = languageOptions.firstOrNull { it.first == language }?.second
                 ?: strings.languageRussian,
             options = languageOptions.map { (lang, label) ->
-                label to { SettingsStore.setLanguage(context, lang) }
+                label to {
+                    AppLog.i("Настройки: язык → $label")
+                    SettingsStore.setLanguage(context, lang)
+                }
             },
         )
     }
@@ -247,7 +259,10 @@ fun ConnectionSettingsScreen(
             selectedLabel = modeOptions.firstOrNull { it.first == mode }?.second
                 ?: s.modeTun,
             options = modeOptions.map { (m, label) ->
-                label to { SettingsStore.setConnectionMode(context, m) }
+                label to {
+                    AppLog.i("Настройки: режим подключения → $label")
+                    SettingsStore.setConnectionMode(context, m)
+                }
             },
         )
         SettingsDivider(startIndent = 18.dp)
@@ -438,7 +453,12 @@ fun LicensesScreen(
         SmallTopAppBar(
             title = s.licensesTitle,
             navigationIcon = {
-                IconButton(onClick = onClose) {
+                IconButton(
+                    onClick = {
+                        AppLog.i("Настройки: закрыт экран «${s.licensesTitle}»")
+                        onClose()
+                    },
+                ) {
                     Icon(
                         imageVector = OneBoxIcons.ArrowLeft,
                         contentDescription = s.close,
@@ -484,7 +504,12 @@ private fun SettingsScreenScaffold(
         SmallTopAppBar(
             title = title,
             navigationIcon = {
-                IconButton(onClick = onClose) {
+                IconButton(
+                    onClick = {
+                        AppLog.i("Настройки: закрыт экран «$title»")
+                        onClose()
+                    },
+                ) {
                     Icon(
                         imageVector = OneBoxIcons.ArrowLeft,
                         contentDescription = s.close,
@@ -563,11 +588,15 @@ private fun ToggleRow(
     onCheckedChange: (Boolean) -> Unit,
 ) {
     val colors = OneBoxTheme.colorScheme
+    val toggle: (Boolean) -> Unit = { value ->
+        AppLog.i("Настройки: «$title» → ${if (value) "включено" else "выключено"}")
+        onCheckedChange(value)
+    }
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onCheckedChange(!checked) }
+            .clickable { toggle(!checked) }
             .padding(horizontal = 18.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -596,7 +625,7 @@ private fun ToggleRow(
                 modifier = Modifier.padding(top = 3.dp),
             )
         }
-        Switch(checked = checked, onCheckedChange = onCheckedChange)
+        Switch(checked = checked, onCheckedChange = toggle)
     }
 }
 
@@ -615,7 +644,10 @@ private fun ActionRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .clickable {
+                AppLog.i("Настройки: нажата строка «$title»")
+                onClick()
+            }
             .padding(horizontal = 18.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -667,7 +699,10 @@ private fun LinkRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { openUrl(context, url) }
+            .clickable {
+                AppLog.i("Настройки: ссылка «$title» → $url")
+                openUrl(context, url)
+            }
             .padding(horizontal = 18.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {

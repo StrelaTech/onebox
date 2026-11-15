@@ -82,7 +82,10 @@ class MainActivity : ComponentActivity() {
                         AppLog.d("UI: запрос подключения VPN")
                         prepareAndStartVpn()
                     },
-                    onStopVpn = { VpnConnector.stop(this) },
+                    onStopVpn = {
+                        AppLog.d("UI: запрос отключения VPN")
+                        VpnConnector.stop(this)
+                    },
                     onShareLogs = { shareLogs(this) },
                 )
             }
@@ -177,5 +180,6 @@ private fun shareLogs(context: Context) {
         putExtra(Intent.EXTRA_STREAM, uri)
         addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
     }
+    AppLog.i("shareLogs: открываю системный выбор приложения")
     context.startActivity(Intent.createChooser(intent, SettingsStore.strings().logsChooser))
 }

@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.strela.onebox.log.AppLog
 import com.strela.onebox.subscription.Server
 import com.strela.onebox.api.PingState
 import com.strela.onebox.subscription.Subscription
@@ -117,7 +118,10 @@ fun ServersScreen(
 
         // В конце страницы — кнопка «Добавить»
         Button(
-            onClick = { showAddDialog = true },
+            onClick = {
+                AppLog.i("Серверы: открыт диалог добавления подписки")
+                showAddDialog = true
+            },
             modifier = Modifier.fillMaxWidth(),
         ) {
             Icon(
@@ -137,7 +141,10 @@ fun ServersScreen(
 
     if (showAddDialog) {
         SubscriptionImportDialog(
-            onDismiss = { showAddDialog = false },
+            onDismiss = {
+                AppLog.i("Серверы: диалог добавления подписки закрыт")
+                showAddDialog = false
+            },
             onImport = onImportSubscription,
         )
     }

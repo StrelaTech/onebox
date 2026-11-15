@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import com.strela.onebox.api.PingMethod
 import com.strela.onebox.api.PingOptions
 import com.strela.onebox.i18n.OneBoxStrings
+import com.strela.onebox.log.AppLog
 import com.strela.onebox.settings.SettingsStore
 import com.strela.onebox.ui.OneBoxTheme
 import com.strela.onebox.ui.design.Card
@@ -75,7 +76,12 @@ fun PingSettingsScreen(
         SmallTopAppBar(
             title = s.pingScreenTitle,
             navigationIcon = {
-                IconButton(onClick = onClose) {
+                IconButton(
+                    onClick = {
+                        AppLog.i("Настройки пинга: закрыт экран")
+                        onClose()
+                    },
+                ) {
                     Icon(
                         imageVector = OneBoxIcons.Close,
                         contentDescription = s.close,
@@ -98,15 +104,19 @@ fun PingSettingsScreen(
                     selectedLabel = s.methodLabel(options.method),
                     options = listOf(
                         s.pingMethodGet to {
+                            AppLog.i("Настройки пинга: метод → ${s.pingMethodGet}")
                             SettingsStore.setPingMethod(context, PingMethod.PROXY_GET)
                         },
                         s.pingMethodHead to {
+                            AppLog.i("Настройки пинга: метод → ${s.pingMethodHead}")
                             SettingsStore.setPingMethod(context, PingMethod.PROXY_HEAD)
                         },
                         s.pingMethodTcp to {
+                            AppLog.i("Настройки пинга: метод → ${s.pingMethodTcp}")
                             SettingsStore.setPingMethod(context, PingMethod.TCP)
                         },
                         s.pingMethodIcmp to {
+                            AppLog.i("Настройки пинга: метод → ${s.pingMethodIcmp}")
                             SettingsStore.setPingMethod(context, PingMethod.ICMP)
                         },
                     ),
@@ -120,7 +130,9 @@ fun PingSettingsScreen(
                     subtitle = s.pingTimeoutHint,
                     selectedLabel = timeoutLabel(options.timeoutMs, s),
                     options = listOf(1000L, 2000L, 3000L, 5000L, 10_000L).map { ms ->
-                        s.pingSeconds((ms / 1000).toInt()) to {
+                        val label = s.pingSeconds((ms / 1000).toInt())
+                        label to {
+                            AppLog.i("Настройки пинга: тайм-аут → $label")
                             SettingsStore.setPingTimeout(context, ms)
                         }
                     },
@@ -187,12 +199,14 @@ private fun UrlTestRows(
         },
         options = presets.map { (label, url) ->
             label to {
+                AppLog.i("Настройки пинга: URL-тест → $url")
                 editingCustom = false
                 draft = url
                 SettingsStore.setPingTestUrl(context, url)
             }
         } + listOf(
             s.pingUrlOther to {
+                AppLog.i("Настройки пинга: URL-тест → свой адрес")
                 editingCustom = true
                 // значение не меняется: пользователь правит его прямо в поле
             },

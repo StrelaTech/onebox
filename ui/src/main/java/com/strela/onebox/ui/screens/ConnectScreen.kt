@@ -26,6 +26,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.strela.onebox.log.AppLog
 import com.strela.onebox.subscription.Server
 import com.strela.onebox.api.PingState
 import com.strela.onebox.api.VpnConnector
@@ -218,7 +219,13 @@ private fun BigConnectButton(
 
     Surface(
         onClick = {
-            if (status is VpnStatus.Running) onStopVpn() else onStartVpn()
+            if (status is VpnStatus.Running) {
+                AppLog.i("UI: нажата кнопка отключения VPN")
+                onStopVpn()
+            } else {
+                AppLog.i("UI: нажата кнопка подключения VPN (статус=$status)")
+                onStartVpn()
+            }
         },
         enabled = !starting,
         modifier = Modifier.size(216.dp),
@@ -275,7 +282,12 @@ private fun SubscriptionServersSection(
             icon = OneBoxIcons.Globe,
             modifier = Modifier.weight(1f),
         )
-        IconButton(onClick = onOpenSubscriptions) {
+        IconButton(
+            onClick = {
+                AppLog.i("UI: открыт список подписок из главного экрана")
+                onOpenSubscriptions()
+            },
+        ) {
             Icon(
                 imageVector = OneBoxIcons.Folder,
                 contentDescription = s.chooseSubscription,
@@ -319,7 +331,10 @@ private fun SubscriptionServersSection(
                 )
                 Spacer(Modifier.height(18.dp))
                 Button(
-                    onClick = onOpenSubscriptions,
+                    onClick = {
+                        AppLog.i("UI: открыт список подписок (кнопка на главном экране)")
+                        onOpenSubscriptions()
+                    },
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     Icon(

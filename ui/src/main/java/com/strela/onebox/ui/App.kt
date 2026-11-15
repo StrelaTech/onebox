@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.strela.onebox.log.AppLog
 import com.strela.onebox.ui.components.StatusPill
 import com.strela.onebox.api.VpnConnector
 import com.strela.onebox.ui.design.NavigationBar
@@ -78,6 +79,7 @@ fun OneBoxApp(
 
     // Системная «Назад»: сначала закрываем подэкраны, потом работаем по стеку вкладок
     BackHandler(enabled = overlays.isNotEmpty()) {
+        AppLog.d("UI: системная «Назад» — закрываю подэкран ${overlays.last()}")
         popOverlay(overlays)
     }
 
@@ -104,12 +106,16 @@ fun OneBoxApp(
         bottomBar = {
             NavigationBar {
                 MainTab.entries.forEach { entry ->
+                    val title = entry.title()
                     NavigationBarItem(
                         selected = entry == tab,
-                        onClick = { tab = entry },
+                        onClick = {
+                            AppLog.i("UI: вкладка → $title")
+                            tab = entry
+                        },
                         outline = entry.outline,
                         filled = entry.filled,
-                        label = entry.title(),
+                        label = title,
                     )
                 }
             }
