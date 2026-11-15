@@ -24,6 +24,9 @@ from pathlib import Path
 REPO_URL = "https://github.com/StrelaTech/icons"
 ROOT = Path(__file__).resolve().parent.parent
 SVG_DIR = ROOT / "app" / "src" / "main" / "res" / "icons"
+# Лицензия исходного набора иконок не является Android-ресурсом, поэтому
+# держим её вне res/ (иначе падает :app:packageDebugResources).
+LICENSE_FILE = ROOT / "app" / "src" / "main" / "icons" / "LICENSE"
 OUTPUT = (
     ROOT
     / "kit"
@@ -270,7 +273,8 @@ def sync_sources(source: Path) -> None:
             svg.write_text("\n".join(lines) + "\n", encoding="utf-8")
     license_file = source / "LICENSE"
     if license_file.exists():
-        shutil.copy2(license_file, SVG_DIR / "LICENSE")
+        LICENSE_FILE.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(license_file, LICENSE_FILE)
 
 
 def generate() -> None:
