@@ -2,10 +2,35 @@ name: Release
 
 on:
   push:
-    tags: ["v*"]
+    tags: ["v*", "[0-9]*"]
 
 jobs:
+  # Тег может указывать на коммит из любой ветки. Релизы собираем только
+  # с main — dev и остальные ветки не должны запускать сборку.
+  guard:
+    runs-on: ubuntu-latest
+    outputs:
+      on-main: ${{ steps.check.outputs.on-main }}
+    steps:
+      - name: Checkout репозитория
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Проверить, что тег указывает на main
+        id: check
+        run: |
+          git fetch origin main
+          if git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "on-main=true" >> $GITHUB_OUTPUT
+          else
+            echo "Тег указывает не на main — релиз пропущен."
+            echo "on-main=false" >> $GITHUB_OUTPUT
+          fi
+
   release:
+    needs: guard
+    if: needs.guard.outputs['on-main'] == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 90
 
@@ -68,11 +93,12 @@ jobs:
           java-version: "25"
           cache: gradle
 
-      - name: Получить версию из build.gradle.kts
+      - name: Получить версию из тега
         id: version
         run: |
-          VERSION_NAME=$(grep 'versionName = ' app/build.gradle.kts | sed -E 's/.*versionName = "([^"]+)".*/\1/')
-          echo "version=$VERSION_NAME" >> $GITHUB_OUTPUT
+          VERSION="${GITHUB_REF_NAME#v}"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=$GITHUB_REF_NAME" >> $GITHUB_OUTPUT
 
       - name: Подготовить keystore для подписи релиза
         id: keystore
@@ -138,13 +164,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref_name }}
+          tag_name: ${{ steps.version.outputs.tag }}
           name: OneBox ${{ steps.version.outputs.version }}
           body: |
             Сборка из тега `${{ github.ref_name }}`.
             Версия: `${{ steps.version.outputs.version }}`
 
-            APK по архитектурам: `armeabi-v7a`, `arm64-v8a`, `x86`, `x86_64`.
+            APK по архитектурам: `armeabi-v7a`, `arm64-v8a`, `x86_64`.
           files: |
             dist/OneBox-${{ steps.version.outputs.version }}*.apk
             dist/mapping-${{ steps.version.outputs.version }}.txt
