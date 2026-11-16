@@ -2,7 +2,7 @@
 .gradle/
 .DS_Store
 
-AGENT.md
+.opencode/skills/AGENT.md
 
 .idea/
 
