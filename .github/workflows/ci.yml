@@ -26,6 +26,12 @@ jobs:
         with:
           fetch-depth: 0
 
+      # settings.gradle.kts подключает дизайн-кит как composite build из ../SUI.
+      # actions/checkout не умеет писать за пределы workspace, поэтому клонируем
+      # SUI вручную рядом с рабочим каталогом.
+      - name: Checkout дизайн-кита SUI
+        run: git clone --depth 1 https://github.com/StrelaTech/SUI.git "${{ github.workspace }}/../SUI"
+
       - name: Установить Android SDK и NDK
         uses: android-actions/setup-android@v4
         with:
