@@ -141,8 +141,26 @@ jobs:
           fi
           echo "signed=$SIGNED" >> "$GITHUB_OUTPUT"
 
-      - name: Собрать release APK
+      - name: Собрать release APK (по архитектурам + универсальный)
         run: ./gradlew assembleRelease --no-daemon
+
+      - name: Проверить, что в каждом APK своё ядро
+        run: |
+          fail=0
+          for apk in app/build/outputs/apk/release/*.apk; do
+            [ -f "$apk" ] || continue
+            name="$(basename "$apk")"
+            cores="$(unzip -l "$apk" | awk '/lib\/[^/]+\/libgojni\.so$/ {print $4}' | sort)"
+            count="$(printf '%s\n' "$cores" | grep -c . || true)"
+            echo "=== $name ==="
+            printf '%s\n' "$cores"
+            if printf '%s' "$name" | grep -q -- '-universal-'; then
+              [ "$count" -eq 3 ] || { echo "::error::$name должен содержать ядра для трёх ABI, найдено: $count"; fail=1; }
+            else
+              [ "$count" -eq 1 ] || { echo "::error::$name должен содержать ровно одно нативное ядро, найдено: $count"; fail=1; }
+            fi
+          done
+          exit "$fail"
 
       - name: Определить последний тег
         id: tag
@@ -169,15 +187,25 @@ jobs:
         run: |
           mkdir -p dist
 
-          for apk in app/build/outputs/apk/release/app-release-*.apk; do
+          # AGP при splits.abi выпускает app-<abi>-release.apk и
+          # app-universal-release.apk. Имя определяем по ABI в имени файла.
+          for apk in app/build/outputs/apk/release/*.apk; do
             [ -f "$apk" ] || continue
-            arch=$(basename "$apk" | sed -E 's/app-release-(.+)\.apk/\1/')
-            cp "$apk" "dist/OneBox-${VERSION}-${arch}.apk"
+            case "$(basename "$apk")" in
+              *-universal-*)  arch=universal ;;
+              *-armeabi-v7a-*) arch=armeabi-v7a ;;
+              *-arm64-v8a-*)  arch=arm64-v8a ;;
+              *-x86_64-*)     arch=x86_64 ;;
+              *)              arch="" ;;
+            esac
+            if [ -n "$arch" ]; then
+              cp "$apk" "dist/OneBox-${VERSION}-${arch}.apk"
+            else
+              cp "$apk" "dist/OneBox-${VERSION}.apk"
+            fi
           done
 
-          if [ -z "$(ls dist/*.apk 2>/dev/null)" ]; then
-            cp app/build/outputs/apk/release/app-release.apk "dist/OneBox-${VERSION}.apk"
-          fi
+          test -n "$(ls dist/*.apk 2>/dev/null)" || { echo "::error::APK не найдены"; exit 1; }
 
           cp app/build/outputs/mapping/release/mapping.txt "dist/mapping-${VERSION}.txt"
           cd dist
@@ -202,7 +230,12 @@ jobs:
             Сборка из `main` для тега `${{ steps.tag.outputs.tag }}`.
             Коммит: `${{ github.sha }}`
 
-            APK по архитектурам: `armeabi-v7a`, `arm64-v8a`, `x86_64`.
+            APK по архитектурам (в каждом только своё нативное ядро xray):
+            `OneBox-${{ steps.tag.outputs.version }}-armeabi-v7a.apk`,
+            `OneBox-${{ steps.tag.outputs.version }}-arm64-v8a.apk`,
+            `OneBox-${{ steps.tag.outputs.version }}-x86_64.apk`.
+            Универсальный APK со всеми тремя ядрами:
+            `OneBox-${{ steps.tag.outputs.version }}-universal.apk`.
           files: |
             dist/OneBox-${{ steps.tag.outputs.version }}*.apk
             dist/mapping-${{ steps.tag.outputs.version }}.txt

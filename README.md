@@ -8,7 +8,7 @@
 ![Android 7.0+](https://img.shields.io/badge/Android-7.0%2B-3DDC84?logo=android&logoColor=white)
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.3-7F52FF?logo=kotlin&logoColor=white)
 ![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-2026.02-4285F4?logo=jetpackcompose&logoColor=white)
-![Version](https://img.shields.io/badge/Version-26.1.2-orange)
+![Version](https://img.shields.io/github/v/release/StrelaTech/onebox?label=Version&color=orange)
 
 [Возможности](#-возможности) · [Быстрый старт](#-быстрый-старт) · [Скачать](#-скачать) · [Сборка](#-сборка-из-исходников) · [Архитектура](#-архитектура) · [Размер APK](#-размер-apk) · [Релизы](#-релизы)
 
@@ -71,18 +71,19 @@ OneBox — свободный VPN-клиент для Android, работающ�
 
 ## 📥 Скачать
 
-Последняя версия: **26.1.2** (`versionCode` 260102).
-
-Все сборки публикуются на [странице Releases](https://github.com/StrelaTech/onebox/releases):
+Актуальную версию и все файлы смотрите на [странице Releases](https://github.com/StrelaTech/onebox/releases). Номер версии задаётся в `app/build.gradle.kts` (`versionName` / `versionCode`) и в README не фиксируется.
 
 | Файл | Описание |
 |------|----------|
-| `OneBox-<версия>.apk` | Универсальный APK для `armeabi-v7a`, `arm64-v8a` и `x86_64` |
+| `OneBox-<версия>-arm64-v8a.apk` | Для современных устройств (ARM64), внутри только своё ядро xray — ~35 МБ |
+| `OneBox-<версия>-armeabi-v7a.apk` | Для старых 32-битных ARM-устройств — ~34 МБ |
+| `OneBox-<версия>-x86_64.apk` | Для эмуляторов — ~37 МБ |
+| `OneBox-<версия>-universal.apk` | Универсальный APK со всеми тремя ядрами — ~101 МБ |
 | `OneBox-<версия>.aab` | Android App Bundle для публикации в магазинах (при локальной сборке) |
 | `mapping-<версия>.txt` | Карта обфускации R8 для разбора крашей |
 | `SHA256SUMS.txt` | Контрольные суммы всех файлов релиза |
 
-Перед установкой сверьте APK с `SHA256SUMS.txt`:
+Если не знаете архитектуру телефона — берите `arm64-v8a` (подходит почти всем устройствам после 2016 года) или `universal`. Перед установкой сверьте APK с `SHA256SUMS.txt`:
 
 ```bash
 sha256sum -c SHA256SUMS.txt
@@ -179,13 +180,16 @@ git clone https://github.com/StrelaTech/SUI.git ../SUI
 # Тесты и линт
 ./gradlew testDebugUnitTest lintDebug
 
-# Подписанный релиз (нужен keystore.properties, см. ниже)
+# Подписанный релиз: отдельные APK по ABI + универсальный (нужен keystore.properties, см. ниже)
 ./gradlew assembleRelease bundleRelease
 ```
 
-Готовые файлы:
+`assembleRelease` благодаря `splits.abi` собирает сразу четыре APK. В каждом ABI-специфичном APK лежит только своё нативное ядро xray, в универсальном — все три:
 
-- `app/build/outputs/apk/release/app-release.apk` — универсальный APK для `armeabi-v7a`, `arm64-v8a`, `x86_64`
+- `app/build/outputs/apk/release/app-arm64-v8a-release.apk`
+- `app/build/outputs/apk/release/app-armeabi-v7a-release.apk`
+- `app/build/outputs/apk/release/app-x86_64-release.apk`
+- `app/build/outputs/apk/release/app-universal-release.apk`
 - `app/build/outputs/bundle/release/app-release.aab`
 - `app/build/outputs/mapping/release/mapping.txt`
 
@@ -193,9 +197,18 @@ git clone https://github.com/StrelaTech/SUI.git ../SUI
 
 ## 📦 Размер APK
 
-Текущая сборка — **универсальный APK ~101 МБ** (26.1.2). Почти весь объём занимает Go-ядро xray, а не Kotlin-код:
+Релиз собирается в двух видах: отдельные APK по архитектурам и один универсальный. Настройка — `splits.abi` в [`app/build.gradle.kts`](app/build.gradle.kts).
 
-| Компонент | Размер | Доля |
+| APK | Нативное ядро внутри | Размер |
+|-----|----------------------|--------|
+| `app-arm64-v8a-release.apk` | `lib/arm64-v8a/libgojni.so` | ~35 МБ |
+| `app-armeabi-v7a-release.apk` | `lib/armeabi-v7a/libgojni.so` | ~34 МБ |
+| `app-x86_64-release.apk` | `lib/x86_64/libgojni.so` | ~37 МБ |
+| `app-universal-release.apk` | все три ядра | ~101 МБ |
+
+Почти весь объём занимает Go-ядро xray, а не Kotlin-код:
+
+| Компонент | Размер | Доля универсального APK |
 |-----------|--------|------|
 | `lib/arm64-v8a/libgojni.so` | 32,9 МБ | 32% |
 | `lib/armeabi-v7a/libgojni.so` | 31,7 МБ | 31% |
@@ -203,16 +216,15 @@ git clone https://github.com/StrelaTech/SUI.git ../SUI
 | `classes.dex` | 3,0 МБ (1,4 МБ в сжатом виде) | 3% |
 | ресурсы, манифест, OkHttp, Kotlin | < 0,3 МБ | < 1% |
 
-Нативные библиотеки лежат в APK **без сжатия** (`Stored`) — это стандартное поведение AGP 9 для быстрой установки, поэтому каждая ABI добавляет к размеру свой полный вес.
+Нативные библиотеки лежат в APK **без сжатия** (`Stored`) — это стандартное поведение AGP 9 для быстрой установки, поэтому каждая ABI добавляет к размеру свой полный вес. Именно поэтому раздельные APK по ABI втрое меньше универсального.
 
-Что реально уменьшает размер:
+Что ещё уменьшает размер:
 
-1. **Раздельные APK по ABI.** Сборка под одну `arm64-v8a` даёт ~34 МБ вместо 101 МБ. `ci.yml` уже ищет файлы `app-release-<abi>.apk`, но в `app/build.gradle.kts` разбиение сейчас не включено — поэтому публикуется универсальный APK.
-2. **Отказ от `x86_64`.** Эта ABI нужна только эмулятору; её удаление из `ndk.abiFilters` экономит ~35 МБ.
-3. **App Bundle.** При публикации через Google Play или RuStore AAB доставляется по ABI: пользователь скачивает только свою архитектуру (~35 МБ, а не 101 МБ).
-4. **Сжатие нативных библиотек.** `packaging { jniLibs { useLegacyPackaging = true } }` уменьшает файл, но замедляет установку и запуск; для магазинов не рекомендуется.
-5. **Урезание xray-core.** `main/distro/all` импортирует все прокси и транспорты. Если не нужны WireGuard, Tor, QUIC и экзотические протоколы, можно подключать только используемые пакеты — это уменьшает `libgojni.so` на единицы-десятки процентов.
-6. **GeoIP/GeoSite не вшивать.** Датасеты весят ~19 МБ; приложение уже скачивает их лениво в `noBackupFilesDir`, в APK они не попадают.
+1. **Отказ от `x86_64`.** Эта ABI нужна только эмулятору; её удаление из `splits.abi.include` убирает ~37 МБ из универсального APK и один из артефактов релиза.
+2. **App Bundle.** При публикации через Google Play или RuStore AAB доставляется по ABI: пользователь скачивает только свою архитектуру (~35 МБ, а не 101 МБ).
+3. **Сжатие нативных библиотек.** `packaging { jniLibs { useLegacyPackaging = true } }` уменьшает файл, но замедляет установку и запуск; для магазинов не рекомендуется.
+4. **Урезание xray-core.** `main/distro/all` импортирует все прокси и транспорты. Если не нужны WireGuard, Tor, QUIC и экзотические протоколы, можно подключать только используемые пакеты — это уменьшает `libgojni.so` на единицы-десятки процентов.
+5. **GeoIP/GeoSite не вшивать.** Датасеты весят ~19 МБ; приложение уже скачивает их лениво в `noBackupFilesDir`, в APK они не попадают.
 
 ## 🔐 Подпись релиза
 
@@ -233,13 +245,13 @@ keyPassword=...
 
 1. Обновите `versionName` и `versionCode` в [`app/build.gradle.kts`](app/build.gradle.kts).
 2. Соберите `assembleRelease bundleRelease`.
-3. Скопируйте артефакты в `dist/` под именами `OneBox-<версия>.apk` и `OneBox-<версия>.aab`.
+3. Скопируйте APK в `dist/` под именами `OneBox-<версия>-<abi>.apk` (для `armeabi-v7a`, `arm64-v8a`, `x86_64`) и `OneBox-<версия>-universal.apk`, AAB — как `OneBox-<версия>.aab`.
 4. Сохраните `mapping.txt` как `dist/mapping-<версия>.txt` — он нужен для разбора обфусцированных крашей.
 5. Снимите контрольные суммы и приложите файлы к GitHub Release:
 
 ```bash
 cd dist
-sha256sum OneBox-<версия>.apk OneBox-<версия>.aab \
+sha256sum OneBox-<версия>-*.apk OneBox-<версия>.aab \
   mapping-<версия>.txt > SHA256SUMS.txt
 ```
 
@@ -259,7 +271,8 @@ git push origin main --tags
 | `26.0.1` | `260001` |
 | `26.0.1.1` | `2600011` |
 | `26.0.2` | `260002` |
-| `26.1.2` | `260102` |
+| `26.0.3` | `260003` |
+| `26.0.4` | `260004` |
 
 Для трёхчастной версии: `X*10000 + Y*100 + Z`.
 Для четырёхчастной: `(X*10000 + Y*100 + Z)*10 + W`.
@@ -288,7 +301,7 @@ git push origin main --tags
 | Тесты падают на Java 25 | Проверьте, что Gradle toolchain 21 установлен; модули настраивают его автоматически |
 | Release без подписи | Создайте `keystore.properties` (см. раздел «Подпись релиза») |
 | Подписка не импортируется | Поддерживается только `https://`; проверьте формат ссылки и доступность сервера |
-| APK весит ~100 МБ | Это универсальная сборка с тремя ABI; см. раздел «Размер APK» |
+| APK весит ~100 МБ | Это универсальная сборка с тремя ABI; возьмите APK под свою архитектуру (~35 МБ), см. раздел «Размер APK» |
 
 ## 🚀 CI/CD (GitHub Actions)
 
@@ -296,8 +309,21 @@ git push origin main --tags
 
 | Workflow | Триггер | Назначение |
 |----------|---------|------------|
-| `ci.yml` | push в `main`, ручной запуск | Быстрые тесты `:core-parsing`, сборка подписанного `assembleRelease`, артефакты и привязка к последнему тегу |
-| `release.yml` | push тега `v*` или числового тега | Проверка, что тег указывает на `main`, сборка `assembleRelease`, контрольные суммы, GitHub Release |
+| `ci.yml` | push в `main`, ручной запуск | Быстрые тесты `:core-parsing`, сборка подписанного `assembleRelease` (APK по ABI + универсальный), проверка состава нативных ядер, артефакты и привязка к последнему тегу |
+| `release.yml` | push тега `v*` или числового тега | Проверка, что тег указывает на `main`, сборка `assembleRelease` (APK по ABI + универсальный), проверка ядер, контрольные суммы, GitHub Release |
+
+### APK в CI
+
+Оба workflow собирают `assembleRelease`, а `splits.abi` в `app/build.gradle.kts` даёт четыре APK:
+
+| APK | Ядро xray |
+|-----|-----------|
+| `app-arm64-v8a-release.apk` | `lib/arm64-v8a/libgojni.so` |
+| `app-armeabi-v7a-release.apk` | `lib/armeabi-v7a/libgojni.so` |
+| `app-x86_64-release.apk` | `lib/x86_64/libgojni.so` |
+| `app-universal-release.apk` | все три ядра |
+
+Перед публикацией workflow проверяет через `unzip -l`, что в ABI-специфичном APK ровно одно ядро `libgojni.so`, а в универсальном — три. В релиз они попадают как `OneBox-<версия>-<abi>.apk` и `OneBox-<версия>-universal.apk`.
 
 ### Секреты релиза
 
@@ -305,10 +331,10 @@ git push origin main --tags
 
 | Секрет | Источник | Описание |
 |--------|----------|----------|
-| `RELEASE_KEYSTORE_B64` | `base64 -w0 onebox-release.jks` | Base64-кодированный файл keystore |
-| `RELEASE_STORE_PASSWORD` | `keystore.properties` | `storePassword` |
-| `RELEASE_KEY_ALIAS` | `keystore.properties` | `keyAlias` |
-| `RELEASE_KEY_PASSWORD` | `keystore.properties` | `keyPassword` |
+| `KEYSTORE_BASE64` | `base64 -w0 onebox-release.jks` | Base64-кодированный файл keystore |
+| `KEYSTORE_PASSWORD` | `keystore.properties` | `storePassword` |
+| `KEY_ALIAS` | `keystore.properties` | `keyAlias` |
+| `KEY_PASSWORD` | `keystore.properties` | `keyPassword` |
 
 Сам `onebox-release.jks` и `keystore.properties` **не хранятся в Git** (см. `.gitignore`).
 Если секреты не заданы, workflow соберёт APK/AAB **без подписи** — подходит только для тестирования.
@@ -319,12 +345,15 @@ git push origin main --tags
 2. Запушите тег:
 
 ```bash
-git tag -a v26.1.2 -m "OneBox 26.1.2"
-git push origin v26.1.2
+git tag -a v<версия> -m "OneBox <версия>"
+git push origin v<версия>
 ```
 
 3. `release.yml` соберёт артефакты, создаст `SHA256SUMS.txt` и опубликует GitHub Release с файлами:
-   - `OneBox-<версия>.apk`
+   - `OneBox-<версия>-arm64-v8a.apk`
+   - `OneBox-<версия>-armeabi-v7a.apk`
+   - `OneBox-<версия>-x86_64.apk`
+   - `OneBox-<версия>-universal.apk`
    - `mapping-<версия>.txt`
    - `SHA256SUMS.txt`
 

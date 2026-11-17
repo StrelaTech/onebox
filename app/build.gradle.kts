@@ -22,15 +22,27 @@ android {
         applicationId = "com.strela.onebox"
         minSdk = 24
         targetSdk = 37
-        versionCode = 260102
-        versionName = "26.1.2"
+        versionCode = 260004
+        versionName = "26.0.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        // Нативные библиотеки только под целевые архитектуры устройств, чтобы не
-        // раздувать APK xray-бинарниками под все ABI сразу.
+        // Нативные библиотеки только под целевые архитектуры. x86 не включаем:
+        // это нужно только старым эмуляторам и добавляет ~32 МБ к универсальному APK.
         ndk {
             abiFilters += setOf("armeabi-v7a", "arm64-v8a", "x86_64")
+        }
+    }
+
+    // Раздельные APK по ABI: в каждый попадает только своё нативное ядро
+    // (libgojni.so для этой архитектуры). Плюс универсальный APK со всеми
+    // тремя ядрами — для установки «одним файлом» и для эмулятора.
+    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("armeabi-v7a", "arm64-v8a", "x86_64")
+            isUniversalApk = true
         }
     }
 
