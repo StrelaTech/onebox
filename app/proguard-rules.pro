@@ -21,5 +21,13 @@
 -keep class androidx.compose.ui.platform.WindowRecomposerPolicy { *; }
 -keep class androidx.compose.ui.platform.AbstractComposeView { *; }
 
+# WorkManager: Room generates androidx.work.impl.WorkDatabase_Impl at build time
+# and WorkManager instantiates it via reflection (getDeclaredConstructor).
+# R8 shrinking removes it because there is no direct reference, which causes
+# "NoSuchMethodException: WorkDatabase_Impl.<init>" and crashes
+# androidx.startup.InitializationProvider on startup.
+-keep class androidx.work.impl.WorkDatabase_Impl { *; }
+-keep class androidx.work.impl.** { *; }
+
 # R8 full mode compatibility
 -allowaccessmodification
