@@ -1,8 +1,12 @@
 package com.strela.onebox.ui
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.net.VpnService
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -62,6 +66,7 @@ import kotlinx.coroutines.delay
 fun SettingsScreen(
     onOpenAppearance: () -> Unit,
     onOpenConnection: () -> Unit,
+    onOpenSubscriptions: () -> Unit,
     onOpenDiagnostics: () -> Unit,
     onOpenAbout: () -> Unit,
     modifier: Modifier = Modifier,
@@ -84,6 +89,12 @@ fun SettingsScreen(
             subtitle = s.connectionHint,
             icon = SuiIcons.Zap,
             onClick = onOpenConnection,
+        )
+        SectionCard(
+            title = s.subscriptionSettings,
+            subtitle = s.subscriptionSettingsHint,
+            icon = SuiIcons.Folder,
+            onClick = onOpenSubscriptions,
         )
         SectionCard(
             title = s.diagnostics,
@@ -170,9 +181,11 @@ fun AppearanceSettingsScreen(
 
     SettingsScreenScaffold(title = strings.appearance, onClose = onClose, modifier = modifier) {
         val themeOptions = listOf(
+            ThemeMode.SYSTEM to strings.themeSystemShort,
             ThemeMode.LIGHT to strings.themeLight,
             ThemeMode.DARK to strings.themeDark,
-            ThemeMode.SYSTEM to strings.themeSystemShort,
+            ThemeMode.GREEN to strings.themeGreen,
+            ThemeMode.AMOLED to strings.themeAmoled,
         )
         DropdownRow(
             icon = SuiIcons.Sun,
@@ -213,14 +226,18 @@ fun AppearanceSettingsScreen(
         SettingsDivider(startIndent = 18.dp)
 
         val languageOptions = listOf(
+            AppLanguage.AUTO to strings.languageAuto,
             AppLanguage.RU to strings.languageRussian,
             AppLanguage.EN to strings.languageEnglish,
+            AppLanguage.FA to strings.languagePersian,
+            AppLanguage.ZH to strings.languageChinese,
         )
         DropdownRow(
             icon = SuiIcons.Chat,
             title = strings.language,
+            subtitle = strings.languageHint,
             selectedLabel = languageOptions.firstOrNull { it.first == language }?.second
-                ?: strings.languageRussian,
+                ?: strings.languageAuto,
             options = languageOptions.map { (lang, label) ->
                 label to {
                     AppLog.i("Настройки: язык → $label")
@@ -238,13 +255,30 @@ fun AppearanceSettingsScreen(
 fun ConnectionSettingsScreen(
     onClose: () -> Unit,
     onOpenPing: () -> Unit,
+    onOpenNetwork: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
     val s = strings
     val blockAds by SettingsStore.blockAds.collectAsState()
     val autoConnect by SettingsStore.autoConnect.collectAsState()
+    val autoConnectOnBoot by SettingsStore.autoConnectOnBoot.collectAsState()
+    val killSwitch by SettingsStore.killSwitch.collectAsState()
     val mode by SettingsStore.connectionMode.collectAsState()
+
+    var pendingKillSwitch by remember { mutableStateOf(false) }
+    val vpnPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK && pendingKillSwitch) {
+            AppLog.i("Настройки: разрешение VPN получено — включаю Kill Switch")
+            VpnConnector.startKillSwitch(context)
+        } else if (pendingKillSwitch) {
+            AppLog.w("Настройки: разрешение VPN не выдано — Kill Switch выключен")
+            SettingsStore.setKillSwitch(context, false)
+        }
+        pendingKillSwitch = false
+    }
 
     SettingsScreenScaffold(title = s.connection, onClose = onClose, modifier = modifier) {
         val modeOptions = listOf(
@@ -268,7 +302,7 @@ fun ConnectionSettingsScreen(
         SettingsDivider(startIndent = 18.dp)
 
         ToggleRow(
-            icon = SuiIcons.Close,
+            icon = SuiIcons.Shield,
             title = s.blockAds,
             subtitle = s.blockAdsHint,
             checked = blockAds,
@@ -276,15 +310,51 @@ fun ConnectionSettingsScreen(
         )
         SettingsDivider(startIndent = 58.dp)
         ToggleRow(
-            icon = SuiIcons.Refresh,
+            icon = SuiIcons.Power,
             title = s.autoConnect,
             subtitle = s.autoConnectHint,
             checked = autoConnect,
             onCheckedChange = { SettingsStore.setAutoConnect(context, it) },
         )
         SettingsDivider(startIndent = 58.dp)
+        ToggleRow(
+            icon = SuiIcons.Smartphone,
+            title = s.autoConnectOnBoot,
+            subtitle = s.autoConnectOnBootHint,
+            checked = autoConnectOnBoot,
+            onCheckedChange = { SettingsStore.setAutoConnectOnBoot(context, it) },
+        )
+        SettingsDivider(startIndent = 58.dp)
+        ToggleRow(
+            icon = SuiIcons.Shield,
+            title = s.killSwitch,
+            subtitle = s.killSwitchHint,
+            checked = killSwitch,
+            onCheckedChange = { enabled ->
+                SettingsStore.setKillSwitch(context, enabled)
+                if (enabled) {
+                    val prepare = VpnService.prepare(context)
+                    if (prepare != null) {
+                        pendingKillSwitch = true
+                        vpnPermissionLauncher.launch(prepare)
+                    } else if (!VpnConnector.isRunning) {
+                        VpnConnector.startKillSwitch(context)
+                    }
+                } else if (!VpnConnector.isRunning) {
+                    VpnConnector.stopKillSwitch(context)
+                }
+            },
+        )
+        SettingsDivider(startIndent = 58.dp)
         ActionRow(
             icon = SuiIcons.Wifi,
+            title = s.network,
+            subtitle = s.networkHint,
+            onClick = onOpenNetwork,
+        )
+        SettingsDivider(startIndent = 58.dp)
+        ActionRow(
+            icon = SuiIcons.Gauge,
             title = s.settingsPing,
             subtitle = s.settingsPingHint,
             onClick = onOpenPing,

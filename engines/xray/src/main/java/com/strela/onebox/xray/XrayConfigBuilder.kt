@@ -1,5 +1,8 @@
 package com.strela.onebox.xray
 
+import com.strela.onebox.api.FragmentOptions
+import com.strela.onebox.api.MuxOptions
+import com.strela.onebox.api.NetworkOptions
 import com.strela.onebox.subscription.Server
 import org.json.JSONArray
 import org.json.JSONObject
@@ -13,8 +16,12 @@ import org.json.JSONObject
  */
 object XrayConfigBuilder {
 
-    /** Собирает конфиг для профиля. */
-    fun build(server: Server, blockAds: Boolean = true): String {
+    /** Собирает конфиг для профиля с учётом сетевых настроек. */
+    fun build(
+        server: Server,
+        blockAds: Boolean = true,
+        network: NetworkOptions = NetworkOptions(),
+    ): String {
         // Сервер, разобранный из готового JSON-конфига, хранит его snapshot:
         // конфиг провайдера (его DNS, routing, inbounds) авторитетнее пересборки.
         server.json.trim().takeIf { it.isNotEmpty() }?.let { return it }
@@ -22,11 +29,11 @@ object XrayConfigBuilder {
         val root = JSONObject()
         root.put("log", JSONObject().put("loglevel", "warning"))
 
-        root.put("outbounds", outbounds(server))
+        root.put("outbounds", outbounds(server, network))
 
         root.put("dns", JSONObject().apply {
             put("servers", JSONArray().put("1.1.1.1").put("8.8.8.8"))
-            put("queryStrategy", "UseIPv4")
+            put("queryStrategy", network.ipType.queryStrategy)
         })
 
         // Прямые маршруты: локальная сеть и DNS-серверы ядра — мимо прокси.
@@ -36,7 +43,7 @@ object XrayConfigBuilder {
     }
 
     /** Основной outbound профиля + freedom как fallback (direct). */
-    private fun outbounds(server: Server): JSONArray {
+    private fun outbounds(server: Server, network: NetworkOptions): JSONArray {
         val main = when (server.protocol) {
             Server.Protocol.VLESS -> vless(server)
             Server.Protocol.VMESS -> vmess(server)
@@ -48,6 +55,16 @@ object XrayConfigBuilder {
         }
         main.put("tag", "proxy")
 
+        // MUX: только TCP-протоколы, которые его поддерживают.
+        if (network.mux.enabled && server.protocol.supportsMux) {
+            applyMux(main, network.mux)
+        }
+
+        // Фрагментация: основной outbound ходит через freedom с fragment,
+        // который режет TLS-хендшейк на куски (обход DPI).
+        val fragment = network.fragment.takeIf { it.enabled && server.protocol.supportsFragment }
+        if (fragment != null) applyDialerProxy(main)
+
         val direct = JSONObject().apply {
             put("protocol", "freedom")
             put("tag", "direct")
@@ -56,7 +73,54 @@ object XrayConfigBuilder {
             put("protocol", "blackhole")
             put("tag", "block")
         }
-        return JSONArray().put(main).put(direct).put(block)
+        val result = JSONArray().put(main).put(direct).put(block)
+        if (fragment != null) result.put(fragmentOutbound(fragment))
+        return result
+    }
+
+    /** Прокси для протоколов с TLS-транспортом: ss/socks не фрагментируются. */
+    private val Server.Protocol.supportsFragment: Boolean
+        get() = when (this) {
+            Server.Protocol.VLESS, Server.Protocol.VMESS, Server.Protocol.TROJAN -> true
+            else -> false
+        }
+
+    /** MUX работает только поверх TCP-транспорта vless/vmess/trojan. */
+    private val Server.Protocol.supportsMux: Boolean
+        get() = this == Server.Protocol.VLESS ||
+            this == Server.Protocol.VMESS ||
+            this == Server.Protocol.TROJAN
+
+    /** Freedom-аутбаунд, который режет исходящий поток на фрагменты. */
+    private fun fragmentOutbound(fragment: FragmentOptions): JSONObject = JSONObject().apply {
+        put("protocol", "freedom")
+        put("tag", "fragment")
+        put("settings", JSONObject().apply {
+            put("fragment", JSONObject().apply {
+                put("packets", fragment.packets)
+                put("length", fragment.length)
+                put("interval", fragment.interval)
+            })
+        })
+    }
+
+    /** Направляет основной outbound через [fragmentOutbound]. */
+    private fun applyDialerProxy(outbound: JSONObject) {
+        val stream = outbound.optJSONObject("streamSettings") ?: JSONObject().also {
+            outbound.put("streamSettings", it)
+        }
+        val sockopt = stream.optJSONObject("sockopt") ?: JSONObject().also {
+            stream.put("sockopt", it)
+        }
+        sockopt.put("dialerProxy", "fragment")
+    }
+
+    private fun applyMux(outbound: JSONObject, mux: MuxOptions) {
+        outbound.put("mux", JSONObject().apply {
+            put("enabled", true)
+            put("concurrency", mux.concurrency)
+            put("xudpConcurrency", mux.xudpConcurrency)
+        })
     }
 
     private fun routing(server: Server, blockAds: Boolean): JSONObject {

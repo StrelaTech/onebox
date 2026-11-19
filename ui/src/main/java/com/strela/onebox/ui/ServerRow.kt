@@ -2,8 +2,10 @@ package com.strela.onebox.ui
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -61,14 +63,31 @@ fun ServerRow(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(11.dp),
         ) {
-            IconTile(
-                icon = if (selected) SuiIcons.Check else SuiIcons.Globe,
-                tint = if (selected) colors.primary else colors.onSurfaceVariantSummary,
-                background = if (selected) colors.primaryContainer else colors.surfaceContainerHigh,
-                size = 42.dp,
-                iconSize = 21.dp,
-                corner = 12.dp,
-            )
+            val flag = server.flagEmoji
+            if (flag != null) {
+                // Страна из remarks: флаг важнее служебной иконки выбора/глобуса.
+                Surface(
+                    modifier = Modifier.size(42.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    color = if (selected) colors.primaryContainer else colors.surfaceContainerHigh,
+                ) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(
+                            text = flag,
+                            style = OneBoxTheme.textStyles.headline1,
+                        )
+                    }
+                }
+            } else {
+                IconTile(
+                    icon = if (selected) SuiIcons.Check else SuiIcons.Globe,
+                    tint = if (selected) colors.primary else colors.onSurfaceVariantSummary,
+                    background = if (selected) colors.primaryContainer else colors.surfaceContainerHigh,
+                    size = 42.dp,
+                    iconSize = 21.dp,
+                    corner = 12.dp,
+                )
+            }
 
             Column(
                 modifier = Modifier.weight(1f),

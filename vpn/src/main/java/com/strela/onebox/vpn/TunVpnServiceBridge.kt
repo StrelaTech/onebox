@@ -35,4 +35,22 @@ object TunVpnServiceBridge : VpnServiceBridge {
             Thread { VpnConnector.stopBlocking() }.start()
         }
     }
+
+    override fun startKillSwitch(context: Context) {
+        AppLog.i("TunVpnServiceBridge: включаю Kill Switch")
+        val intent = Intent(context, TunVpnService::class.java)
+            .setAction(TunVpnService.ACTION_KILL_SWITCH)
+        ContextCompat.startForegroundService(context, intent)
+    }
+
+    override fun stopKillSwitch(context: Context) {
+        AppLog.i("TunVpnServiceBridge: выключаю Kill Switch")
+        val intent = Intent(context, TunVpnService::class.java)
+            .setAction(TunVpnService.ACTION_STOP_KILL_SWITCH)
+        try {
+            context.startService(intent)
+        } catch (e: Exception) {
+            AppLog.w("TunVpnServiceBridge: интент снятия Kill Switch не доставлен", e)
+        }
+    }
 }

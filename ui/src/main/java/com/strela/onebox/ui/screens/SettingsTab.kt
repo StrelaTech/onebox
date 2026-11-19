@@ -14,6 +14,7 @@ fun SettingsTab(
     context: Context,
     onOpenAppearance: () -> Unit,
     onOpenConnection: () -> Unit,
+    onOpenSubscriptions: () -> Unit,
     onOpenDiagnostics: () -> Unit,
     onOpenAbout: () -> Unit,
     modifier: Modifier = Modifier,
@@ -21,6 +22,7 @@ fun SettingsTab(
     SettingsScreen(
         onOpenAppearance = onOpenAppearance,
         onOpenConnection = onOpenConnection,
+        onOpenSubscriptions = onOpenSubscriptions,
         onOpenDiagnostics = onOpenDiagnostics,
         onOpenAbout = onOpenAbout,
         modifier = modifier,
