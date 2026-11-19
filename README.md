@@ -284,8 +284,8 @@ git push <remote> main --tags
 2. Запушите тег:
 
 ```bash
-git tag -a v26.1.2 -m "OneBox 26.1.2"
-git push origin v26.1.2
+git tag -a v26.0.5 -m "OneBox 26.0.5"
+git push origin v26.0.5
 ```
 
 3. `release.yml` соберёт артефакты, создаст `SHA256SUMS.txt` и опубликует GitHub Release с файлами:
