@@ -148,6 +148,18 @@ object VpnConnector {
         bridge.stop(context)
     }
 
+    /** Включает Kill Switch: сервис забирает весь трафик и ничего не выпускает. */
+    fun startKillSwitch(context: Context) {
+        bridge?.startKillSwitch(context)
+            ?: AppLog.e("VpnConnector: VpnServiceBridge не зарегистрирован — Kill Switch недоступен")
+    }
+
+    /** Снимает Kill Switch, если VPN-сервис сейчас только блокирует трафик. */
+    fun stopKillSwitch(context: Context) {
+        bridge?.stopKillSwitch(context)
+            ?: AppLog.e("VpnConnector: VpnServiceBridge не зарегистрирован")
+    }
+
     /** Пересборка конфига ядра из активного профиля. */
     fun refreshFromProfile() = core.refreshFromProfile()
 

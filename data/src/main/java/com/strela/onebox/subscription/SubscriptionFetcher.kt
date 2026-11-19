@@ -3,6 +3,7 @@ package com.strela.onebox.subscription
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import com.strela.onebox.settings.SettingsStore
 import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.OkHttpClient
@@ -42,7 +43,7 @@ class HttpSubscriptionFetcher(
     override suspend fun fetch(url: String): SubscriptionResponse = withContext(Dispatchers.IO) {
         val request = Request.Builder()
             .url(url)
-            .header("User-Agent", USER_AGENT)
+            .header("User-Agent", SettingsStore.subscriptionUserAgent.value.ifBlank { FALLBACK_USER_AGENT })
             .build()
 
         val response = client.newCall(request).await()
@@ -70,7 +71,7 @@ class HttpSubscriptionFetcher(
     }
 
     companion object {
-        private const val USER_AGENT = "OneBox/1.0"
+        private const val FALLBACK_USER_AGENT = "OneBox"
 
         private val DEFAULT_CLIENT = OkHttpClient.Builder()
             .connectTimeout(15, TimeUnit.SECONDS)

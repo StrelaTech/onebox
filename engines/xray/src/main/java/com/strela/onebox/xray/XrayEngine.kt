@@ -94,7 +94,9 @@ object XrayEngine : VpnCore {
     private fun activeConfig(): String {
         val profile = profiles.activeProfile()
         profile?.configJson?.let { return it }
-        profile?.server?.let { return XrayConfigBuilder.build(it, profiles.blockAds()) }
+        profile?.server?.let {
+            return XrayConfigBuilder.build(it, profiles.blockAds(), profiles.networkOptions())
+        }
         return profiles.userConfig() ?: DEFAULT_CONFIG
     }
 
@@ -256,7 +258,13 @@ object XrayEngine : VpnCore {
             try {
                 GeoAssets.ensure(appContext)
                 Xray.setQuiet()
-                Xray.startInstance(XrayConfigBuilder.build(server, profiles.blockAds()))
+                Xray.startInstance(
+                    XrayConfigBuilder.build(
+                        server,
+                        profiles.blockAds(),
+                        profiles.networkOptions(),
+                    )
+                )
                 try {
                     val ms = Xray.ping(method.key, server.address, server.port.toLong(), timeoutMs, options.testUrl)
                     AppLog.i("pingServer(${method.key}): ${server.name} → $ms мс")
@@ -322,7 +330,7 @@ object XrayEngine : VpnCore {
             put("protocol", "tun")
             put("settings", JSONObject().apply {
                 put("name", "onebox0")
-                put("MTU", 1500)
+                put("MTU", profiles.networkOptions().mtu)
             })
         }
         // TUN + Proxy: туннель обслуживает трафик устройства и заодно

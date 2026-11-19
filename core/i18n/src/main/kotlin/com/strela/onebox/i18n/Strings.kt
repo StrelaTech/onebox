@@ -2,14 +2,31 @@ package com.strela.onebox.i18n
 
 import java.util.Locale
 
-/** Язык интерфейса. По умолчанию — русский. */
+/**
+ * Язык интерфейса. AUTO — системный язык устройства (по умолчанию):
+ * подходящий из поддерживаемых выбирается по locale, остальные — английский.
+ */
 enum class AppLanguage(val code: String) {
+    AUTO("auto"),
     RU("ru"),
-    EN("en");
+    EN("en"),
+    FA("fa"),
+    ZH("zh");
 
     companion object {
         fun fromCode(code: String?): AppLanguage =
-            entries.firstOrNull { it.code == code } ?: RU
+            entries.firstOrNull { it.code == code } ?: AUTO
+
+        /** Реальный язык интерфейса: AUTO раскрывается по системной locale. */
+        fun resolve(language: AppLanguage, locale: Locale = Locale.getDefault()): AppLanguage {
+            if (language != AUTO) return language
+            return when (locale.language.lowercase(Locale.ROOT)) {
+                "ru" -> RU
+                "fa" -> FA
+                "zh" -> ZH
+                else -> EN
+            }
+        }
     }
 }
 
@@ -68,6 +85,8 @@ data class OneBoxStrings(
     val themeTitle: String,
     val themeDark: String,
     val themeLight: String,
+    val themeGreen: String,
+    val themeAmoled: String,
     val themeSystemShort: String,
     val textSize: String,
     val textSizeHint: String,
@@ -76,14 +95,45 @@ data class OneBoxStrings(
     val textSizeLarge: String,
     val textSizeHuge: String,
     val language: String,
+    val languageAuto: String,
     val languageRussian: String,
     val languageEnglish: String,
+    val languagePersian: String,
+    val languageChinese: String,
     val languageHint: String,
     val connection: String,
     val blockAds: String,
     val blockAdsHint: String,
     val autoConnect: String,
     val autoConnectHint: String,
+    val autoConnectOnBoot: String,
+    val autoConnectOnBootHint: String,
+    val killSwitch: String,
+    val killSwitchHint: String,
+    // Экран сети
+    val network: String,
+    val networkHint: String,
+    val mtu: String,
+    val mtuHint: String,
+    val ipType: String,
+    val ipTypeHint: String,
+    val ipAuto: String,
+    val ipv4: String,
+    val ipv6: String,
+    val fragmentation: String,
+    val fragmentationHint: String,
+    val fragmentPackets: String,
+    val fragmentPacketsHint: String,
+    val fragmentLength: String,
+    val fragmentLengthHint: String,
+    val fragmentInterval: String,
+    val fragmentIntervalHint: String,
+    val mux: String,
+    val muxHint: String,
+    val muxConcurrency: String,
+    val muxConcurrencyHint: String,
+    val muxXudp: String,
+    val muxXudpHint: String,
     val diagnostics: String,
     val logsHint: String,
     val viewLogs: String,
@@ -130,6 +180,25 @@ data class OneBoxStrings(
     val noSubscriptionsHint: String,
     val deleteSubscription: (String) -> String,
     val refreshSubscription: String,
+    // Экран настроек подписок
+    val subscriptionSettings: String,
+    val subscriptionSettingsHint: String,
+    val userAgent: String,
+    val userAgentHint: String,
+    val serverSort: String,
+    val serverSortHint: String,
+    val sortSubscription: String,
+    val sortPing: String,
+    val sortName: String,
+    val updateInterval: String,
+    val updateIntervalHint: String,
+    val intervalNever: String,
+    val interval30m: String,
+    val interval60m: String,
+    val interval2h: String,
+    val interval6h: String,
+    val interval12h: String,
+    val interval24h: String,
 
     // Метаданные подписки: срок и трафик
     val expiresLeft: (Long) -> String,
@@ -195,6 +264,7 @@ data class OneBoxStrings(
     val notificationModeTun: String,
     val notificationModeProxy: String,
     val notificationModeTunProxy: String,
+    val notificationKillSwitch: String,
     val vpnChannelName: String
 )
 
@@ -244,6 +314,8 @@ val RuStrings = OneBoxStrings(
     themeTitle = "Тема оформления",
     themeDark = "Тёмная",
     themeLight = "Светлая",
+    themeGreen = "Зелёная",
+    themeAmoled = "AMOLED чёрная",
     themeSystemShort = "Система",
     textSize = "Размер текста",
     textSizeHint = "Применяется ко всему интерфейсу",
@@ -252,14 +324,44 @@ val RuStrings = OneBoxStrings(
     textSizeLarge = "Крупный",
     textSizeHuge = "Очень крупный",
     language = "Язык",
+    languageAuto = "Авто (системный)",
     languageRussian = "Русский",
     languageEnglish = "English",
-    languageHint = "Русский — по умолчанию",
+    languagePersian = "فارسی",
+    languageChinese = "中文",
+    languageHint = "Авто — по системному языку устройства",
     connection = "Подключение",
     blockAds = "Блокировать рекламу",
     blockAdsHint = "Рекламные и трекинговые домены — при следующем подключении",
     autoConnect = "Автоподключение",
     autoConnectHint = "Запускать VPN при старте, если доступ уже разрешён",
+    autoConnectOnBoot = "Автозапуск при загрузке",
+    autoConnectOnBootHint = "Поднимать VPN после перезагрузки устройства",
+    killSwitch = "Kill Switch",
+    killSwitchHint = "Блокировать интернет, пока VPN не подключён",
+    network = "Сеть",
+    networkHint = "MTU, тип IP, фрагментация и MUX",
+    mtu = "MTU туннеля",
+    mtuHint = "Размер пакета туннеля, байты",
+    ipType = "Тип IP",
+    ipTypeHint = "Предпочтительное семейство адресов при разрешении доменов",
+    ipAuto = "Авто",
+    ipv4 = "IPv4",
+    ipv6 = "IPv6",
+    fragmentation = "Фрагментация TLS",
+    fragmentationHint = "Дробить TLS-хендшейк для обхода DPI (VLESS/VMess/Trojan)",
+    fragmentPackets = "Фрагментируемые пакеты",
+    fragmentPacketsHint = "tlshello или диапазон, например 1-3",
+    fragmentLength = "Длина фрагмента",
+    fragmentLengthHint = "Диапазон в байтах, например 100-200",
+    fragmentInterval = "Интервал фрагмента",
+    fragmentIntervalHint = "Пауза между фрагментами, мс, например 10-20",
+    mux = "MUX",
+    muxHint = "Мультиплексирование соединений (VLESS/VMess/Trojan)",
+    muxConcurrency = "Параллельные соединения",
+    muxConcurrencyHint = "Число TCP-соединений в одном mux-канале",
+    muxXudp = "Параллельные UDP",
+    muxXudpHint = "Число UDP-соединений (XUDP)",
     diagnostics = "Диагностика",
     logsHint = "Помогут разобраться в ошибках подключения",
     viewLogs = "Посмотреть логи",
@@ -312,12 +414,30 @@ val RuStrings = OneBoxStrings(
     noSubscriptionsHint = "Импортируйте подписку",
     deleteSubscription = { name -> "Удалить подписку $name" },
     refreshSubscription = "Обновить подписку",
+    subscriptionSettings = "Подписки",
+    subscriptionSettingsHint = "Обновление, сортировка серверов и User-Agent",
+    userAgent = "User-Agent",
+    userAgentHint = "Заголовок запросов к серверам подписок",
+    serverSort = "Сортировка серверов",
+    serverSortHint = "Порядок серверов в списке подписки",
+    sortSubscription = "Как в подписке",
+    sortPing = "По пингу",
+    sortName = "По имени",
+    updateInterval = "Интервал обновления",
+    updateIntervalHint = "Автоматически обновлять URL-подписки в фоне",
+    intervalNever = "Никогда",
+    interval30m = "30 минут",
+    interval60m = "60 минут",
+    interval2h = "2 часа",
+    interval6h = "6 часов",
+    interval12h = "12 часов",
+    interval24h = "24 часа",
 
     expiresLeft = { millis -> formatRemainingWith(millis, LOCALE_RU, RU_REMAINING_UNITS, "истекла") },
     expiredShort = "истекла",
     noExpiry = "Бессрочная",
     trafficUsed = { used, limit -> "Трафик: $used из $limit" },
-    trafficUsedNoLimit = { used -> "Трафик: $used" },
+    trafficUsedNoLimit = { used -> "Трафик: $used / ∞" },
     formatBytes = { bytes -> formatBytesWith(bytes, LOCALE_RU, BYTES_UNITS_RU) },
 
     addSubscriptionAction = "Добавить",
@@ -371,6 +491,7 @@ val RuStrings = OneBoxStrings(
     notificationModeTun = "TUN-режим",
     notificationModeProxy = "Proxy-режим",
     notificationModeTunProxy = "TUN + Proxy",
+    notificationKillSwitch = "Kill Switch: интернет заблокирован",
     vpnChannelName = "OneBox VPN"
 )
 
@@ -420,6 +541,8 @@ val EnStrings = OneBoxStrings(
     themeTitle = "Theme",
     themeDark = "Dark",
     themeLight = "Light",
+    themeGreen = "Green",
+    themeAmoled = "AMOLED black",
     themeSystemShort = "System",
     textSize = "Text size",
     textSizeHint = "Applies to the entire interface",
@@ -428,14 +551,44 @@ val EnStrings = OneBoxStrings(
     textSizeLarge = "Large",
     textSizeHuge = "Extra large",
     language = "Language",
+    languageAuto = "Auto (system)",
     languageRussian = "Русский",
     languageEnglish = "English",
-    languageHint = "Russian is the default",
+    languagePersian = "فارسی",
+    languageChinese = "中文",
+    languageHint = "Auto follows the device language",
     connection = "Connection",
     blockAds = "Block ads",
     blockAdsHint = "Ad and tracking domains — on the next connection",
     autoConnect = "Auto-connect",
     autoConnectHint = "Start VPN on launch if access is already granted",
+    autoConnectOnBoot = "Start on boot",
+    autoConnectOnBootHint = "Bring VPN up after the device restarts",
+    killSwitch = "Kill Switch",
+    killSwitchHint = "Block the internet while VPN is not connected",
+    network = "Network",
+    networkHint = "MTU, IP type, fragmentation and MUX",
+    mtu = "Tunnel MTU",
+    mtuHint = "Tunnel packet size, bytes",
+    ipType = "IP type",
+    ipTypeHint = "Preferred address family for DNS resolution",
+    ipAuto = "Auto",
+    ipv4 = "IPv4",
+    ipv6 = "IPv6",
+    fragmentation = "TLS fragmentation",
+    fragmentationHint = "Split the TLS handshake to bypass DPI (VLESS/VMess/Trojan)",
+    fragmentPackets = "Packets to fragment",
+    fragmentPacketsHint = "tlshello or a range such as 1-3",
+    fragmentLength = "Fragment length",
+    fragmentLengthHint = "Byte range, for example 100-200",
+    fragmentInterval = "Fragment interval",
+    fragmentIntervalHint = "Pause between fragments in ms, for example 10-20",
+    mux = "MUX",
+    muxHint = "Connection multiplexing (VLESS/VMess/Trojan)",
+    muxConcurrency = "Concurrent connections",
+    muxConcurrencyHint = "TCP connections per mux channel",
+    muxXudp = "Concurrent UDP",
+    muxXudpHint = "UDP connections (XUDP)",
     diagnostics = "Diagnostics",
     logsHint = "Helps diagnose connection problems",
     viewLogs = "View logs",
@@ -488,12 +641,30 @@ val EnStrings = OneBoxStrings(
     noSubscriptionsHint = "Import a subscription",
     deleteSubscription = { name -> "Delete subscription $name" },
     refreshSubscription = "Refresh subscription",
+    subscriptionSettings = "Subscriptions",
+    subscriptionSettingsHint = "Updates, server sorting and User-Agent",
+    userAgent = "User-Agent",
+    userAgentHint = "Header for subscription server requests",
+    serverSort = "Server sorting",
+    serverSortHint = "Order of servers inside a subscription",
+    sortSubscription = "As in subscription",
+    sortPing = "By ping",
+    sortName = "By name",
+    updateInterval = "Update interval",
+    updateIntervalHint = "Refresh URL subscriptions in the background",
+    intervalNever = "Never",
+    interval30m = "30 minutes",
+    interval60m = "60 minutes",
+    interval2h = "2 hours",
+    interval6h = "6 hours",
+    interval12h = "12 hours",
+    interval24h = "24 hours",
 
     expiresLeft = { millis -> formatRemainingWith(millis, Locale.ENGLISH, EN_REMAINING_UNITS, "expired") },
     expiredShort = "expired",
     noExpiry = "No expiry",
     trafficUsed = { used, limit -> "Traffic: $used of $limit" },
-    trafficUsedNoLimit = { used -> "Traffic: $used" },
+    trafficUsedNoLimit = { used -> "Traffic: $used / ∞" },
     formatBytes = { bytes -> formatBytesWith(bytes, Locale.ENGLISH, BYTES_UNITS_EN) },
 
     addSubscriptionAction = "Add",
@@ -547,12 +718,16 @@ val EnStrings = OneBoxStrings(
     notificationModeTun = "TUN mode",
     notificationModeProxy = "Proxy mode",
     notificationModeTunProxy = "TUN + Proxy",
+    notificationKillSwitch = "Kill Switch: internet blocked",
     vpnChannelName = "OneBox VPN"
 )
 
-fun stringsFor(language: AppLanguage): OneBoxStrings = when (language) {
+fun stringsFor(language: AppLanguage): OneBoxStrings = when (AppLanguage.resolve(language)) {
+    AppLanguage.AUTO -> EnStrings
     AppLanguage.RU -> RuStrings
     AppLanguage.EN -> EnStrings
+    AppLanguage.FA -> FaStrings
+    AppLanguage.ZH -> ZhStrings
 }
 
 /**
@@ -561,7 +736,7 @@ fun stringsFor(language: AppLanguage): OneBoxStrings = when (language) {
  * до двух месяцев — в днях, дальше — в месяцах (вверх — неполный час/день
  * уже целый).
  */
-private fun formatRemainingWith(millis: Long, locale: Locale, units: Array<String>, expired: String): String {
+internal fun formatRemainingWith(millis: Long, locale: Locale, units: Array<String>, expired: String): String {
     val diff = millis - System.currentTimeMillis()
     if (diff <= 0) return expired
     val hours = (diff + MILLIS_PER_HOUR - 1) / MILLIS_PER_HOUR
@@ -572,19 +747,21 @@ private fun formatRemainingWith(millis: Long, locale: Locale, units: Array<Strin
     }
     return when (locale.language) {
         "ru" -> "Осталось $count $unit"
+        "fa" -> "باقی‌مانده $count $unit"
+        "zh" -> "剩余 $count $unit"
         else -> "$count $unit left"
     }
 }
 
-private const val MILLIS_PER_HOUR = 3_600_000L
+internal const val MILLIS_PER_HOUR = 3_600_000L
 
-private val EN_REMAINING_UNITS = arrayOf("h", "d", "mo")
+internal val EN_REMAINING_UNITS = arrayOf("h", "d", "mo")
 
 /**
  * Человекочитаемый размер трафика: 2048 → «2 КБ».
  * До килобайта байты не дробятся, выше — одна десятая.
  */
-private fun formatBytesWith(bytes: Long, locale: Locale, units: Array<String>): String {
+internal fun formatBytesWith(bytes: Long, locale: Locale, units: Array<String>): String {
     if (bytes < 0) return "—"
     var value = bytes.toDouble()
     var index = 0
@@ -600,8 +777,14 @@ private fun formatBytesWith(bytes: Long, locale: Locale, units: Array<String>): 
     }
 }
 
-private val LOCALE_RU = Locale("ru")
-private val RU_REMAINING_UNITS = arrayOf("ч.", "дн.", "мес.")
+internal val LOCALE_RU = Locale("ru")
+internal val LOCALE_FA = Locale("fa")
+internal val LOCALE_ZH = Locale.SIMPLIFIED_CHINESE
+internal val RU_REMAINING_UNITS = arrayOf("ч.", "дн.", "мес.")
+internal val FA_REMAINING_UNITS = arrayOf("ساعت", "روز", "ماه")
+internal val ZH_REMAINING_UNITS = arrayOf("小时", "天", "个月")
 
-private val BYTES_UNITS_RU = arrayOf("Б", "КБ", "МБ", "ГБ", "ТБ")
-private val BYTES_UNITS_EN = arrayOf("B", "KB", "MB", "GB", "TB")
+internal val BYTES_UNITS_RU = arrayOf("Б", "КБ", "МБ", "ГБ", "ТБ")
+internal val BYTES_UNITS_EN = arrayOf("B", "KB", "MB", "GB", "TB")
+internal val BYTES_UNITS_FA = arrayOf("بایت", "کیلوبایت", "مگابایت", "گیگابایت", "ترابایت")
+internal val BYTES_UNITS_ZH = arrayOf("字节", "KB", "MB", "GB", "TB")

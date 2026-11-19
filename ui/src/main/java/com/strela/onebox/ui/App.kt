@@ -27,9 +27,11 @@ import com.strela.sui.design.Text
 import com.strela.sui.design.icons.SuiIcons
 import com.strela.onebox.ui.screens.ConnectScreen
 import com.strela.onebox.ui.screens.LogsConsoleScreen
+import com.strela.onebox.ui.screens.NetworkSettingsScreen
 import com.strela.onebox.ui.screens.PingSettingsScreen
 import com.strela.onebox.ui.screens.ServersTab
 import com.strela.onebox.ui.screens.SettingsTab
+import com.strela.onebox.ui.screens.SubscriptionSettingsScreen
 
 /** Вкладки навигации: outline-иконка, пока не выбрана, filled — когда выбрана. */
 private enum class MainTab(val outline: ImageVector, val filled: ImageVector) {
@@ -55,6 +57,8 @@ private enum class Overlay {
     PING,
     APPEARANCE,
     CONNECTION,
+    NETWORK,
+    SUBSCRIPTIONS,
     DIAGNOSTICS,
     ABOUT,
     LICENSES,
@@ -145,6 +149,7 @@ fun OneBoxApp(
                     context = context,
                     onOpenAppearance = { overlays += Overlay.APPEARANCE },
                     onOpenConnection = { overlays += Overlay.CONNECTION },
+                    onOpenSubscriptions = { overlays += Overlay.SUBSCRIPTIONS },
                     onOpenDiagnostics = { overlays += Overlay.DIAGNOSTICS },
                     onOpenAbout = { overlays += Overlay.ABOUT },
                     modifier = Modifier.fillMaxSize(),
@@ -174,6 +179,17 @@ fun OneBoxApp(
                 Overlay.CONNECTION -> ConnectionSettingsScreen(
                     onClose = { popOverlay(overlays) },
                     onOpenPing = { overlays += Overlay.PING },
+                    onOpenNetwork = { overlays += Overlay.NETWORK },
+                    modifier = Modifier.fillMaxSize(),
+                )
+
+                Overlay.NETWORK -> NetworkSettingsScreen(
+                    onClose = { popOverlay(overlays) },
+                    modifier = Modifier.fillMaxSize(),
+                )
+
+                Overlay.SUBSCRIPTIONS -> SubscriptionSettingsScreen(
+                    onClose = { popOverlay(overlays) },
                     modifier = Modifier.fillMaxSize(),
                 )
 

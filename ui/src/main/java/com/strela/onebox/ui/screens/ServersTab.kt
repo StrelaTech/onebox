@@ -30,6 +30,7 @@ fun ServersTab(context: Context, modifier: Modifier = Modifier) {
     val subscriptions by SubscriptionStore.subscriptions.collectAsState()
     val selectedSubscriptionId by SubscriptionStore.selectedSubscriptionId.collectAsState()
     val pings by VpnConnector.pings.collectAsState()
+    val serverSort by com.strela.onebox.settings.SettingsStore.serverSort.collectAsState()
 
     val repository = remember(context) { StoreSubscriptionRepository(context) }
     val importSubscription = remember(context) {
@@ -64,6 +65,8 @@ fun ServersTab(context: Context, modifier: Modifier = Modifier) {
                         )
                         // обновлённая подписка могла стать активной — перечитываем конфиг ядра
                         VpnConnector.refreshFromProfile()
+                        // после обновления — заново измеряем пинг новых серверов
+                        result.subscription.servers.forEach { VpnConnector.pingServer(it) }
                     }
 
                     is SubscriptionImportResult.Failure -> {
@@ -80,6 +83,7 @@ fun ServersTab(context: Context, modifier: Modifier = Modifier) {
         subscriptions = subscriptions,
         selectedSubscriptionId = selectedSubscriptionId,
         pings = pings,
+        sort = serverSort,
         refreshingUrls = refreshingUrls,
         onDeleteSubscription = { id ->
             SubscriptionStore.removeSubscription(context, id)

@@ -2,6 +2,7 @@ package com.strela.onebox.profile
 
 import android.content.Context
 import com.strela.onebox.api.ConnectionMode
+import com.strela.onebox.api.NetworkOptions
 import com.strela.onebox.api.PingOptions
 import com.strela.onebox.api.ProfileSelection
 import com.strela.onebox.api.ProfileSource
@@ -39,6 +40,8 @@ class StoreProfileSource(context: Context) : ProfileSource {
     override fun blockAds(): Boolean = SettingsStore.blockAds.value
 
     override fun pingOptions(): PingOptions = SettingsStore.pingOptions.value
+
+    override fun networkOptions(): NetworkOptions = SettingsStore.networkOptions.value
 
     override fun connectionMode(): ConnectionMode = SettingsStore.connectionMode.value
 

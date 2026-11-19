@@ -25,6 +25,7 @@ import com.strela.onebox.subscription.Server
 import com.strela.onebox.api.PingState
 import com.strela.onebox.subscription.Subscription
 import com.strela.onebox.subscription.SubscriptionImportResult
+import com.strela.onebox.settings.ServerSort
 import com.strela.onebox.ui.OneBoxTheme
 import com.strela.onebox.ui.components.SubscriptionImportDialog
 import com.strela.sui.design.Button
@@ -51,6 +52,7 @@ fun ServersScreen(
     subscriptions: List<Subscription>,
     selectedSubscriptionId: String?,
     pings: Map<String, PingState>,
+    sort: ServerSort = ServerSort.SUBSCRIPTION,
     refreshingUrls: Set<String>,
     onDeleteSubscription: (String) -> Unit,
     onSelectServer: (subscriptionId: String, serverId: String) -> Unit,
@@ -97,7 +99,7 @@ fun ServersScreen(
                 subscriptions.forEach { subscription ->
                     SubscriptionCard(
                         subscription = subscription,
-                        servers = subscription.servers,
+                        servers = sortServers(subscription.servers, sort, pings),
                         selected = subscription.id == selectedSubscriptionId,
                         pings = pings,
                         onSelectServer = { server -> onSelectServer(subscription.id, server.id) },
@@ -150,9 +152,22 @@ fun ServersScreen(
     }
 }
 
+/** Сортирует серверы для показа согласно выбранному режиму. */
+private fun sortServers(
+    servers: List<Server>,
+    sort: ServerSort,
+    pings: Map<String, PingState>,
+): List<Server> = when (sort) {
+    ServerSort.SUBSCRIPTION -> servers
+    ServerSort.NAME -> servers.sortedWith(compareBy(String.CASE_INSENSITIVE_ORDER) { it.name })
+    ServerSort.PING -> servers.sortedWith(
+        compareBy<Server> { (pings[it.id] as? PingState.Ok)?.millis ?: Long.MAX_VALUE }
+            .thenBy(String.CASE_INSENSITIVE_ORDER) { it.name }
+    )
+}
+
 @Composable
-private fun EmptySubscriptions() {
-    val colors = OneBoxTheme.colorScheme
+private fun EmptySubscriptions() {    val colors = OneBoxTheme.colorScheme
     val s = strings
 
     Card(

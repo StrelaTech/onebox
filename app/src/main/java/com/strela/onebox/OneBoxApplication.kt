@@ -5,6 +5,10 @@ import com.strela.onebox.engine.EngineBootstrap
 import com.strela.onebox.log.AppLog
 import com.strela.onebox.settings.SettingsStore
 import com.strela.onebox.subscription.SubscriptionStore
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 /**
  * Точка инициализации процесса: любой новый процесс (Activity, VpnService
@@ -25,5 +29,13 @@ class OneBoxApplication : Application() {
         SettingsStore.init(this)
         SubscriptionStore.init(this)
         EngineBootstrap.ensure(this)
+
+        // Плановое обновление подписок: регистрируем при старте и при смене
+        // интервала (поток живёт столько же, сколько процесс).
+        CoroutineScope(SupervisorJob() + Dispatchers.Default).launch {
+            SettingsStore.updateInterval.collect { interval ->
+                SubscriptionRefreshScheduler.schedule(this@OneBoxApplication, interval)
+            }
+        }
     }
 }

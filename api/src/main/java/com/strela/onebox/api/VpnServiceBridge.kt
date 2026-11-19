@@ -13,4 +13,10 @@ interface VpnServiceBridge {
 
     /** Гасит VPN-сервис (disconnect); сервис сам остановит ядро в верном порядке. */
     fun stop(context: Context)
+
+    /** Поднимает Kill Switch: VPN-сервис блокирует трафик без ядра. */
+    fun startKillSwitch(context: Context)
+
+    /** Снимает Kill Switch, если сервис сейчас только блокирует трафик. */
+    fun stopKillSwitch(context: Context)
 }

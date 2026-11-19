@@ -40,6 +40,10 @@ class TunVpnService : VpnService() {
     private var tunFd = -1
     private var fdDetached = false
 
+    /** Сервис сейчас работает как Kill Switch: туннель есть, ядра нет, трафик дропается. */
+    @Volatile
+    private var killSwitchActive = false
+
     /** Живёт, пока поднят foreground: обновляет уведомление по статусу/пингу/серверу. */
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var notificationJob: Job? = null
@@ -51,6 +55,8 @@ class TunVpnService : VpnService() {
         when (intent?.action) {
             ACTION_CONNECT -> connect()
             ACTION_DISCONNECT -> shutdown()
+            ACTION_KILL_SWITCH -> connectKillSwitch()
+            ACTION_STOP_KILL_SWITCH -> stopKillSwitchIfBlocking()
             else -> {}
         }
         return START_NOT_STICKY
@@ -68,13 +74,24 @@ class TunVpnService : VpnService() {
      */
     private fun shutdown() {
         AppLog.i("shutdown: жёсткое отключение туннеля")
-        stopForeground(STOP_FOREGROUND_REMOVE)
         notificationJob?.cancel()
+        // Если включён Kill Switch, уведомление не убираем: сервис сразу
+        // перейдёт в режим блокировки и обязан остаться foreground.
+        if (!SettingsStore.killSwitch.value) stopForeground(STOP_FOREGROUND_REMOVE)
         Thread {
-            val stopped = VpnConnector.stopBlocking()
-            if (!stopped) AppLog.w("shutdown: ядро не остановилось за таймаут")
+            if (VpnConnector.isRunning) {
+                val stopped = VpnConnector.stopBlocking()
+                if (!stopped) AppLog.w("shutdown: ядро не остановилось за таймаут")
+            }
             forceCloseTun()
-            stopVpn()
+            if (SettingsStore.killSwitch.value) {
+                AppLog.i("shutdown: Kill Switch включён — перехожу в режим блокировки")
+                killSwitchActive = false
+                connectKillSwitchInternal()
+            } else {
+                stopForeground(STOP_FOREGROUND_REMOVE)
+                stopVpn()
+            }
         }.start()
     }
 
@@ -94,12 +111,20 @@ class TunVpnService : VpnService() {
         }
         tunFd = -1
         fdDetached = false
+        killSwitchActive = false
         tunPfd = null
     }
 
     private fun connect() {
         AppLog.i("connect: поднимаю foreground-уведомление")
         startInForeground()
+
+        // Kill Switch держал чёрный tun — снимаем его перед обычным подключением.
+        if (killSwitchActive) {
+            AppLog.i("connect: снимаю Kill Switch перед обычным подключением")
+            forceCloseTun()
+            killSwitchActive = false
+        }
         startNotificationUpdates()
 
         // Если ядро уже поднято — гасим всё и выходим (без блокировки главного потока)
@@ -131,7 +156,7 @@ class TunVpnService : VpnService() {
                 .addRoute("::", 0)
                 .addDnsServer("8.8.8.8")
                 .addDnsServer("1.1.1.1")
-                .setMtu(1500)
+                .setMtu(SettingsStore.networkOptions.value.mtu)
                 .apply {
                     // исключаем себя из туннеля — иначе dial'ы ядра зациклятся
                     try {
@@ -159,6 +184,7 @@ class TunVpnService : VpnService() {
         val fd = pfd.detachFd()
         tunFd = fd
         fdDetached = true
+        killSwitchActive = false
         AppLog.i("connect: tun поднят, fd=$fd")
         tunPfd = pfd
         VpnConnector.startTun(fd) { message ->
@@ -166,6 +192,76 @@ class TunVpnService : VpnService() {
             closeDetachedTun()
             stopVpn()
         }
+    }
+
+    /**
+     * Kill Switch: отдельный VpnService-сеанс без ядра. Весь трафик уходит в
+     * tun, который никто не читает, поэтому соединения не проходят —
+     * это единственный способ заблокировать интернет на Android без root.
+     */
+    private fun connectKillSwitch() {
+        if (VpnConnector.isRunning) {
+            AppLog.i("killSwitch: VPN уже подключён, блокировка не нужна")
+            return
+        }
+        startInForeground()
+        connectKillSwitchInternal()
+    }
+
+    private fun connectKillSwitchInternal() {
+        if (killSwitchActive) {
+            AppLog.d("killSwitch: уже активен")
+            return
+        }
+        if (tunFd >= 0) forceCloseTun()
+
+        val pfd = try {
+            Builder()
+                .setSession("OneBox Kill Switch")
+                .addAddress("172.19.0.1", 32)
+                .addRoute("0.0.0.0", 0)
+                .addRoute("::", 0)
+                .setMtu(1500)
+                // Своё приложение НЕ исключаем: Kill Switch блокирует весь трафик.
+                .establish()
+        } catch (e: Exception) {
+            AppLog.e("killSwitch: establish() бросил исключение", e)
+            VpnConnector.onVpnError(e.message ?: "kill switch establish() failed")
+            stopVpn()
+            return
+        }
+
+        if (pfd == null) {
+            AppLog.w("killSwitch: establish() вернул null (нет разрешения/чужой VPN)")
+            VpnConnector.onVpnRevoked()
+            stopVpn()
+            return
+        }
+
+        val fd = pfd.detachFd()
+        tunFd = fd
+        tunPfd = pfd
+        fdDetached = true
+        killSwitchActive = true
+        AppLog.i("killSwitch: трафик заблокирован, fd=$fd")
+        startInForeground()
+        startNotificationUpdates()
+    }
+
+    /** Выключение Kill Switch: гасим сервис, только если он не обслуживает VPN. */
+    private fun stopKillSwitchIfBlocking() {
+        if (VpnConnector.isRunning) {
+            AppLog.i("killSwitch: VPN подключён — сервис не трогаем")
+            return
+        }
+        if (!killSwitchActive) {
+            AppLog.i("killSwitch: не активен")
+            return
+        }
+        AppLog.i("killSwitch: выключаю блокировку")
+        killSwitchActive = false
+        forceCloseTun()
+        stopVpn()
     }
 
     /** Закрывает tun-fd, если ядро не успело забрать его себе (ошибка старта). */
@@ -230,8 +326,16 @@ class TunVpnService : VpnService() {
             val pingsFlow = VpnConnector.pings
             combine(statusFlow, pingsFlow) { status, pings -> status to pings }
                 .collectLatest { (status, pings) ->
-                    if (status is VpnStatus.Stopped) return@collectLatest
                     val strings = SettingsStore.strings()
+                    if (killSwitchActive) {
+                        updateNotification(
+                            id = NOTIFICATION_ID,
+                            title = "OneBox · ${strings.killSwitch}",
+                            text = strings.notificationKillSwitch,
+                        )
+                        return@collectLatest
+                    }
+                    if (status is VpnStatus.Stopped) return@collectLatest
                     val profile = VpnConnector.activeProfile()
                     val serverName = profile?.server?.name
                         ?: profile?.let { strings.configMode }
@@ -285,6 +389,7 @@ class TunVpnService : VpnService() {
 
     private fun stopVpn() {
         AppLog.i("stopVpn: закрываю tun и гашу сервис")
+        killSwitchActive = false
         notificationJob?.cancel()
         // Собственно fd всегда закрывается раньше через forceCloseTun()/
         // closeDetachedTun() — здесь остаётся страховка: закрыть валидный,
@@ -338,6 +443,8 @@ class TunVpnService : VpnService() {
     companion object {
         const val ACTION_CONNECT = "com.strela.onebox.vpn.CONNECT"
         const val ACTION_DISCONNECT = "com.strela.onebox.vpn.DISCONNECT"
+        const val ACTION_KILL_SWITCH = "com.strela.onebox.vpn.KILL_SWITCH"
+        const val ACTION_STOP_KILL_SWITCH = "com.strela.onebox.vpn.STOP_KILL_SWITCH"
         private const val CHANNEL_ID = "onebox_vpn"
         private const val NOTIFICATION_ID = 1
 

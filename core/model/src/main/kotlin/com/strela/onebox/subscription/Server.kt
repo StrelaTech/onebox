@@ -65,4 +65,23 @@ data class Server(
     /** Человекочитаемое описание для списка: address:port */
     val endpoint: String
         get() = "$address:$port"
+
+    /**
+     * Флаг страны из названия (remarks), если провайдер положил туда эмодзи.
+     * Берём первую пару региональных индикаторов U+1F1E6..U+1F1FF.
+     * Коды стран (US, DE и т.п.) намеренно не распознаём — слишком много
+     * ложных срабатываний в обычных названиях.
+     */
+    val flagEmoji: String?
+        get() {
+            val codePoints = name.codePoints().toArray()
+            for (i in 0 until codePoints.size - 1) {
+                val first = codePoints[i]
+                val second = codePoints[i + 1]
+                if (first in 0x1F1E6..0x1F1FF && second in 0x1F1E6..0x1F1FF) {
+                    return String(Character.toChars(first)) + String(Character.toChars(second))
+                }
+            }
+            return null
+        }
 }

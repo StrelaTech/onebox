@@ -32,6 +32,9 @@ interface ProfileSource {
     /** Настройки пинга серверов (метод, тайм-аут, URL-тест). */
     fun pingOptions(): PingOptions
 
+    /** Сетевые параметры: MTU, тип IP, фрагментация и MUX. */
+    fun networkOptions(): NetworkOptions
+
     /** Режим подключения: TUN, локальный Proxy или TUN + Proxy. */
     fun connectionMode(): ConnectionMode
 

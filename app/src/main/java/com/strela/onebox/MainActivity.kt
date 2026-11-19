@@ -24,7 +24,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.WindowCompat
 import com.strela.onebox.log.AppLog
-import com.strela.onebox.subscription.SubscriptionStore
 import com.strela.onebox.settings.SettingsStore
 import com.strela.onebox.settings.ThemeMode
 import com.strela.onebox.ui.OneBoxApp
@@ -68,15 +67,21 @@ class MainActivity : ComponentActivity() {
             val language by SettingsStore.language.collectAsState()
             val themeMode by SettingsStore.theme.collectAsState()
             val fontScale by SettingsStore.fontScale.collectAsState()
+            val systemDark = isSystemInDarkTheme()
             val darkTheme = when (themeMode) {
-                ThemeMode.DARK -> true
+                ThemeMode.DARK, ThemeMode.GREEN, ThemeMode.AMOLED -> true
                 ThemeMode.LIGHT -> false
-                ThemeMode.SYSTEM -> isSystemInDarkTheme()
+                ThemeMode.SYSTEM -> systemDark
             }
 
             ApplySystemBars(darkTheme = darkTheme)
 
-            OneBoxTheme(darkTheme = darkTheme, language = language, fontScale = fontScale) {
+            OneBoxTheme(
+                themeMode = themeMode,
+                systemDark = systemDark,
+                language = language,
+                fontScale = fontScale,
+            ) {
                 OneBoxApp(
                     onStartVpn = {
                         AppLog.d("UI: запрос подключения VPN")
@@ -93,7 +98,8 @@ class MainActivity : ComponentActivity() {
 
         if (savedInstanceState == null) {
             requestNotificationPermission()
-            maybeAutoConnect()
+            StartupConnections.onLaunch(this)
+            StartupRefresh.onLaunch(this)
         }
     }
 
@@ -108,34 +114,19 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    /** Поднимает VPN при запуске, если включено автоподключение и доступ уже выдан. */
-    private fun maybeAutoConnect() {
-        if (!SettingsStore.autoConnect.value) return
-        if (VpnConnector.isRunning) return
-        val subscription = SubscriptionStore.selectedSubscription()
-        if ((subscription == null || (!subscription.isJson && subscription.selectedServer == null)) && !VpnConnector.hasUserConfig) {
-            AppLog.d("autoConnect: нет подписки или сохранённого конфига, пропускаю")
-            return
-        }
-        if (VpnService.prepare(this) != null) {
-            AppLog.i("autoConnect: разрешение на VPN не выдано, пропускаю")
-            return
-        }
-        AppLog.i("autoConnect: запускаю VPN")
-        VpnConnector.start(this)
-    }
-
     /** Фон окна до первого кадра — в цвет темы приложения, чтобы не мигало при старте. */
     private fun applyWindowBackground() {
-        val dark = when (SettingsStore.theme.value) {
-            ThemeMode.DARK -> true
-            ThemeMode.LIGHT -> false
-            ThemeMode.SYSTEM -> (resources.configuration.uiMode and
-                Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+        val background = when (SettingsStore.theme.value) {
+            ThemeMode.LIGHT -> 0xFFFFFFFF
+            ThemeMode.DARK -> 0xFF242424
+            ThemeMode.GREEN -> 0xFF0B1510
+            ThemeMode.AMOLED -> 0xFF000000
+            ThemeMode.SYSTEM -> if (
+                (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
+                Configuration.UI_MODE_NIGHT_YES
+            ) 0xFF242424 else 0xFFFFFFFF
         }
-        window.setBackgroundDrawable(
-            (if (dark) 0xFF242424.toInt() else 0xFFFFFFFF.toInt()).toDrawable()
-        )
+        window.setBackgroundDrawable(background.toInt().toDrawable())
     }
 
     /** Иконки системных панелей должны контрастировать с фоном темы приложения. */
