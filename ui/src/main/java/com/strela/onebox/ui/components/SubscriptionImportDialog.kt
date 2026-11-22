@@ -2,6 +2,8 @@ package com.strela.onebox.ui.components
 
 import android.content.ClipboardManager
 import android.content.Context
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,11 +35,14 @@ import com.strela.sui.design.Button
 import com.strela.sui.design.Icon
 import com.strela.sui.design.IconButton
 import com.strela.sui.design.InfiniteProgressIndicator
+import com.strela.sui.design.Surface
 import com.strela.sui.design.Text
 import com.strela.sui.design.TextField
 import com.strela.sui.design.SuiDialog
 import com.strela.onebox.ui.OneBoxTheme
 import com.strela.onebox.ui.strings
+import com.journeyapps.barcodescanner.ScanContract
+import com.journeyapps.barcodescanner.ScanOptions
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
@@ -60,6 +66,80 @@ fun SubscriptionImportDialog(
     var text by rememberSaveable { mutableStateOf("") }
     var loading by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf<StatusMessage?>(null) }
+
+    /** Общая логика импорта для кнопки, вставки и QR-кода. */
+    val submit: (String) -> Unit = { raw ->
+        val source = raw.trim()
+        if (source.isEmpty()) {
+            loading = false
+        } else {
+            AppLog.i("Подписка: старт импорта (${source.length} символов)")
+            scope.launch {
+                loading = true
+                message = null
+                val result = try {
+                    onImport(source)
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    // последний рубеж: диалог не падает ни на какой ошибке
+                    message = StatusMessage(s.errorNetwork, StatusMessage.Tone.ERROR)
+                    loading = false
+                    return@launch
+                }
+                loading = false
+                when (result) {
+                    is SubscriptionImportResult.Success -> {
+                        message = if (result.subscription.id == Subscription.SERVERS_ID) {
+                            // самодельные серверы легли в стандартный профиль «Серверы»
+                            StatusMessage(
+                                text = s.addedServers(result.serversAdded),
+                                tone = StatusMessage.Tone.SUCCESS,
+                            )
+                        } else if (result.created) {
+                            StatusMessage(
+                                text = s.subscriptionAdded(
+                                    result.subscription.title,
+                                    result.serversCount,
+                                ),
+                                tone = StatusMessage.Tone.SUCCESS,
+                            )
+                        } else {
+                            StatusMessage(
+                                text = s.subscriptionUpdated(
+                                    result.subscription.title,
+                                    result.serversCount,
+                                ),
+                                tone = StatusMessage.Tone.SUCCESS,
+                            )
+                        }
+                        // успешно импортированное — очищаем, неудачный ввод остаётся
+                        if (result.created || result.subscription.id == Subscription.SERVERS_ID) {
+                            text = ""
+                        }
+                    }
+
+                    is SubscriptionImportResult.Failure -> message = StatusMessage(
+                        text = result.reason.toMessage(s),
+                        tone = StatusMessage.Tone.ERROR,
+                    )
+                }
+            }
+        }
+    }
+
+    // QR-код: содержимое распознаётся тем же импортом, что и вставленный текст.
+    val qrLauncher = rememberLauncherForActivityResult(ScanContract()) { result ->
+        val contents = result.contents?.trim().orEmpty()
+        if (contents.isEmpty()) {
+            AppLog.i("Подписка: QR-код не распознан")
+        } else {
+            AppLog.i("Подписка: QR-код распознан")
+            text = contents
+            message = null
+            submit(contents)
+        }
+    }
 
     SuiDialog(
         title = s.subscriptionDialogTitle,
@@ -93,7 +173,13 @@ fun SubscriptionImportDialog(
                     IconButton(
                         onClick = {
                             AppLog.i("Подписка: вставка из буфера обмена")
-                            pasteFromClipboard(context) { text = it; message = null }
+                            val pasted = pasteFromClipboard(context) { text = it; message = null }
+                            if (!pasted) {
+                                message = StatusMessage(
+                                    text = s.clipboardNoHttpsUrl,
+                                    tone = StatusMessage.Tone.ERROR,
+                                )
+                            }
                         },
                     ) {
                         Icon(
@@ -105,6 +191,47 @@ fun SubscriptionImportDialog(
                     }
                 },
             )
+
+            // Быстрые способы: сканировать QR-код или сразу вставить из буфера.
+            Spacer(Modifier.height(10.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                DialogAction(
+                    icon = SuiIcons.Camera,
+                    label = s.scanQrAction,
+                    enabled = !loading,
+                    onClick = {
+                        AppLog.i("Подписка: запуск сканера QR-кодов")
+                        qrLauncher.launch(
+                            ScanOptions().apply {
+                                setDesiredBarcodeFormats(ScanOptions.QR_CODE)
+                                setPrompt(s.scanQrPrompt)
+                                setBeepEnabled(false)
+                                setOrientationLocked(false)
+                            }
+                        )
+                    },
+                    modifier = Modifier.weight(1f),
+                )
+                DialogAction(
+                    icon = SuiIcons.Clipboard,
+                    label = s.pasteAction,
+                    enabled = !loading,
+                    onClick = {
+                        AppLog.i("Подписка: вставка из буфера обмена (кнопка)")
+                        val pasted = pasteFromClipboard(context) { text = it; message = null }
+                        if (!pasted) {
+                            message = StatusMessage(
+                                text = s.clipboardNoHttpsUrl,
+                                tone = StatusMessage.Tone.ERROR,
+                            )
+                        }
+                    },
+                    modifier = Modifier.weight(1f),
+                )
+            }
 
             message?.let { msg ->
                 Spacer(Modifier.height(12.dp))
@@ -141,57 +268,7 @@ fun SubscriptionImportDialog(
                 Button(
                     onClick = {
                         AppLog.i("Подписка: нажата кнопка импорта")
-                        scope.launch {
-                            loading = true
-                            message = null
-                            val result = try {
-                                onImport(text)
-                            } catch (e: CancellationException) {
-                                throw e
-                            } catch (e: Exception) {
-                                // последний рубеж: диалог не падает ни на какой ошибке
-                                message = StatusMessage(s.errorNetwork, StatusMessage.Tone.ERROR)
-                                loading = false
-                                return@launch
-                            }
-                            loading = false
-                            when (result) {
-                                is SubscriptionImportResult.Success -> {
-                                    message = if (result.subscription.id == Subscription.SERVERS_ID) {
-                                        // самодельные серверы легли в стандартный профиль «Серверы»
-                                        StatusMessage(
-                                            text = s.addedServers(result.serversAdded),
-                                            tone = StatusMessage.Tone.SUCCESS,
-                                        )
-                                    } else if (result.created) {
-                                        StatusMessage(
-                                            text = s.subscriptionAdded(
-                                                result.subscription.title,
-                                                result.serversCount,
-                                            ),
-                                            tone = StatusMessage.Tone.SUCCESS,
-                                        )
-                                    } else {
-                                        StatusMessage(
-                                            text = s.subscriptionUpdated(
-                                                result.subscription.title,
-                                                result.serversCount,
-                                            ),
-                                            tone = StatusMessage.Tone.SUCCESS,
-                                        )
-                                    }
-                                    // успешно импортированное — очищаем, неудачный ввод остаётся
-                                    if (result.created || result.subscription.id == Subscription.SERVERS_ID) {
-                                        text = ""
-                                    }
-                                }
-
-                                is SubscriptionImportResult.Failure -> message = StatusMessage(
-                                    text = result.reason.toMessage(s),
-                                    tone = StatusMessage.Tone.ERROR,
-                                )
-                            }
-                        }
+                        submit(text)
                     },
                     modifier = Modifier.weight(1f),
                     enabled = text.isNotBlank() && !loading,
@@ -206,6 +283,45 @@ fun SubscriptionImportDialog(
     }
 }
 
+/** Вспомогательная кнопка диалога: иконка + подпись на светлой поверхности. */
+@Composable
+private fun DialogAction(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    label: String,
+    enabled: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val colors = OneBoxTheme.colorScheme
+
+    Surface(
+        onClick = onClick,
+        enabled = enabled,
+        shape = RoundedCornerShape(12.dp),
+        color = colors.surfaceContainerHigh,
+        modifier = modifier,
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp),
+                tint = if (enabled) colors.primary else colors.onSurfaceContainerVariant,
+            )
+            Text(
+                text = label,
+                style = OneBoxTheme.textStyles.footnote1,
+                color = if (enabled) colors.primary else colors.onSurfaceContainerVariant,
+                maxLines = 1,
+            )
+        }
+    }
+}
+
 /** Сообщение под полем ввода. */
 private data class StatusMessage(val text: String, val tone: Tone) {
     enum class Tone { SUCCESS, ERROR }
@@ -213,25 +329,31 @@ private data class StatusMessage(val text: String, val tone: Tone) {
 
 /**
  * Читает текст из буфера обмена: https-ссылка, JSON-конфиг или base64-подписка.
- * Ничего не вставляет, если буфер пуст или содержит нераспознанный мусор.
+ * Возвращает false, если буфер пуст или содержит нераспознанный мусор —
+ * тогда вызывающий показывает подсказку.
  */
-private fun pasteFromClipboard(context: Context, onText: (String) -> Unit) {
-    val clipboard = context.getSystemService(ClipboardManager::class.java) ?: return
+private fun pasteFromClipboard(context: Context, onText: (String) -> Unit): Boolean {
+    val clipboard = context.getSystemService(ClipboardManager::class.java) ?: return false
     val clipboardText = clipboard.primaryClip
         ?.takeIf { it.itemCount > 0 }
         ?.getItemAt(0)
         ?.coerceToText(context)
         ?.toString()
         .orEmpty()
+        .trim()
+
+    if (clipboardText.isEmpty()) return false
 
     // сначала ссылка (в нормализованном виде), затем любой распознаваемый контент;
     // нераспознанный мусор в поле не попадает
-    SubscriptionUrl.validateOrNull(clipboardText)?.let { return onText(it) }
+    SubscriptionUrl.validateOrNull(clipboardText)?.let { onText(it); return true }
     if (!clipboardText.startsWith("http", ignoreCase = true) &&
         ImportDetector.detect(clipboardText) != null
     ) {
         onText(clipboardText)
+        return true
     }
+    return false
 }
 
 private fun SubscriptionImportReason.toMessage(s: OneBoxStrings): String = when (this) {

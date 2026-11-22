@@ -45,4 +45,6 @@ dependencies {
     // BackHandler: системная кнопка «Назад» закрывает подэкраны настроек
     implementation(libs.androidx.activity.compose)
     implementation(libs.kotlinx.coroutines.core)
+    // QR-сканер для добавления подписок: готовый CaptureActivity + ZXing.
+    implementation(libs.zxing.android.embedded)
 }

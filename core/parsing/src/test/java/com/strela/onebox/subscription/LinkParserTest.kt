@@ -142,6 +142,15 @@ class LinkParserTest {
     }
 
     @Test
+    fun `freedom разбирается как прямое подключение`() {
+        val server = LinkParser.parse("freedom://#Прямой")
+
+        assertEquals(Server.Protocol.FREEDOM, server.protocol)
+        assertEquals("direct", server.endpoint)
+        assertEquals("Прямой", server.name)
+    }
+
+    @Test
     fun `неизвестная схема отклоняется`() {
         val thrown = runCatching { LinkParser.parse("unknown://example.com:443") }
         assertTrue(thrown.isFailure)

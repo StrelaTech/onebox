@@ -8,7 +8,8 @@ import java.util.UUID
  * Разбор ссылок серверов в [Server].
  *
  * Поддерживаются схемы: vless://, vmess://, trojan://, ss://, socks://,
- * hy2:// и hysteria2:// (Hysteria2).
+ * hy2:// и hysteria2:// (Hysteria2), freedom:// и direct:// (прямое
+ * подключение без прокси).
  * VMess бывает двух видов: base64-json (v2rayN) и стандартный vmess://<base64>.
  * Shadowsocks — как SIP002 (ss://base64(method:pass)@host:port), так и legacy.
  */
@@ -34,6 +35,7 @@ object LinkParser {
             "ss" -> parseShadowsocks(normalized)
             "socks", "socks5" -> parseSocks(normalized)
             "hy2", "hysteria2" -> parseHysteria2(normalized)
+            "freedom", "direct" -> parseFreedom(normalized)
             else -> throw ParseException("неизвестная схема: $scheme")
         }
     }
@@ -248,6 +250,22 @@ object LinkParser {
             allowInsecure = q["insecure"] == "1" || q["insecure"].equals("true", ignoreCase = true),
             network = "hysteria",
             security = "tls",
+            rawUrl = url
+        )
+    }
+
+    // ── Freedom (прямое подключение) ───────────────────────────────────────
+    // freedom://[#name] и direct://[#name] — профиль без прокси-сервера.
+    private fun parseFreedom(url: String): Server {
+        val name = NameDecoder.decode(url.substringAfter("#", ""))
+            ?: "Freedom"
+
+        return Server(
+            id = newId(),
+            name = name,
+            protocol = Server.Protocol.FREEDOM,
+            address = "direct",
+            port = 0,
             rawUrl = url
         )
     }

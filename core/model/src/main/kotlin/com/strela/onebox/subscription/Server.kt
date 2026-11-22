@@ -48,7 +48,7 @@ data class Server(
     val json: String = ""
 ) {
     enum class Protocol {
-        VLESS, VMESS, TROJAN, SHADOWSOCKS, SOCKS, HYSTERIA2, UNKNOWN;
+        VLESS, VMESS, TROJAN, SHADOWSOCKS, SOCKS, HYSTERIA2, FREEDOM, UNKNOWN;
 
         val displayName: String
             get() = when (this) {
@@ -58,13 +58,18 @@ data class Server(
                 SHADOWSOCKS -> "Shadowsocks"
                 SOCKS -> "SOCKS"
                 HYSTERIA2 -> "Hysteria2"
+                FREEDOM -> "Freedom"
                 UNKNOWN -> "?"
             }
+
+        /** Прямое подключение без прокси-сервера (xray freedom). */
+        val isDirect: Boolean
+            get() = this == FREEDOM
     }
 
     /** Человекочитаемое описание для списка: address:port */
     val endpoint: String
-        get() = "$address:$port"
+        get() = if (protocol.isDirect) "direct" else "$address:$port"
 
     /**
      * Флаг страны из названия (remarks), если провайдер положил туда эмодзи.

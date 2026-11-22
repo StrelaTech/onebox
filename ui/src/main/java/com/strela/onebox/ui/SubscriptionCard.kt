@@ -268,7 +268,10 @@ fun SubscriptionCard(
     }
 }
 
-/** Кнопка «Пинг всех»: замеряет задержку каждого сервера подписки. */
+/**
+ * Кнопка «Пинг всех»: только иконка (подпись не нужна — смысл ясен по
+ * пульсу), замеряет задержку каждого сервера подписки.
+ */
 @Composable
 private fun PingAllButton(
     inProgress: Boolean,
@@ -286,9 +289,8 @@ private fun PingAllButton(
         modifier = modifier,
     ) {
         Row(
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 7.dp),
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             if (inProgress) {
                 CircularProgressIndicator(
@@ -297,17 +299,12 @@ private fun PingAllButton(
                 )
             } else {
                 Icon(
-                    imageVector = SuiIcons.Zap,
-                    contentDescription = null,
-                    modifier = Modifier.size(14.dp),
+                    imageVector = SuiIcons.Activity,
+                    contentDescription = s.pingAll,
+                    modifier = Modifier.size(16.dp),
                     tint = colors.primary,
                 )
             }
-            Text(
-                text = s.pingAll,
-                style = OneBoxTheme.textStyles.footnote2,
-                color = colors.primary,
-            )
         }
     }
 }

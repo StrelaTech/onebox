@@ -1,12 +1,16 @@
 package com.strela.onebox.api
 
 import android.content.Context
+import android.net.TrafficStats
+import android.os.Process
 import com.strela.onebox.log.AppLog
 import com.strela.onebox.subscription.Server
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -29,6 +33,9 @@ object VpnConnector {
 
     /** Таймаут остановки ядра по умолчанию, мс. */
     private const val DEFAULT_STOP_TIMEOUT_MS = 3000L
+
+    /** Как часто обновлять счётчики отправленного/принятого трафика. */
+    private const val TRAFFIC_POLL_INTERVAL_MS = 1000L
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
@@ -65,6 +72,17 @@ object VpnConnector {
 
     private val _version = MutableStateFlow(INITIAL_VERSION)
     val version: StateFlow<String> = _version.asStateFlow()
+
+    /** Момент старта текущего подключения; null — VPN не подключён. */
+    private val _connectedSince = MutableStateFlow<Long?>(null)
+    val connectedSince: StateFlow<Long?> = _connectedSince.asStateFlow()
+
+    /** Отправлено/принято с момента старта текущего подключения. */
+    private val _traffic = MutableStateFlow(VpnTraffic())
+    val traffic: StateFlow<VpnTraffic> = _traffic.asStateFlow()
+
+    /** Опрос TrafficStats, пока туннель поднят. */
+    private var trafficJob: Job? = null
 
     // ── регистрация поставщиков ─────────────────────────────────────────────
 
@@ -105,16 +123,64 @@ object VpnConnector {
     private fun activate(newCore: VpnCore) {
         linksJob?.cancel()
         linksJob = scope.launch {
-            launch { newCore.status.collect { _status.value = it } }
+            launch { newCore.status.collect { observeStatus(it) } }
             launch { newCore.pings.collect { _pings.value = it } }
             launch { newCore.version.collect { _version.value = it } }
         }
         core = newCore
         // Первое значение ставим сразу — не дожидаясь первого collect'а.
-        _status.value = newCore.status.value
+        observeStatus(newCore.status.value)
         _pings.value = newCore.pings.value
         _version.value = newCore.version.value
     }
+
+    /**
+     * Единая точка смены статуса: заодно ведёт время подключения и счётчики
+     * трафика. Трафик считается по UID приложения, поэтому сбрасывается
+     * в ноль на каждом новом подключении.
+     */
+    private fun observeStatus(status: VpnStatus) {
+        _status.value = status
+        when (status) {
+            is VpnStatus.Running -> {
+                if (_connectedSince.value == null) {
+                    _connectedSince.value = System.currentTimeMillis()
+                    AppLog.i("VpnConnector: подключение установлено — старт счётчиков")
+                }
+                startTrafficPolling()
+            }
+
+            is VpnStatus.Starting -> resetConnectionCounters()
+            is VpnStatus.Stopped, is VpnStatus.Error -> resetConnectionCounters()
+        }
+    }
+
+    private fun resetConnectionCounters() {
+        trafficJob?.cancel()
+        trafficJob = null
+        _connectedSince.value = null
+        _traffic.value = VpnTraffic()
+    }
+
+    private fun startTrafficPolling() {
+        if (trafficJob?.isActive == true) return
+        trafficJob = scope.launch {
+            val uid = Process.myUid()
+            val startRx = uidRxBytes(uid)
+            val startTx = uidTxBytes(uid)
+            while (isActive) {
+                delay(TRAFFIC_POLL_INTERVAL_MS)
+                _traffic.value = VpnTraffic(
+                    sentBytes = (uidTxBytes(uid) - startTx).coerceAtLeast(0L),
+                    receivedBytes = (uidRxBytes(uid) - startRx).coerceAtLeast(0L),
+                )
+            }
+        }
+    }
+
+    private fun uidRxBytes(uid: Int): Long = TrafficStats.getUidRxBytes(uid).takeIf { it >= 0 } ?: 0L
+
+    private fun uidTxBytes(uid: Int): Long = TrafficStats.getUidTxBytes(uid).takeIf { it >= 0 } ?: 0L
 
     // ── чтение состояния ────────────────────────────────────────────────────
 

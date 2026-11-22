@@ -2,6 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Сканирование QR-кода с подпиской в диалоге «Добавить». -->
+    <uses-permission android:name="android.permission.CAMERA" />
     <!-- Автоподключение после перезагрузки устройства. -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <!-- FOREGROUND_SERVICE(+SYSTEM_EXEMPTED) объявляет модуль :vpn — там VpnService. -->

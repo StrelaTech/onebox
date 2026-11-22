@@ -14,15 +14,17 @@ object ServerJsonParser {
      * на сервер: нет адреса, порта или он вне диапазона.
      */
     fun parse(obj: JSONObject): Server? {
-        val address = obj.optString("address").trim()
+        val protocol = protocol(obj.optString("protocol"))
+        // Freedom — прямое подключение: адрес и порт у него служебные.
+        val address = obj.optString("address").trim().ifEmpty { if (protocol.isDirect) "direct" else "" }
         if (address.isEmpty()) return null
-        val port = obj.optString("port").trim().toIntOrNull() ?: return null
-        if (port !in 1..65535) return null
+        val port = obj.optString("port").trim().toIntOrNull() ?: 0
+        if (!protocol.isDirect && port !in 1..65535) return null
 
         return Server(
             id = obj.optString("id").trim().ifEmpty { newId() },
-            name = obj.optString("name").trim().ifEmpty { "$address:$port" },
-            protocol = protocol(obj.optString("protocol")),
+            name = obj.optString("name").trim().ifEmpty { if (protocol.isDirect) "Freedom" else "$address:$port" },
+            protocol = protocol,
             address = address,
             port = port,
             credential = obj.optString("credential"),

@@ -22,8 +22,8 @@ android {
         applicationId = "com.strela.onebox"
         minSdk = 24
         targetSdk = 37
-        versionCode = 260005
-        versionName = "26.0.5"
+        versionCode = 260006
+        versionName = "26.0.6"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 

@@ -28,7 +28,24 @@ object XrayConfigParser {
      */
     fun parse(json: String, name: String? = null): Server? {
         val obj = runCatching { JSONObject(json) }.getOrNull() ?: return null
-        val proxy = obj.optJSONArray("outbounds")?.let(::proxyOutbound) ?: return null
+        val outbounds = obj.optJSONArray("outbounds")
+        val proxy = outbounds?.let(::proxyOutbound)
+
+        // Конфиг только с freedom — это прямое подключение без прокси-сервера.
+        // Поддерживаем его как отдельный профиль: ядро получит исходный
+        // JSON-снапшот (routing/dns провайдера), а не пересобранный конфиг.
+        if (proxy == null) {
+            if (outbounds == null || freedomOutbound(outbounds) == null) return null
+            return Server(
+                id = UUID.randomUUID().toString(),
+                name = name?.trim()?.takeIf(String::isNotEmpty) ?: "Freedom",
+                protocol = Server.Protocol.FREEDOM,
+                address = "direct",
+                port = 0,
+                rawUrl = "",
+                json = json,
+            )
+        }
 
         val endpoint = endpointOf(proxy) ?: return null
         val stream = proxy.optJSONObject("streamSettings").orEmpty()
@@ -65,6 +82,15 @@ object XrayConfigParser {
         for (i in 0 until outbounds.length()) {
             val outbound = outbounds.optJSONObject(i) ?: continue
             if (outbound.optString("protocol").lowercase() in PROXY_PROTOCOLS) return outbound
+        }
+        return null
+    }
+
+    /** Outbound прямого подключения (freedom) — профиль «без прокси». */
+    private fun freedomOutbound(outbounds: JSONArray): JSONObject? {
+        for (i in 0 until outbounds.length()) {
+            val outbound = outbounds.optJSONObject(i) ?: continue
+            if (outbound.optString("protocol").equals("freedom", ignoreCase = true)) return outbound
         }
         return null
     }
@@ -145,6 +171,7 @@ object XrayConfigParser {
             "SHADOWSOCKS" -> Server.Protocol.SHADOWSOCKS
             "SOCKS" -> Server.Protocol.SOCKS
             "HYSTERIA" -> Server.Protocol.HYSTERIA2
+            "FREEDOM" -> Server.Protocol.FREEDOM
             else -> Server.Protocol.UNKNOWN
         }
 

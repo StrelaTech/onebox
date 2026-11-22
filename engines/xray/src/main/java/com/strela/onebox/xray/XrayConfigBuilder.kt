@@ -51,6 +51,8 @@ object XrayConfigBuilder {
             Server.Protocol.SHADOWSOCKS -> shadowsocks(server)
             Server.Protocol.SOCKS -> socks(server)
             Server.Protocol.HYSTERIA2 -> hysteria(server)
+            // Freedom (direct) и неизвестный протокол — прямое подключение.
+            Server.Protocol.FREEDOM,
             Server.Protocol.UNKNOWN -> JSONObject().put("protocol", "freedom")
         }
         main.put("tag", "proxy")

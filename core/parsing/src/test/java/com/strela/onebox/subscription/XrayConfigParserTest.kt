@@ -228,9 +228,20 @@ class XrayConfigParserTest {
     }
 
     @Test
+    fun `конфиг только с freedom разбирается как прямое подключение`() {
+        val json = """{ "outbounds": [ { "protocol": "freedom", "tag": "direct" } ] }"""
+
+        val server = XrayConfigParser.parse(json, "Прямой")!!
+
+        assertEquals(Server.Protocol.FREEDOM, server.protocol)
+        assertEquals("Прямой", server.name)
+        assertEquals("direct", server.endpoint)
+        assertEquals(json, server.json)
+    }
+
+    @Test
     fun `мусор и конфиг без проксирующего outbound не разбираются`() {
         assertNull(XrayConfigParser.parse("не json"))
-        assertNull(XrayConfigParser.parse("""{ "outbounds": [ { "protocol": "freedom" } ] }"""))
         assertNull(XrayConfigParser.parse("""{ "log": {} }"""))
         // нет адреса
         assertNull(XrayConfigParser.parse(

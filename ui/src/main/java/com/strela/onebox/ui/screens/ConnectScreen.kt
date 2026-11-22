@@ -16,12 +16,16 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
@@ -31,6 +35,9 @@ import com.strela.onebox.subscription.Server
 import com.strela.onebox.api.PingState
 import com.strela.onebox.api.VpnConnector
 import com.strela.onebox.api.VpnStatus
+import com.strela.onebox.api.VpnTraffic
+import java.util.Locale
+import kotlinx.coroutines.delay
 import com.strela.onebox.subscription.Subscription
 import com.strela.onebox.subscription.SubscriptionStore
 import com.strela.onebox.ui.OneBoxTheme
@@ -64,6 +71,8 @@ fun ConnectScreen(
 ) {
     val context = LocalContext.current
     val status by VpnConnector.status.collectAsState()
+    val connectedSince by VpnConnector.connectedSince.collectAsState()
+    val traffic by VpnConnector.traffic.collectAsState()
     val subscriptions by SubscriptionStore.subscriptions.collectAsState()
     val selectedSubscriptionId by SubscriptionStore.selectedSubscriptionId.collectAsState()
     val pings by VpnConnector.pings.collectAsState()
@@ -79,6 +88,8 @@ fun ConnectScreen(
         Spacer(Modifier.height(8.dp))
         ConnectHero(
             status = status,
+            connectedSince = connectedSince,
+            traffic = traffic,
             onStartVpn = onStartVpn,
             onStopVpn = onStopVpn,
         )
@@ -106,6 +117,8 @@ fun ConnectScreen(
 @Composable
 private fun ConnectHero(
     status: VpnStatus,
+    connectedSince: Long?,
+    traffic: VpnTraffic,
     onStartVpn: () -> Unit,
     onStopVpn: () -> Unit,
 ) {
@@ -151,6 +164,14 @@ private fun ConnectHero(
                 color = colors.onSurfaceContainerVariant,
                 textAlign = TextAlign.Center,
             )
+
+            // Время подключения и живой счётчик трафика — только когда туннель поднят
+            if (status is VpnStatus.Running) {
+                ConnectionStats(
+                    connectedSince = connectedSince,
+                    traffic = traffic,
+                )
+            }
 
             if (status is VpnStatus.Error) {
                 Spacer(Modifier.height(16.dp))
@@ -365,6 +386,118 @@ private fun SubscriptionServersSection(
         onPing = onPing,
         onPingAll = { subscription.servers.forEach { VpnConnector.pingServer(it) } },
     )
+}
+
+/** Время подключения и трафик текущей сессии. */
+@Composable
+private fun ConnectionStats(connectedSince: Long?, traffic: VpnTraffic) {
+    val colors = OneBoxTheme.colorScheme
+    val s = strings
+    val elapsed = rememberElapsedMillis(connectedSince)
+
+    Spacer(Modifier.height(18.dp))
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        color = colors.surfaceContainerHigh,
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 11.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            StatItem(
+                icon = SuiIcons.Timer,
+                label = s.connectionTimeLabel,
+                value = formatDuration(elapsed),
+                tint = colors.primary,
+                modifier = Modifier.weight(1f),
+            )
+            StatItem(
+                icon = SuiIcons.Upload,
+                label = s.trafficSentLabel,
+                value = s.formatBytes(traffic.sentBytes),
+                tint = colors.primary,
+                modifier = Modifier.weight(1f),
+            )
+            StatItem(
+                icon = SuiIcons.Download,
+                label = s.trafficReceivedLabel,
+                value = s.formatBytes(traffic.receivedBytes),
+                tint = colors.primary,
+                modifier = Modifier.weight(1f),
+            )
+        }
+    }
+}
+
+@Composable
+private fun StatItem(
+    icon: ImageVector,
+    label: String,
+    value: String,
+    tint: Color,
+    modifier: Modifier = Modifier,
+) {
+    val colors = OneBoxTheme.colorScheme
+
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(13.dp),
+                tint = tint,
+            )
+            Text(
+                text = label,
+                style = OneBoxTheme.textStyles.footnote2,
+                color = colors.onSurfaceContainerVariant,
+                maxLines = 1,
+            )
+        }
+        Text(
+            text = value,
+            style = OneBoxTheme.textStyles.footnote1,
+            color = colors.onSurfaceContainer,
+            maxLines = 1,
+            modifier = Modifier.padding(top = 2.dp),
+        )
+    }
+}
+
+/** Тикающее «сейчас» раз в секунду, пока открыт экран подключения. */
+@Composable
+private fun rememberElapsedMillis(since: Long?): Long {
+    var now by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    LaunchedEffect(since) {
+        while (since != null) {
+            now = System.currentTimeMillis()
+            delay(1000)
+        }
+    }
+    return since?.let { (now - it).coerceAtLeast(0L) } ?: 0L
+}
+
+/** ЧЧ:ММ:СС; до часа — ММ:СС. */
+private fun formatDuration(millis: Long): String {
+    val totalSeconds = millis / 1000
+    val hours = totalSeconds / 3600
+    val minutes = (totalSeconds % 3600) / 60
+    val seconds = totalSeconds % 60
+    return if (hours > 0) {
+        String.format(Locale.US, "%d:%02d:%02d", hours, minutes, seconds)
+    } else {
+        String.format(Locale.US, "%02d:%02d", minutes, seconds)
+    }
 }
 
 private val RunningColor = Color(0xFF34C759)

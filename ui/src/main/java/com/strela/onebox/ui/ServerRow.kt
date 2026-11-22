@@ -105,9 +105,14 @@ fun ServerRow(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
                     Badge(server.protocol.displayName)
-                    val transport = buildString {
-                        append(server.network)
-                        if (server.security != "none") append(" / ").append(server.security)
+                    val transport = if (server.protocol.isDirect) {
+                        // Freedom — прямое подключение, транспорта нет
+                        "direct"
+                    } else {
+                        buildString {
+                            append(server.network)
+                            if (server.security != "none") append(" / ").append(server.security)
+                        }
                     }
                     Text(
                         text = transport,
@@ -206,7 +211,7 @@ private fun PingControl(ping: PingState?, onPing: () -> Unit) {
                     imageVector = if (ping is PingState.Failed) {
                         SuiIcons.Close
                     } else {
-                        SuiIcons.Zap
+                        SuiIcons.Activity
                     },
                     contentDescription = null,
                     modifier = Modifier.size(14.dp),

@@ -381,11 +381,15 @@ private fun Server.sameServerAs(other: Server): Boolean =
         port == other.port &&
         credential == other.credential
 
-/** Убирает дубликаты серверов, сохраняя порядок и первое вхождение. */
+/**
+ * Убирает дубликаты серверов, сохраняя порядок и первое вхождение.
+ * Серверы из JSON-конфигов не схлопываются: каждый объект JSON-массива —
+ * отдельный сервер, даже если объекты совпадают.
+ */
 private fun List<Server>.distinctByServer(): List<Server> {
     val unique = mutableListOf<Server>()
     for (server in this) {
-        if (unique.none { it.sameServerAs(server) }) unique.add(server)
+        if (server.json.isNotBlank() || unique.none { it.sameServerAs(server) }) unique.add(server)
     }
     return unique
 }

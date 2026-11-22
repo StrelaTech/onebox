@@ -211,7 +211,13 @@ object XrayEngine : VpnCore {
 
         Thread {
             try {
-                if (method == PingMethod.TCP || method == PingMethod.ICMP) {
+                if (server.protocol.isDirect) {
+                    // Freedom — прямое подключение: меряем задержку до опорного
+                    // узла, прокси-сервера у такого профиля нет.
+                    val ms = Xray.ping("tcp", "1.1.1.1", 443L, timeoutMs, options.testUrl)
+                    AppLog.i("pingServer(direct): ${server.name} → $ms мс")
+                    setPing(server.id, PingState.Ok(ms))
+                } else if (method == PingMethod.TCP || method == PingMethod.ICMP) {
                     pingDirect(server, method, options, timeoutMs)
                 } else {
                     pingThroughCore(server, method, options, timeoutMs)
